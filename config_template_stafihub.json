@@ -1,0 +1,20 @@
+{
+  "chains": [
+    {
+      "name": "stafi-hub",
+      "type": "stafiHub",
+      "endpoint": "http://127.0.0.1:26657",
+      "rsymbol": "fis",
+      "keystorePath": "/Users/tpkeeper/.stafihub",
+      "opts": {
+        "latestBlockFlag": false,
+        "eraBlockNumber": "100",
+        "blockstorePath": "/Users/tpkeeper/gowork/stafi/rtoken-relay/blockstore",
+        "chainId": "chain-AALfXF",
+        "denom": "fis",
+        "gasPrice": "0.00001fis",
+        "account": "key0"
+      }
+    }
+  ]
+}
