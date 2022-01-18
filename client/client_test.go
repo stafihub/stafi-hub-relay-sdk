@@ -15,7 +15,7 @@ import (
 	"github.com/JFJun/go-substrate-crypto/ss58"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	hubClient "github.com/stafiprotocol/rtoken-relay-stafihub/client"
+	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -94,7 +94,7 @@ func TestGetTxs(t *testing.T) {
 	for _, tx := range txs {
 		// t.Log(fmt.Sprintf("%+v", tx.Logs))
 		for _, log := range tx.Logs {
-			for _,event:=range log.Events{
+			for _, event := range log.Events {
 				t.Log(fmt.Sprintf("%+v", event))
 			}
 		}

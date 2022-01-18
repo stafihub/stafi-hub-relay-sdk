@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafiprotocol/rtoken-relay-core/config"
 	"github.com/stafiprotocol/rtoken-relay-core/core"
-	hubClient "github.com/stafiprotocol/rtoken-relay-stafihub/client"
+	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
 )
 
 type Connection struct {
