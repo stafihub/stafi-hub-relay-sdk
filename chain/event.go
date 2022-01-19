@@ -39,7 +39,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 	}
 	switch {
 	case event.Type == stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
-		e := EventEraPoolUpdated{
+		e := core.EventEraPoolUpdated{
 			Denom:       event.Attributes[0].Value,
 			LastEra:     event.Attributes[1].Value,
 			CurrentEra:  event.Attributes[2].Value,
@@ -52,7 +52,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonEraPoolUpdatedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeBondReported:
-		e := EventBondReported{
+		e := core.EventBondReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
 			LasterVoter: event.Attributes[2].Value,
@@ -63,7 +63,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonBondReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeActiveReported:
-		e := EventActiveReported{
+		e := core.EventActiveReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
 			LasterVoter: event.Attributes[2].Value,
@@ -74,7 +74,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
-		e := EventWithdrawReported{
+		e := core.EventWithdrawReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
 			LasterVoter: event.Attributes[2].Value,
@@ -85,7 +85,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonWithdrawReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
-		e := EventTransferReported{
+		e := core.EventTransferReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
 			LasterVoter: event.Attributes[2].Value,
@@ -99,41 +99,4 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		return fmt.Errorf("not support event type: %s", event.Type)
 	}
 	return l.submitMessage(&m)
-}
-
-type EventEraPoolUpdated struct {
-	Denom       string
-	LastEra     string
-	CurrentEra  string
-	ShotId      string
-	LasterVoter string
-	Snapshot    stafiHubXLedgerTypes.BondSnapshot
-}
-
-type EventBondReported struct {
-	Denom       string
-	ShotId      string
-	LasterVoter string
-	Snapshot    stafiHubXLedgerTypes.BondSnapshot
-}
-
-type EventActiveReported struct {
-	Denom       string
-	ShotId      string
-	LasterVoter string
-	Snapshot    stafiHubXLedgerTypes.BondSnapshot
-}
-
-type EventWithdrawReported struct {
-	Denom       string
-	ShotId      string
-	LasterVoter string
-	Snapshot    stafiHubXLedgerTypes.BondSnapshot
-	PoolUnbond  stafiHubXLedgerTypes.PoolUnbond
-}
-
-type EventTransferReported struct {
-	Denom       string
-	ShotId      string
-	LasterVoter string
 }

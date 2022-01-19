@@ -10,7 +10,7 @@ require (
 	github.com/ethereum/go-ethereum v1.10.15
 	github.com/spf13/cobra v1.2.1
 	github.com/stafiprotocol/chainbridge v1.0.0
-	github.com/stafiprotocol/rtoken-relay-core v0.0.0-20220118164345-8369b90b3f5f
+	github.com/stafiprotocol/rtoken-relay-core v0.0.0-20220119015451-810fecf6940d
 	github.com/stafiprotocol/stafihub v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.14
