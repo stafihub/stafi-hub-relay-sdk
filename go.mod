@@ -10,8 +10,8 @@ require (
 	github.com/ethereum/go-ethereum v1.10.15
 	github.com/spf13/cobra v1.2.1
 	github.com/stafiprotocol/chainbridge v1.0.0
-	github.com/stafiprotocol/rtoken-relay-core v0.0.0-20220119015451-810fecf6940d
-	github.com/stafiprotocol/stafihub v0.0.0-00010101000000-000000000000
+	github.com/stafiprotocol/rtoken-relay-core v0.0.0-20220119152215-ea3af94663f3
+	github.com/stafiprotocol/stafihub v0.0.0-20220118075320-c95ccf0c0913
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.14
 )
@@ -120,5 +120,4 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.6
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
-	github.com/stafiprotocol/stafihub => github.com/stafiprotocol/stafi-hub v0.0.0-20220118075320-c95ccf0c0913
 )

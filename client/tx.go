@@ -4,8 +4,11 @@ import (
 	"fmt"
 	clientTx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	xAuthClient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/spf13/cobra"
+	stafiHubXRvoteTypes "github.com/stafiprotocol/stafihub/x/rvote/types"
 )
 
 func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) error {
@@ -23,4 +26,59 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 		return "", fmt.Errorf("broadcast err with res.code: %d", res.Code)
 	}
 	return res.TxHash, nil
+}
+
+func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
+	account, err := c.GetAccount()
+	if err != nil {
+		return nil, err
+	}
+	cmd := cobra.Command{}
+	txf := clientTx.NewFactoryCLI(c.clientCtx, cmd.Flags())
+	txf = txf.WithSequence(account.GetSequence()).
+		WithAccountNumber(account.GetAccountNumber()).
+		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT). //multi sig need this mod
+		WithGasAdjustment(1.5).
+		WithGas(0).
+		WithGasPrices(c.gasPrice).
+		WithSimulateAndExecute(true)
+
+	//auto cal gas
+	_, adjusted, err := clientTx.CalculateGas(c.clientCtx, txf, msgs...)
+	if err != nil {
+		return nil, err
+	}
+	txf = txf.WithGas(adjusted)
+
+	txBuilderRaw, err := clientTx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		return nil, err
+	}
+
+	err = xAuthClient.SignTx(txf, c.clientCtx, c.clientCtx.GetFromName(), txBuilderRaw, true, true)
+	if err != nil {
+		return nil, err
+	}
+
+	txBytes, err := c.clientCtx.TxConfig.TxEncoder()(txBuilderRaw.GetTx())
+	if err != nil {
+		return nil, err
+	}
+	return txBytes, nil
+}
+
+func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, error) {
+	msg, err := stafiHubXRvoteTypes.NewMsgSubmitProposal(c.clientCtx.GetFromAddress(), content)
+	if err != nil {
+		return "", err
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return "", err
+	}
+	txBts, err := c.ConstructAndSignTx(msg)
+	if err != nil {
+		return "", err
+	}
+	return c.BroadcastTx(txBts)
 }

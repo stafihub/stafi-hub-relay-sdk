@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/ChainSafe/log15"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafiprotocol/rtoken-relay-core/core"
+	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
 )
 
 const msgLimit = 4096
@@ -53,9 +55,9 @@ func (w *Handler) msgHandler() {
 			w.log.Info("msgHandler stop")
 			return
 		case msg := <-w.msgChan:
-			ok := w.handleMessage(msg)
-			if !ok {
-				w.sysErrChan <- fmt.Errorf("resolveMessage process failed. %+v", msg)
+			err := w.handleMessage(msg)
+			if err != nil {
+				w.sysErrChan <- fmt.Errorf("resolveMessage process failed.err: %s, msg: %+v", err, msg)
 				return
 			}
 		}
@@ -63,17 +65,95 @@ func (w *Handler) msgHandler() {
 }
 
 //resolve msg from other chains
-func (w *Handler) handleMessage(m *core.Message) (processOk bool) {
+func (w *Handler) handleMessage(m *core.Message) error {
 	switch m.Reason {
-	case core.ReasonLiquidityBondResult:
-	case core.ReasonBondReportedEvent:
+	case core.ReasonExeLiquidityBond:
+		return w.handleExeLiquidityBond(m)
+	case core.ReasonBondReport:
+		return w.handleBondReport(m)
 	case core.ReasonActiveReport:
+		return w.handleActiveReport(m)
 	case core.ReasonWithdrawReport:
+		return w.handleWithdrawReport(m)
 	case core.ReasonTransferReport:
+		return w.handleTransferReport(m)
 	case core.ReasonSubmitSignature:
 	default:
-		w.log.Warn("message reason unsupported", "reason", m.Reason)
-		return false
+		return fmt.Errorf("message reason unsupported reason: %s", m.Reason)
 	}
-	return true
+	return nil
+}
+
+func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
+	proposal, ok := m.Content.(core.ProposalExeLiquidityBond)
+	if !ok {
+		return fmt.Errorf("ProposalLiquidityBond cast failed, %+v", m)
+	}
+	bonder, err := types.AccAddressFromBech32(proposal.Bonder)
+	if err != nil {
+		return err
+	}
+	content := stafiHubXLedgerTypes.NewExecuteBondProposal(w.conn.client.GetFromAddress(), proposal.Denom, bonder, proposal.Pool, proposal.Blockhash, proposal.Txhash, proposal.Amount)
+	txHash, err := w.conn.client.SubmitProposal(content)
+	if err != nil {
+		return err
+	}
+	w.log.Info("submitProposl", "tx hash", txHash)
+	return nil
+}
+
+func (w *Handler) handleBondReport(m *core.Message) error {
+	proposal, ok := m.Content.(core.ProposalBondReport)
+	if !ok {
+		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
+	}
+	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
+	txHash, err := w.conn.client.SubmitProposal(content)
+	if err != nil {
+		return err
+	}
+	w.log.Info("submitProposl", "tx hash", txHash)
+	return nil
+}
+
+func (w *Handler) handleActiveReport(m *core.Message) error {
+	proposal, ok := m.Content.(core.ProposalActiveReport)
+	if !ok {
+		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
+	}
+	content := stafiHubXLedgerTypes.NewActiveReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Staked, proposal.Unstaked)
+	txHash, err := w.conn.client.SubmitProposal(content)
+	if err != nil {
+		return err
+	}
+	w.log.Info("submitProposl", "tx hash", txHash)
+	return nil
+}
+
+func (w *Handler) handleWithdrawReport(m *core.Message) error {
+	proposal, ok := m.Content.(core.ProposalWithdrawReport)
+	if !ok {
+		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
+	}
+	content := stafiHubXLedgerTypes.NewWithdrawReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
+	txHash, err := w.conn.client.SubmitProposal(content)
+	if err != nil {
+		return err
+	}
+	w.log.Info("submitProposl", "tx hash", txHash)
+	return nil
+}
+
+func (w *Handler) handleTransferReport(m *core.Message) error {
+	proposal, ok := m.Content.(core.ProposalTransferReport)
+	if !ok {
+		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
+	}
+	content := stafiHubXLedgerTypes.NewTransferReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
+	txHash, err := w.conn.client.SubmitProposal(content)
+	if err != nil {
+		return err
+	}
+	w.log.Info("submitProposl", "tx hash", txHash)
+	return nil
 }

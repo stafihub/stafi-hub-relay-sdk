@@ -114,6 +114,10 @@ func (c *Client) GetFromName() string {
 	return c.clientCtx.FromName
 }
 
+func (c *Client) GetFromAddress() types.AccAddress {
+	return c.clientCtx.FromAddress
+}
+
 func (c *Client) setGasPrice(gasPrice string) error {
 	_, err := types.ParseDecCoins(gasPrice)
 	if err != nil {
