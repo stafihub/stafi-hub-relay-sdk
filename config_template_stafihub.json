@@ -7,9 +7,8 @@
       "rsymbol": "fis",
       "keystorePath": "/Users/tpkeeper/.stafihub",
       "opts": {
-        "latestBlockFlag": false,
-        "eraBlockNumber": "100",
         "blockstorePath": "/Users/tpkeeper/gowork/stafi/rtoken-relay/blockstore",
+        "startBlock": 50,
         "chainId": "chain-AALfXF",
         "denom": "fis",
         "gasPrice": "0.00001fis",

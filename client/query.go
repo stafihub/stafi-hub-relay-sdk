@@ -204,6 +204,10 @@ func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
 	return searchTxs.GetTxs(), nil
 }
 
+func Retry(f func() (interface{}, error)) (interface{}, error) {
+	return retry(f)
+}
+
 //only retry func when return connection err here
 func retry(f func() (interface{}, error)) (interface{}, error) {
 	var err error

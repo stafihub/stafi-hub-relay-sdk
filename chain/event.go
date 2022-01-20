@@ -1,6 +1,7 @@
 package chain
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -20,7 +21,6 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 	for _, tx := range txs {
 		for _, log := range tx.Logs {
 			for _, event := range log.Events {
-				//commonly the number of events we will handle in a block is less or equal to 1
 				err := l.processStringEvents(event)
 				if err != nil {
 					return err
@@ -49,8 +49,18 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
+		shotId, err := hex.DecodeString(e.ShotId)
+		if err != nil {
+			return err
+		}
+		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		if err != nil {
+			return err
+		}
+		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonEraPoolUpdatedEvent
 		m.Content = e
+
 	case event.Type == stafiHubXLedgerTypes.EventTypeBondReported:
 		e := core.EventBondReported{
 			Denom:       event.Attributes[0].Value,
@@ -60,6 +70,15 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
+		shotId, err := hex.DecodeString(e.ShotId)
+		if err != nil {
+			return err
+		}
+		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		if err != nil {
+			return err
+		}
+		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonBondReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeActiveReported:
@@ -71,6 +90,15 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
+		shotId, err := hex.DecodeString(e.ShotId)
+		if err != nil {
+			return err
+		}
+		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		if err != nil {
+			return err
+		}
+		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
@@ -82,6 +110,21 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
+		shotId, err := hex.DecodeString(e.ShotId)
+		if err != nil {
+			return err
+		}
+		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		if err != nil {
+			return err
+		}
+		unbondRes, err := l.conn.QueryPoolUnbond(e.Denom, snapshotRes.Shot.Pool, snapshotRes.Shot.Era)
+		if err != nil {
+			return err
+		}
+
+		e.Snapshot = snapshotRes.Shot
+		e.PoolUnbond = unbondRes.Unbond
 		m.Reason = core.ReasonWithdrawReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:

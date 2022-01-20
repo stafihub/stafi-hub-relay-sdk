@@ -8,7 +8,6 @@ import (
 	xAuthClient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/spf13/cobra"
-	stafiHubXRvoteTypes "github.com/stafiprotocol/stafihub/x/rvote/types"
 )
 
 func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) error {
@@ -65,20 +64,4 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 		return nil, err
 	}
 	return txBytes, nil
-}
-
-func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, error) {
-	msg, err := stafiHubXRvoteTypes.NewMsgSubmitProposal(c.clientCtx.GetFromAddress(), content)
-	if err != nil {
-		return "", err
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return "", err
-	}
-	txBts, err := c.ConstructAndSignTx(msg)
-	if err != nil {
-		return "", err
-	}
-	return c.BroadcastTx(txBts)
 }

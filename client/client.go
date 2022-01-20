@@ -89,6 +89,7 @@ func NewClient(k keyring.Keyring, chainId, fromName, gasPrice, denom, endPoint s
 			clientCtx: initClientCtx,
 			rpcClient: rpcClient,
 		}
+		retClient.setDenom(denom)
 	}
 	return retClient, nil
 }
@@ -145,4 +146,8 @@ func (c *Client) GetLegacyAmino() *codec.LegacyAmino {
 
 func (c *Client) Sign(fromName string, toBeSigned []byte) ([]byte, cryptoTypes.PubKey, error) {
 	return c.clientCtx.Keyring.Sign(fromName, toBeSigned)
+}
+
+func (c *Client) Ctx() client.Context {
+	return c.clientCtx
 }

@@ -32,7 +32,7 @@ func NewChain() *Chain {
 
 func (c *Chain) Initialize(cfg *config.RawChainConfig, logger log15.Logger, sysErr chan<- error) error {
 	stop := make(chan struct{})
-	conn, err := NewConnection(cfg, logger, stop)
+	conn, err := NewConnection(cfg, logger)
 	if err != nil {
 		return err
 	}
