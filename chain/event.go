@@ -3,11 +3,14 @@ package chain
 import (
 	"encoding/hex"
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafiprotocol/rtoken-relay-core/core"
 	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
 )
+
+const maxUint32 = ^uint32(0)
 
 func (l *Listener) processBlockEvents(currentBlock int64) error {
 	if currentBlock%100 == 0 {
@@ -39,10 +42,25 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 	}
 	switch {
 	case event.Type == stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
+		lastEra, err := strconv.Atoi(event.Attributes[1].Value)
+		if err != nil {
+			return err
+		}
+		if lastEra > int(maxUint32) {
+			return fmt.Errorf("last era too big %d", lastEra)
+		}
+		currentEra, err := strconv.Atoi(event.Attributes[2].Value)
+		if err != nil {
+			return err
+		}
+		if currentEra > int(maxUint32) {
+			return fmt.Errorf("current era too big %d", currentEra)
+		}
+
 		e := core.EventEraPoolUpdated{
 			Denom:       event.Attributes[0].Value,
-			LastEra:     event.Attributes[1].Value,
-			CurrentEra:  event.Attributes[2].Value,
+			LastEra:     uint32(lastEra),
+			CurrentEra:  uint32(currentEra),
 			ShotId:      event.Attributes[3].Value,
 			LasterVoter: event.Attributes[4].Value,
 		}
