@@ -2,6 +2,7 @@ package chain
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -11,6 +12,10 @@ import (
 )
 
 const maxUint32 = ^uint32(0)
+
+var (
+	ErrEventAttributeNumberUnMatch = errors.New("ErrEventAttributeNumberTooFew")
+)
 
 func (l *Listener) processBlockEvents(currentBlock int64) error {
 	if currentBlock%100 == 0 {
@@ -42,6 +47,10 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 	}
 	switch {
 	case event.Type == stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
+		if len(event.Attributes) != 5 {
+			return ErrEventAttributeNumberUnMatch
+		}
+
 		lastEra, err := strconv.Atoi(event.Attributes[1].Value)
 		if err != nil {
 			return err
@@ -80,6 +89,10 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Content = e
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeBondReported:
+		if len(event.Attributes) != 3 {
+			return ErrEventAttributeNumberUnMatch
+		}
+
 		e := core.EventBondReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
@@ -100,6 +113,10 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonBondReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeActiveReported:
+		if len(event.Attributes) != 3 {
+			return ErrEventAttributeNumberUnMatch
+		}
+
 		e := core.EventActiveReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
@@ -120,6 +137,10 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
+		if len(event.Attributes) != 3 {
+			return ErrEventAttributeNumberUnMatch
+		}
+
 		e := core.EventWithdrawReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
@@ -146,6 +167,10 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Reason = core.ReasonWithdrawReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
+		if len(event.Attributes) != 3 {
+			return ErrEventAttributeNumberUnMatch
+		}
+
 		e := core.EventTransferReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
