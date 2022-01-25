@@ -12,6 +12,7 @@ import (
 )
 
 const maxUint32 = ^uint32(0)
+const maxInt32 = int32(maxUint32 >> 1)
 
 var (
 	ErrEventAttributeNumberUnMatch = errors.New("ErrEventAttributeNumberTooFew")
@@ -55,15 +56,15 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if err != nil {
 			return err
 		}
-		if lastEra > int(maxUint32) {
-			return fmt.Errorf("last era too big %d", lastEra)
+		if int64(lastEra) > int64(maxUint32) {
+			return fmt.Errorf("last era overflow %d", lastEra)
 		}
 		currentEra, err := strconv.Atoi(event.Attributes[2].Value)
 		if err != nil {
 			return err
 		}
-		if currentEra > int(maxUint32) {
-			return fmt.Errorf("current era too big %d", currentEra)
+		if int64(currentEra) > int64(maxUint32) {
+			return fmt.Errorf("current era overflow %d", currentEra)
 		}
 
 		e := core.EventEraPoolUpdated{
@@ -80,7 +81,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if err != nil {
 			return err
 		}
-		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			return err
 		}
@@ -105,7 +106,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if err != nil {
 			return err
 		}
-		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			return err
 		}
@@ -129,7 +130,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if err != nil {
 			return err
 		}
-		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			return err
 		}
@@ -153,11 +154,11 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if err != nil {
 			return err
 		}
-		snapshotRes, err := l.conn.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			return err
 		}
-		unbondRes, err := l.conn.QueryPoolUnbond(e.Denom, snapshotRes.Shot.Pool, snapshotRes.Shot.Era)
+		unbondRes, err := l.conn.client.QueryPoolUnbond(e.Denom, snapshotRes.Shot.Pool, snapshotRes.Shot.Era)
 		if err != nil {
 			return err
 		}
@@ -181,6 +182,65 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		}
 		m.Reason = core.ReasonTransferReportedEvent
 		m.Content = e
+	case event.Type == stafiHubXLedgerTypes.EventTypeSignatureEnough:
+		if len(event.Attributes) != 5 {
+			return ErrEventAttributeNumberUnMatch
+		}
+
+		era, err := strconv.Atoi(event.Attributes[1].Value)
+		if err != nil {
+			return err
+		}
+		if int64(era) > int64(maxInt32) {
+			return fmt.Errorf("era overflow %d", era)
+		}
+
+		txType, err := strconv.Atoi(event.Attributes[3].Value)
+		if err != nil {
+			return err
+		}
+		if int64(txType) > int64(maxUint32) {
+			return fmt.Errorf("txType overflow %d", era)
+		}
+
+		proposalId, err := hex.DecodeString(event.Attributes[4].Value)
+		if err != nil {
+			return err
+		}
+
+		e := core.EventSignatureEnough{
+			Denom:      event.Attributes[0].Value,
+			Era:        uint32(era),
+			Pool:       event.Attributes[2].Value,
+			TxType:     stafiHubXLedgerTypes.OriginalTxType(txType),
+			ProposalId: proposalId,
+			Signatures: [][]byte{},
+			Threshold:  0,
+		}
+		if l.caredSymbol != core.RSymbol(e.Denom) {
+			return nil
+		}
+		poolDetail, err := l.conn.client.QueryPoolDetail(e.Denom, e.Pool)
+		if err != nil {
+			return err
+		}
+		e.Threshold = poolDetail.Detail.Threshold
+
+		signature, err := l.conn.client.QuerySignature(e.Denom, e.Pool, e.Era, e.TxType, e.ProposalId)
+		if err != nil {
+			return err
+		}
+		for _, v := range signature.Signature.GetSigs() {
+			sigBts, err := hex.DecodeString(v)
+			if err != nil {
+				return err
+			}
+			e.Signatures = append(e.Signatures, sigBts)
+		}
+
+		m.Reason = core.ReasonTransferReportedEvent
+		m.Content = e
+
 	default:
 		return fmt.Errorf("not support event type: %s", event.Type)
 	}

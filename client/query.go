@@ -201,6 +201,9 @@ func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	if searchTxs.TotalCount != searchTxs.Count {
+		return nil, fmt.Errorf("tx total count overflow, total: %d", searchTxs.TotalCount)
+	}
 	return searchTxs.GetTxs(), nil
 }
 

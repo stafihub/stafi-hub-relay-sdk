@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,8 +11,6 @@ import (
 	"github.com/stafiprotocol/rtoken-relay-core/config"
 	"github.com/stafiprotocol/rtoken-relay-core/core"
 	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
-	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
-	stafiHubXRvoteTypes "github.com/stafiprotocol/stafihub/x/rvote/types"
 )
 
 type Connection struct {
@@ -48,52 +45,4 @@ func NewConnection(cfg *config.RawChainConfig, log log15.Logger) (*Connection, e
 		log:    log,
 	}
 	return &c, nil
-}
-
-func (c *Connection) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, error) {
-	msg, err := stafiHubXRvoteTypes.NewMsgSubmitProposal(c.client.GetFromAddress(), content)
-	if err != nil {
-		return "", err
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return "", err
-	}
-	txBts, err := c.client.ConstructAndSignTx(msg)
-	if err != nil {
-		return "", err
-	}
-	return c.client.BroadcastTx(txBts)
-}
-
-func (c *Connection) QuerySnapshot(shotId []byte) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.client.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetSnapshotRequest{
-		ShotId: shotId,
-	}
-
-	cc, err := hubClient.Retry(func() (interface{}, error) {
-		return queryClient.GetSnapshot(context.Background(), params)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return cc.(*stafiHubXLedgerTypes.QueryGetSnapshotResponse), nil
-}
-
-func (c *Connection) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedgerTypes.QueryGetPoolUnbondResponse, error) {
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.client.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetPoolUnbondRequest{
-		Denom: denom,
-		Pool:  pool,
-		Era:   era,
-	}
-
-	cc, err := hubClient.Retry(func() (interface{}, error) {
-		return queryClient.GetPoolUnbond(context.Background(), params)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return cc.(*stafiHubXLedgerTypes.QueryGetPoolUnbondResponse), nil
 }

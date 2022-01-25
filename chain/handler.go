@@ -41,6 +41,9 @@ func (w *Handler) start() error {
 
 //resolve msg from other chains
 func (w *Handler) HandleMessage(m *core.Message) {
+	switch m.Reason {
+	default:
+	}
 	w.queueMessage(m)
 }
 
@@ -80,10 +83,10 @@ func (w *Handler) handleMessage(m *core.Message) error {
 	case core.ReasonTransferReport:
 		return w.handleTransferReport(m)
 	case core.ReasonSubmitSignature:
+		return w.handleSubmitSignature(m)
 	default:
 		return fmt.Errorf("message reason unsupported reason: %s", m.Reason)
 	}
-	return nil
 }
 
 func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
@@ -96,7 +99,7 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 		return err
 	}
 	content := stafiHubXLedgerTypes.NewExecuteBondProposal(w.conn.client.GetFromAddress(), proposal.Denom, bonder, proposal.Pool, proposal.Blockhash, proposal.Txhash, proposal.Amount)
-	txHash, err := w.conn.SubmitProposal(content)
+	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
 		return err
 	}
@@ -110,7 +113,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 		return fmt.Errorf("ProposalSetChainEra cast failed, %+v", m)
 	}
 	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.Era)
-	txHash, err := w.conn.SubmitProposal(content)
+	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
 		return err
 	}
@@ -124,7 +127,7 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
 	}
 	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
-	txHash, err := w.conn.SubmitProposal(content)
+	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
 		return err
 	}
@@ -138,7 +141,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 		return fmt.Errorf("ProposalActiveReport cast failed, %+v", m)
 	}
 	content := stafiHubXLedgerTypes.NewActiveReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Staked, proposal.Unstaked)
-	txHash, err := w.conn.SubmitProposal(content)
+	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
 		return err
 	}
@@ -152,7 +155,7 @@ func (w *Handler) handleWithdrawReport(m *core.Message) error {
 		return fmt.Errorf("ProposalWithdrawReport cast failed, %+v", m)
 	}
 	content := stafiHubXLedgerTypes.NewWithdrawReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
-	txHash, err := w.conn.SubmitProposal(content)
+	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
 		return err
 	}
@@ -166,10 +169,24 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 		return fmt.Errorf("ProposalTransferReport cast failed, %+v", m)
 	}
 	content := stafiHubXLedgerTypes.NewTransferReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
-	txHash, err := w.conn.SubmitProposal(content)
+	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
 		return err
 	}
 	w.log.Info("submitProposl", "tx hash", txHash)
+	return nil
+}
+
+func (w *Handler) handleSubmitSignature(m *core.Message) error {
+	proposal, ok := m.Content.(core.ProposalSubmitSignature)
+	if !ok {
+		return fmt.Errorf("ProposalSubmitSignature cast failed, %+v", m)
+	}
+	msg := stafiHubXLedgerTypes.NewMsgSubmitSignature(w.conn.client.GetFromAddress().String(), proposal.Denom, proposal.Era, proposal.Pool, proposal.TxType, proposal.PropId, proposal.Signature)
+	txHash, err := w.conn.client.ConstructAndSignTx(msg)
+	if err != nil {
+		return err
+	}
+	w.log.Info("submitSignature", "tx hash", txHash)
 	return nil
 }
