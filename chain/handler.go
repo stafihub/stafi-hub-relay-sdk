@@ -42,7 +42,9 @@ func (w *Handler) start() error {
 //resolve msg from other chains
 func (w *Handler) HandleMessage(m *core.Message) {
 	switch m.Reason {
-	default:
+	case core.ReasonGetPools:
+		go w.handleGetPools(m)
+		return
 	}
 	w.queueMessage(m)
 }
@@ -188,5 +190,21 @@ func (w *Handler) handleSubmitSignature(m *core.Message) error {
 		return err
 	}
 	w.log.Info("submitSignature", "tx hash", txHash)
+	return nil
+}
+
+func (w *Handler) handleGetPools(m *core.Message) error {
+	getPools, ok := m.Content.(core.GetPools)
+	if !ok {
+		return fmt.Errorf("GetPools cast failed, %+v", m)
+	}
+	pools, err := w.conn.client.QueryPools(getPools.Denom)
+	if err != nil {
+		getPools.Pools <- []string{}
+		return err
+	}
+	getPools.Pools <- pools.GetAddrs()
+
+	w.log.Info("getPools", "pools", pools.GetAddrs())
 	return nil
 }

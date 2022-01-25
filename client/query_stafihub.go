@@ -71,3 +71,18 @@ func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubX
 	}
 	return cc.(*stafiHubXLedgerTypes.QueryGetSignatureResponse), nil
 }
+
+func (c *Client) QueryPools(denom string) (*stafiHubXLedgerTypes.QueryPoolsByDenomResponse, error) {
+	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXLedgerTypes.QueryPoolsByDenomRequest{
+		Denom: denom,
+	}
+
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.PoolsByDenom(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryPoolsByDenomResponse), nil
+}
