@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -19,17 +18,8 @@ type Connection struct {
 	log    log15.Logger
 }
 
-func NewConnection(cfg *config.RawChainConfig, log log15.Logger) (*Connection, error) {
-	bts, err := json.Marshal(cfg.Opts)
-	if err != nil {
-		return nil, err
-	}
-	option := ConfigOption{}
-	err = json.Unmarshal(bts, &option)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("Will open cosmos wallet from <%s>. \nPlease ", cfg.KeystorePath)
+func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log15.Logger) (*Connection, error) {
+	fmt.Printf("Will open stafihub wallet from <%s>. \nPlease ", cfg.KeystorePath)
 	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin)
 	if err != nil {
 		return nil, err
@@ -45,4 +35,7 @@ func NewConnection(cfg *config.RawChainConfig, log log15.Logger) (*Connection, e
 		log:    log,
 	}
 	return &c, nil
+}
+func (c *Connection) BlockStoreUseAddress() string {
+	return c.client.GetFromAddress().String()
 }

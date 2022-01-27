@@ -242,7 +242,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		m.Content = e
 
 	default:
-		return fmt.Errorf("not support event type: %s", event.Type)
+		return nil
 	}
 	return l.submitMessage(&m)
 }

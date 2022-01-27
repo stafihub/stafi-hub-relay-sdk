@@ -29,16 +29,17 @@ type Listener struct {
 	sysErrChan  chan<- error
 }
 
-func NewListener(name string, symbol core.RSymbol, startBlock uint64, bs blockstore.Blockstorer, conn *Connection, log log15.Logger, stopChan <-chan struct{}, sysErr chan<- error) *Listener {
+func NewListener(name string, symbol, caredSymbol core.RSymbol, startBlock uint64, bs blockstore.Blockstorer, conn *Connection, log log15.Logger, stopChan <-chan struct{}, sysErr chan<- error) *Listener {
 	return &Listener{
-		name:       name,
-		symbol:     symbol,
-		startBlock: startBlock,
-		blockstore: bs,
-		conn:       conn,
-		log:        log,
-		stopChan:   stopChan,
-		sysErrChan: sysErr,
+		name:        name,
+		symbol:      symbol,
+		caredSymbol: caredSymbol,
+		startBlock:  startBlock,
+		blockstore:  bs,
+		conn:        conn,
+		log:         log,
+		stopChan:    stopChan,
+		sysErrChan:  sysErr,
 	}
 }
 

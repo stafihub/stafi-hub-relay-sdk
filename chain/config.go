@@ -7,4 +7,5 @@ type ConfigOption struct {
 	Denom          string `json:"denom"`
 	GasPrice       string `json:"gasPrice"`
 	Account        string `json:"account"`
+	CaredSymbol    string `json:"caredSymbol"`
 }

@@ -1,12 +1,11 @@
 package chain
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/ChainSafe/log15"
-	"github.com/stafiprotocol/chainbridge/utils/blockstore"
-
 	"github.com/stafiprotocol/rtoken-relay-core/config"
 	"github.com/stafiprotocol/rtoken-relay-core/core"
 )
@@ -32,14 +31,32 @@ func NewChain() *Chain {
 
 func (c *Chain) Initialize(cfg *config.RawChainConfig, logger log15.Logger, sysErr chan<- error) error {
 	stop := make(chan struct{})
-	conn, err := NewConnection(cfg, logger)
+	bts, err := json.Marshal(cfg.Opts)
+	if err != nil {
+		return err
+	}
+	option := ConfigOption{}
+	err = json.Unmarshal(bts, &option)
+	if err != nil {
+		return err
+	}
+	conn, err := NewConnection(cfg, &option, logger)
 	if err != nil {
 		return err
 	}
 
-	bs := new(blockstore.Blockstore)
-	startBlock := uint64(0)
-	l := NewListener(cfg.Name, core.RSymbol(cfg.Rsymbol), startBlock, bs, conn, logger, stop, sysErr)
+	bs, err := NewBlockstore(option.BlockstorePath, conn.BlockStoreUseAddress())
+	if err != nil {
+		return err
+	}
+
+	var startBlk uint64
+	startBlk, err = StartBlock(bs, uint64(option.StartBlock))
+	if err != nil {
+		return err
+	}
+
+	l := NewListener(cfg.Name, core.RSymbol(cfg.Rsymbol), core.RSymbol(option.CaredSymbol), startBlk, bs, conn, logger, stop, sysErr)
 	h := NewHandler(conn, logger, stop, sysErr)
 
 	c.listener = l
