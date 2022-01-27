@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/stafiprotocol/chainbridge/utils/blockstore"
 	"github.com/stafiprotocol/chainbridge/utils/msg"
-	"strconv"
 )
 
 func NewBlockstore(bsCfg interface{}, relayer string) (*blockstore.Blockstore, error) {
