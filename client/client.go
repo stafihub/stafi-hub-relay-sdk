@@ -25,6 +25,7 @@ type Client struct {
 
 func NewClient(k keyring.Keyring, chainId, fromName, gasPrice, denom, endPoint string) (*Client, error) {
 	encodingConfig := MakeEncodingConfig()
+	SetPrefixes("fis")
 	var retClient *Client
 	if len(fromName) != 0 {
 		info, err := k.Key(fromName)
