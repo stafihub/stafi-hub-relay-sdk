@@ -1,19 +1,13 @@
 package chain
 
 import (
-	"errors"
 	"github.com/stafiprotocol/chainbridge/utils/blockstore"
 	"github.com/stafiprotocol/chainbridge/utils/msg"
 )
 
-func NewBlockstore(bsCfg interface{}, relayer string) (*blockstore.Blockstore, error) {
-	bsPath, ok := bsCfg.(string)
-	if !ok {
-		return nil, errors.New("blockstorePath not string")
-	}
-
+func NewBlockstore(path string, relayer string) (*blockstore.Blockstore, error) {
 	//todo change chainId for different rToken
-	return blockstore.NewBlockstore(bsPath, msg.ChainId(000), relayer)
+	return blockstore.NewBlockstore(path, msg.ChainId(000), relayer)
 }
 
 func StartBlock(bs *blockstore.Blockstore, blk uint64) (uint64, error) {

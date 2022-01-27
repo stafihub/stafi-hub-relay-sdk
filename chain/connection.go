@@ -36,6 +36,7 @@ func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log15.L
 	}
 	return &c, nil
 }
+
 func (c *Connection) BlockStoreUseAddress() string {
 	return c.client.GetFromAddress().String()
 }
