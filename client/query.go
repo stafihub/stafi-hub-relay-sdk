@@ -218,7 +218,7 @@ func retry(f func() (interface{}, error)) (interface{}, error) {
 	var err error
 	var result interface{}
 	for i := 0; i < retryLimit; i++ {
-		done := core.UseSdkConfigContext(accountPrefix)
+		done := core.UseSdkConfigContext(AccountPrefix)
 		result, err = f()
 		if err != nil && isConnectionError(err) {
 			done()

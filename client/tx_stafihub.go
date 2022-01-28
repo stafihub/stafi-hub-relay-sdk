@@ -6,7 +6,7 @@ import (
 )
 
 func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, error) {
-	done := core.UseSdkConfigContext(accountPrefix)
+	done := core.UseSdkConfigContext(AccountPrefix)
 	msg, err := stafiHubXRvoteTypes.NewMsgSubmitProposal(c.GetFromAddress(), content)
 	if err != nil {
 		done()
