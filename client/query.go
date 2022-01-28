@@ -3,6 +3,11 @@ package client
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/url"
+	"syscall"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -10,11 +15,8 @@ import (
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	xDistriTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	xStakeTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/stafiprotocol/rtoken-relay-core/common/core"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"net"
-	"net/url"
-	"syscall"
-	"time"
 )
 
 const retryLimit = 60
@@ -216,11 +218,14 @@ func retry(f func() (interface{}, error)) (interface{}, error) {
 	var err error
 	var result interface{}
 	for i := 0; i < retryLimit; i++ {
+		done := core.UseSdkConfigContext(accountPrefix)
 		result, err = f()
 		if err != nil && isConnectionError(err) {
+			done()
 			time.Sleep(waitTime)
 			continue
 		}
+		done()
 		return result, err
 	}
 	panic(fmt.Sprintf("reach retry limit. err: %s", err))

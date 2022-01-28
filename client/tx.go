@@ -2,21 +2,27 @@ package client
 
 import (
 	"fmt"
+
 	clientTx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	xAuthClient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/spf13/cobra"
+	"github.com/stafiprotocol/rtoken-relay-core/common/core"
 )
 
 func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) error {
+	done := core.UseSdkConfigContext(accountPrefix)
+	defer done()
 	msg := xBankTypes.NewMsgSend(c.clientCtx.GetFromAddress(), toAddr, amount)
 	cmd := cobra.Command{}
 	return clientTx.GenerateOrBroadcastTxCLI(c.clientCtx, cmd.Flags(), msg)
 }
 
 func (c *Client) BroadcastTx(tx []byte) (string, error) {
+	done := core.UseSdkConfigContext(accountPrefix)
+	defer done()
 	res, err := c.clientCtx.BroadcastTx(tx)
 	if err != nil {
 		return "", err
@@ -28,6 +34,8 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 }
 
 func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
+	done := core.UseSdkConfigContext(accountPrefix)
+	defer done()
 	account, err := c.GetAccount()
 	if err != nil {
 		return nil, err

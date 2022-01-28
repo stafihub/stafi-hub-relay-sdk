@@ -14,7 +14,9 @@ import (
 	"os"
 )
 
-//cosmos client
+const accountPrefix = "fis"
+
+//stafihub client
 type Client struct {
 	clientCtx     client.Context
 	rpcClient     rpcClient.Client
@@ -25,7 +27,6 @@ type Client struct {
 
 func NewClient(k keyring.Keyring, chainId, fromName, gasPrice, denom, endPoint string) (*Client, error) {
 	encodingConfig := MakeEncodingConfig()
-	SetPrefixes("fis")
 	var retClient *Client
 	if len(fromName) != 0 {
 		info, err := k.Key(fromName)
@@ -61,6 +62,7 @@ func NewClient(k keyring.Keyring, chainId, fromName, gasPrice, denom, endPoint s
 		if err != nil {
 			return nil, err
 		}
+
 		retClient.accountNumber = account.GetAccountNumber()
 
 		retClient.setDenom(denom)
