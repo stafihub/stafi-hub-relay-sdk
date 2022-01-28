@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/stafiprotocol/rtoken-relay-core/core"
+	"github.com/stafiprotocol/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
 )
 
