@@ -16,6 +16,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/ibc-go/modules/apps/transfer"
+	stafiHubXLedger "github.com/stafiprotocol/stafihub/x/ledger"
+	stafiHubXRelayer "github.com/stafiprotocol/stafihub/x/relayers"
+	stafiHubXRvote "github.com/stafiprotocol/stafihub/x/rvote"
+	stafiHubXSudo "github.com/stafiprotocol/stafihub/x/sudo"
 )
 
 // EncodingConfig specifies the concrete encoding types to use for a given app.
@@ -43,6 +47,10 @@ func MakeEncodingConfig() EncodingConfig {
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		transfer.AppModuleBasic{},
+		stafiHubXLedger.AppModuleBasic{},
+		stafiHubXSudo.AppModuleBasic{},
+		stafiHubXRvote.AppModuleBasic{},
+		stafiHubXRelayer.AppModuleBasic{},
 	)
 	moduleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	moduleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)

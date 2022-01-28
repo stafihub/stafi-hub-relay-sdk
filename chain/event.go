@@ -25,7 +25,7 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 
 	txs, err := l.conn.client.GetBlockTxs(currentBlock)
 	if err != nil {
-		return err
+		return fmt.Errorf("client.GetBlockTxs failed: %s", err)
 	}
 	for _, tx := range txs {
 		for _, log := range tx.Logs {
@@ -42,6 +42,7 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 }
 
 func (l *Listener) processStringEvents(event types.StringEvent) error {
+	l.log.Debug("processStringEvents", "event", event)
 	m := core.Message{
 		Source:      l.symbol,
 		Destination: l.caredSymbol,
