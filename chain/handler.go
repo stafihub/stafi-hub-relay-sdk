@@ -6,6 +6,7 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafiprotocol/rtoken-relay-core/common/core"
+	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
 )
 
@@ -124,14 +125,19 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 }
 
 func (w *Handler) handleBondReport(m *core.Message) error {
+	w.log.Info("handleBondReport", "msg", m)
 	proposal, ok := m.Content.(core.ProposalBondReport)
 	if !ok {
 		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
+	done()
+
 	txHash, err := w.conn.client.SubmitProposal(content)
 	if err != nil {
-		return err
+		return fmt.Errorf("client.SubmitProposal failed: %s", err)
 	}
 	w.log.Info("submitProposl", "tx hash", txHash)
 	return nil

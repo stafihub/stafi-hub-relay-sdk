@@ -11,7 +11,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stafiprotocol/rtoken-relay-core/common v0.0.0-20220128093945-d3a682ce6f3d
-	github.com/stafiprotocol/stafihub v0.0.0-20220126135208-b40519620a74
+	github.com/stafiprotocol/stafihub v0.0.0-20220128142239-2403db65977a
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.14
 )

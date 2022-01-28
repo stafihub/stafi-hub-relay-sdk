@@ -24,6 +24,8 @@ const waitTime = time.Millisecond * 500
 
 //no 0x prefix
 func (c *Client) QueryTxByHash(hashHexStr string) (*types.TxResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	cc, err := retry(func() (interface{}, error) {
 		return xAuthTx.QueryTx(c.clientCtx, hashHexStr)
 	})
@@ -34,6 +36,8 @@ func (c *Client) QueryTxByHash(hashHexStr string) (*types.TxResponse, error) {
 }
 
 func (c *Client) QueryDelegation(delegatorAddr types.AccAddress, validatorAddr types.ValAddress, height int64) (*xStakeTypes.QueryDelegationResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	client := c.clientCtx.WithHeight(height)
 	queryClient := xStakeTypes.NewQueryClient(client)
 	params := &xStakeTypes.QueryDelegationRequest{
@@ -51,6 +55,8 @@ func (c *Client) QueryDelegation(delegatorAddr types.AccAddress, validatorAddr t
 }
 
 func (c *Client) QueryUnbondingDelegation(delegatorAddr types.AccAddress, validatorAddr types.ValAddress, height int64) (*xStakeTypes.QueryUnbondingDelegationResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	client := c.clientCtx.WithHeight(height)
 	queryClient := xStakeTypes.NewQueryClient(client)
 	params := &xStakeTypes.QueryUnbondingDelegationRequest{
@@ -68,6 +74,8 @@ func (c *Client) QueryUnbondingDelegation(delegatorAddr types.AccAddress, valida
 }
 
 func (c *Client) QueryDelegations(delegatorAddr types.AccAddress, height int64) (*xStakeTypes.QueryDelegatorDelegationsResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	client := c.clientCtx.WithHeight(height)
 	queryClient := xStakeTypes.NewQueryClient(client)
 	params := &xStakeTypes.QueryDelegatorDelegationsRequest{
@@ -84,6 +92,8 @@ func (c *Client) QueryDelegations(delegatorAddr types.AccAddress, height int64) 
 }
 
 func (c *Client) QueryDelegationRewards(delegatorAddr types.AccAddress, validatorAddr types.ValAddress, height int64) (*xDistriTypes.QueryDelegationRewardsResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	client := c.clientCtx.WithHeight(height)
 	queryClient := xDistriTypes.NewQueryClient(client)
 	cc, err := retry(func() (interface{}, error) {
@@ -99,6 +109,8 @@ func (c *Client) QueryDelegationRewards(delegatorAddr types.AccAddress, validato
 }
 
 func (c *Client) QueryDelegationTotalRewards(delegatorAddr types.AccAddress, height int64) (*xDistriTypes.QueryDelegationTotalRewardsResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	client := c.clientCtx.WithHeight(height)
 	queryClient := xDistriTypes.NewQueryClient(client)
 
@@ -115,6 +127,8 @@ func (c *Client) QueryDelegationTotalRewards(delegatorAddr types.AccAddress, hei
 }
 
 func (c *Client) QueryBlock(height int64) (*ctypes.ResultBlock, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	node, err := c.clientCtx.GetNode()
 	if err != nil {
 		return nil, err
@@ -130,10 +144,14 @@ func (c *Client) QueryBlock(height int64) (*ctypes.ResultBlock, error) {
 }
 
 func (c *Client) QueryAccount(addr types.AccAddress) (client.Account, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	return c.getAccount(0, addr)
 }
 
 func (c *Client) GetSequence(height int64, addr types.AccAddress) (uint64, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	account, err := c.getAccount(height, addr)
 	if err != nil {
 		return 0, err
@@ -142,6 +160,8 @@ func (c *Client) GetSequence(height int64, addr types.AccAddress) (uint64, error
 }
 
 func (c *Client) QueryBalance(addr types.AccAddress, denom string, height int64) (*xBankTypes.QueryBalanceResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	client := c.clientCtx.WithHeight(height)
 	queryClient := xBankTypes.NewQueryClient(client)
 	params := xBankTypes.NewQueryBalanceRequest(addr, denom)
@@ -156,14 +176,16 @@ func (c *Client) QueryBalance(addr types.AccAddress, denom string, height int64)
 }
 
 func (c *Client) GetCurrentBlockHeight() (int64, error) {
-	status, err := c.GetStatus()
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+	status, err := c.getStatus()
 	if err != nil {
 		return 0, err
 	}
 	return status.SyncInfo.LatestBlockHeight, nil
 }
 
-func (c *Client) GetStatus() (*ctypes.ResultStatus, error) {
+func (c *Client) getStatus() (*ctypes.ResultStatus, error) {
 	cc, err := retry(func() (interface{}, error) {
 		return c.clientCtx.Client.Status(context.Background())
 	})
@@ -174,6 +196,8 @@ func (c *Client) GetStatus() (*ctypes.ResultStatus, error) {
 }
 
 func (c *Client) GetAccount() (client.Account, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	return c.getAccount(0, c.clientCtx.FromAddress)
 }
 
@@ -189,6 +213,8 @@ func (c *Client) getAccount(height int64, addr types.AccAddress) (client.Account
 }
 
 func (c *Client) GetTxs(events []string, page, limit int, orderBy string) (*types.SearchTxsResult, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
 	cc, err := retry(func() (interface{}, error) {
 		return xAuthTx.QueryTxsByEvents(c.clientCtx, events, page, limit, orderBy)
 	})
@@ -218,14 +244,11 @@ func retry(f func() (interface{}, error)) (interface{}, error) {
 	var err error
 	var result interface{}
 	for i := 0; i < retryLimit; i++ {
-		done := core.UseSdkConfigContext(AccountPrefix)
 		result, err = f()
 		if err != nil && isConnectionError(err) {
-			done()
 			time.Sleep(waitTime)
 			continue
 		}
-		done()
 		return result, err
 	}
 	panic(fmt.Sprintf("reach retry limit. err: %s", err))

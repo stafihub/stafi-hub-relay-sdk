@@ -64,6 +64,7 @@ func (c *Chain) Initialize(cfg *config.RawChainConfig, logger log15.Logger, sysE
 	c.conn = conn
 	c.name = cfg.Name
 	c.initialized = true
+	c.stop = stop
 	return nil
 }
 

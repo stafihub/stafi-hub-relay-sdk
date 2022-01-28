@@ -40,6 +40,7 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	}
 	done := core.UseSdkConfigContext(AccountPrefix)
 	defer done()
+
 	cmd := cobra.Command{}
 	txf := clientTx.NewFactoryCLI(c.clientCtx, cmd.Flags())
 	txf = txf.WithSequence(account.GetSequence()).
@@ -53,23 +54,23 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	//auto cal gas
 	_, adjusted, err := clientTx.CalculateGas(c.clientCtx, txf, msgs...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("clientTx.CalculateGas failed: %s", err)
 	}
 	txf = txf.WithGas(adjusted)
 
 	txBuilderRaw, err := clientTx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("clientTx.BuildUnsignedTx faild: %s", err)
 	}
 
 	err = xAuthClient.SignTx(txf, c.clientCtx, c.clientCtx.GetFromName(), txBuilderRaw, true, true)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("xAuthClient.SignTx failed: %s", err)
 	}
 
 	txBytes, err := c.clientCtx.TxConfig.TxEncoder()(txBuilderRaw.GetTx())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("TxConfig.TxEncoder failed: %s", err)
 	}
 	return txBytes, nil
 }

@@ -101,6 +101,7 @@ func (l *Listener) pollBlocks() error {
 			if err != nil {
 				l.log.Error("Failed to process events in block", "block", willDealBlock, "err", err)
 				retry--
+				time.Sleep(BlockRetryInterval)
 				continue
 			}
 
