@@ -67,7 +67,6 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if int64(currentEra) > int64(maxUint32) {
 			return fmt.Errorf("current era overflow %d", currentEra)
 		}
-
 		e := core.EventEraPoolUpdated{
 			Denom:       event.Attributes[0].Value,
 			LastEra:     uint32(lastEra),
@@ -78,6 +77,14 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
+		chainEra, err := l.conn.client.QueryChainEra(string(l.caredSymbol))
+		if err != nil {
+			return err
+		}
+		if chainEra.GetEra() != e.CurrentEra {
+			return nil
+		}
+
 		shotId, err := hex.DecodeString(e.ShotId)
 		if err != nil {
 			return err
@@ -85,6 +92,9 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			return err
+		}
+		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.EraUpdated {
+			return nil
 		}
 		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonEraPoolUpdatedEvent
@@ -103,6 +113,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
+
 		shotId, err := hex.DecodeString(e.ShotId)
 		if err != nil {
 			return err
@@ -110,6 +121,16 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			return err
+		}
+		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.BondReported {
+			return nil
+		}
+		chainEra, err := l.conn.client.QueryChainEra(string(l.caredSymbol))
+		if err != nil {
+			return err
+		}
+		if chainEra.GetEra() != snapshotRes.Shot.GetEra() {
+			return nil
 		}
 		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonBondReportedEvent
@@ -135,54 +156,69 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 		if err != nil {
 			return err
 		}
-		e.Snapshot = snapshotRes.Shot
-		m.Reason = core.ReasonActiveReportedEvent
-		m.Content = e
-	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
-		if len(event.Attributes) != 3 {
-			return ErrEventAttributeNumberUnMatch
-		}
-
-		e := core.EventWithdrawReported{
-			Denom:       event.Attributes[0].Value,
-			ShotId:      event.Attributes[1].Value,
-			LasterVoter: event.Attributes[2].Value,
-		}
-		if l.caredSymbol != core.RSymbol(e.Denom) {
+		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.ActiveReported {
 			return nil
 		}
-		shotId, err := hex.DecodeString(e.ShotId)
+		chainEra, err := l.conn.client.QueryChainEra(string(l.caredSymbol))
 		if err != nil {
 			return err
 		}
-		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
-		if err != nil {
-			return err
+		if chainEra.GetEra() != snapshotRes.Shot.GetEra() {
+			return nil
 		}
 		unbondRes, err := l.conn.client.QueryPoolUnbond(e.Denom, snapshotRes.Shot.Pool, snapshotRes.Shot.Era)
 		if err != nil {
 			return err
 		}
-
 		e.Snapshot = snapshotRes.Shot
 		e.PoolUnbond = unbondRes.Unbond
-		m.Reason = core.ReasonWithdrawReportedEvent
+		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
-	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
-		if len(event.Attributes) != 3 {
-			return ErrEventAttributeNumberUnMatch
-		}
+	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
+		// if len(event.Attributes) != 3 {
+		// 	return ErrEventAttributeNumberUnMatch
+		// }
 
-		e := core.EventTransferReported{
-			Denom:       event.Attributes[0].Value,
-			ShotId:      event.Attributes[1].Value,
-			LasterVoter: event.Attributes[2].Value,
-		}
-		if l.caredSymbol != core.RSymbol(e.Denom) {
-			return nil
-		}
-		m.Reason = core.ReasonTransferReportedEvent
-		m.Content = e
+		// e := core.EventWithdrawReported{
+		// 	Denom:       event.Attributes[0].Value,
+		// 	ShotId:      event.Attributes[1].Value,
+		// 	LasterVoter: event.Attributes[2].Value,
+		// }
+		// if l.caredSymbol != core.RSymbol(e.Denom) {
+		// 	return nil
+		// }
+		// shotId, err := hex.DecodeString(e.ShotId)
+		// if err != nil {
+		// 	return err
+		// }
+		// snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+		// if err != nil {
+		// 	return err
+		// }
+		// unbondRes, err := l.conn.client.QueryPoolUnbond(e.Denom, snapshotRes.Shot.Pool, snapshotRes.Shot.Era)
+		// if err != nil {
+		// 	return err
+		// }
+
+		// e.Snapshot = snapshotRes.Shot
+		// e.PoolUnbond = unbondRes.Unbond
+		// m.Reason = core.ReasonWithdrawReportedEvent
+		// m.Content = e
+	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
+		// if len(event.Attributes) != 3 {
+		// 	return ErrEventAttributeNumberUnMatch
+		// }
+
+		// e := core.EventTransferReported{
+		// 	Denom:       event.Attributes[0].Value,
+		// 	ShotId:      event.Attributes[1].Value,
+		// 	LasterVoter: event.Attributes[2].Value,
+		// }
+		// if l.caredSymbol != core.RSymbol(e.Denom) {
+		// 	return nil
+		// }
+		// m.Reason = core.ReasonTransferReportedEvent
+		// m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeSignatureEnough:
 		if len(event.Attributes) != 5 {
 			return ErrEventAttributeNumberUnMatch
@@ -216,7 +252,6 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 			TxType:     stafiHubXLedgerTypes.OriginalTxType(txType),
 			ProposalId: proposalId,
 			Signatures: [][]byte{},
-			Threshold:  0,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil

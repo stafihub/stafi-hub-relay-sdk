@@ -103,3 +103,63 @@ func (c *Client) QueryPools(denom string) (*stafiHubXLedgerTypes.QueryPoolsByDen
 	}
 	return cc.(*stafiHubXLedgerTypes.QueryPoolsByDenomResponse), nil
 }
+
+func (c *Client) QueryChainEra(denom string) (*stafiHubXLedgerTypes.QueryGetChainEraResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
+	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXLedgerTypes.QueryGetChainEraRequest{
+		Denom: denom,
+	}
+
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.GetChainEra(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryGetChainEraResponse), nil
+}
+
+func (c *Client) QueryEraSnapShotList(denom string, era uint32) (*stafiHubXLedgerTypes.QueryGetEraSnapshotResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
+	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
+		Denom: denom,
+		Era:   era,
+	}
+
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.GetEraSnapshot(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryGetEraSnapshotResponse), nil
+}
+
+func (c *Client) QueryEraContinuable(denom string, era uint32) (bool, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
+	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
+		Denom: denom,
+		Era:   era,
+	}
+
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.GetEraSnapshot(context.Background(), params)
+	})
+	if err != nil {
+		return false, err
+	}
+	res := cc.(*stafiHubXLedgerTypes.QueryGetEraSnapshotResponse)
+	if len(res.ShotIds) > 0 {
+		return false, nil
+	}
+	return true, nil
+}

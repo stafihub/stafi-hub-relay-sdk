@@ -114,13 +114,33 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 }
 
 func (w *Handler) handleNewChainEra(m *core.Message) error {
+	w.log.Debug("handleNewChainEra", "msg", m)
 	proposal, ok := m.Content.(core.ProposalSetChainEra)
 	if !ok {
 		return fmt.Errorf("ProposalSetChainEra cast failed, %+v", m)
 	}
 
+	chainEra, err := w.conn.client.QueryChainEra(proposal.Denom)
+	if err != nil {
+		return err
+	}
+
+	if chainEra.GetEra() >= proposal.Era {
+		return nil
+	}
+	continuable, err := w.conn.client.QueryEraContinuable(proposal.Denom, chainEra.GetEra())
+	if err != nil {
+		return err
+	}
+	if !continuable {
+		return nil
+	}
+
+	useEra := chainEra.GetEra() + 1
+	w.log.Info("will set newChainEra", "new era", useEra, "symbol", proposal.Denom)
+
 	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
-	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.Era)
+	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, useEra)
 	done()
 
 	txHash, txBts, err := w.conn.client.SubmitProposal(content)
