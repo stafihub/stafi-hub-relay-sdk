@@ -2,10 +2,15 @@ package client
 
 import (
 	"context"
+
+	"github.com/stafiprotocol/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
 )
 
 func (c *Client) QuerySnapshot(shotId []byte) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
 	params := &stafiHubXLedgerTypes.QueryGetSnapshotRequest{
 		ShotId: shotId,
@@ -21,6 +26,9 @@ func (c *Client) QuerySnapshot(shotId []byte) (*stafiHubXLedgerTypes.QueryGetSna
 }
 
 func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedgerTypes.QueryGetPoolUnbondResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
 	params := &stafiHubXLedgerTypes.QueryGetPoolUnbondRequest{
 		Denom: denom,
@@ -38,6 +46,9 @@ func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedg
 }
 
 func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.QueryGetPoolDetailResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
 	params := &stafiHubXLedgerTypes.QueryGetPoolDetailRequest{
 		Denom: denom,
@@ -54,6 +65,9 @@ func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.Quer
 }
 
 func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubXLedgerTypes.OriginalTxType, proposalId []byte) (*stafiHubXLedgerTypes.QueryGetSignatureResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
 	params := &stafiHubXLedgerTypes.QueryGetSignatureRequest{
 		Denom:  denom,
@@ -73,6 +87,9 @@ func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubX
 }
 
 func (c *Client) QueryPools(denom string) (*stafiHubXLedgerTypes.QueryPoolsByDenomResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
 	params := &stafiHubXLedgerTypes.QueryPoolsByDenomRequest{
 		Denom: denom,

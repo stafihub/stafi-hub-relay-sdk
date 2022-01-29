@@ -2,9 +2,11 @@ package chain
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/types"
+	errType "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafiprotocol/rtoken-relay-core/common/core"
 	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
@@ -97,17 +99,18 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalLiquidityBond cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	bonder, err := types.AccAddressFromBech32(proposal.Bonder)
 	if err != nil {
+		done()
 		return err
 	}
 	content := stafiHubXLedgerTypes.NewExecuteBondProposal(w.conn.client.GetFromAddress(), proposal.Denom, bonder, proposal.Pool, proposal.Blockhash, proposal.Txhash, proposal.Amount)
-	txHash, err := w.conn.client.SubmitProposal(content)
-	if err != nil {
-		return err
-	}
-	w.log.Info("submitProposl", "tx hash", txHash)
-	return nil
+	done()
+
+	txHash, txBts, err := w.conn.client.SubmitProposal(content)
+	return w.checkAndReSend(txHash, txBts, "executeBondProposal", err)
 }
 
 func (w *Handler) handleNewChainEra(m *core.Message) error {
@@ -115,13 +118,13 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalSetChainEra cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.Era)
-	txHash, err := w.conn.client.SubmitProposal(content)
-	if err != nil {
-		return err
-	}
-	w.log.Info("submitProposl", "tx hash", txHash)
-	return nil
+	done()
+
+	txHash, txBts, err := w.conn.client.SubmitProposal(content)
+	return w.checkAndReSend(txHash, txBts, "setChainEraProposal", err)
 }
 
 func (w *Handler) handleBondReport(m *core.Message) error {
@@ -135,12 +138,8 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
 	done()
 
-	txHash, err := w.conn.client.SubmitProposal(content)
-	if err != nil {
-		return fmt.Errorf("client.SubmitProposal failed: %s", err)
-	}
-	w.log.Info("submitProposl", "tx hash", txHash)
-	return nil
+	txHash, txBts, err := w.conn.client.SubmitProposal(content)
+	return w.checkAndReSend(txHash, txBts, "bondReportProposal", err)
 }
 
 func (w *Handler) handleActiveReport(m *core.Message) error {
@@ -148,13 +147,13 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalActiveReport cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	content := stafiHubXLedgerTypes.NewActiveReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Staked, proposal.Unstaked)
-	txHash, err := w.conn.client.SubmitProposal(content)
-	if err != nil {
-		return err
-	}
-	w.log.Info("submitProposl", "tx hash", txHash)
-	return nil
+	done()
+
+	txHash, txBts, err := w.conn.client.SubmitProposal(content)
+	return w.checkAndReSend(txHash, txBts, "activeReportProposal", err)
 }
 
 func (w *Handler) handleWithdrawReport(m *core.Message) error {
@@ -162,13 +161,13 @@ func (w *Handler) handleWithdrawReport(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalWithdrawReport cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	content := stafiHubXLedgerTypes.NewWithdrawReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
-	txHash, err := w.conn.client.SubmitProposal(content)
-	if err != nil {
-		return err
-	}
-	w.log.Info("submitProposl", "tx hash", txHash)
-	return nil
+	done()
+
+	txHash, txBts, err := w.conn.client.SubmitProposal(content)
+	return w.checkAndReSend(txHash, txBts, "withdrawReportProposal", err)
 }
 
 func (w *Handler) handleTransferReport(m *core.Message) error {
@@ -176,31 +175,31 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalTransferReport cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	content := stafiHubXLedgerTypes.NewTransferReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
-	txHash, err := w.conn.client.SubmitProposal(content)
-	if err != nil {
-		return err
-	}
-	w.log.Info("submitProposl", "tx hash", txHash)
-	return nil
+	done()
+
+	txHash, txBts, err := w.conn.client.SubmitProposal(content)
+	return w.checkAndReSend(txHash, txBts, "transferReportProposal", err)
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {
-	proposal, ok := m.Content.(core.ProposalSubmitSignature)
+	proposal, ok := m.Content.(core.ParamSubmitSignature)
 	if !ok {
 		return fmt.Errorf("ProposalSubmitSignature cast failed, %+v", m)
 	}
+
+	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	msg := stafiHubXLedgerTypes.NewMsgSubmitSignature(w.conn.client.GetFromAddress().String(), proposal.Denom, proposal.Era, proposal.Pool, proposal.TxType, proposal.PropId, proposal.Signature)
-	txHash, err := w.conn.client.ConstructAndSignTx(msg)
-	if err != nil {
-		return err
-	}
-	w.log.Info("submitSignature", "tx hash", txHash)
-	return nil
+	done()
+
+	txHash, txBts, err := w.conn.client.SubmitSignature(msg)
+	return w.checkAndReSend(txHash, txBts, "submitSignature", err)
 }
 
 func (w *Handler) handleGetPools(m *core.Message) error {
-	getPools, ok := m.Content.(core.GetPools)
+	getPools, ok := m.Content.(core.ParamGetPools)
 	if !ok {
 		return fmt.Errorf("GetPools cast failed, %+v", m)
 	}
@@ -212,5 +211,42 @@ func (w *Handler) handleGetPools(m *core.Message) error {
 	getPools.Pools <- pools.GetAddrs()
 
 	w.log.Info("getPools", "pools", pools.GetAddrs())
+	return nil
+}
+
+func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string, err error) error {
+	if err != nil {
+		switch {
+
+		}
+		return err
+	} else {
+		retry := BlockRetryLimit
+		for {
+			if retry <= 0 {
+				return fmt.Errorf("checkAndSend broadcast tx reach retry limit, tx hash: %s", txHashStr)
+			}
+			//check on chain
+			res, err := h.conn.client.QueryTxByHash(txHashStr)
+			if err != nil || res.Empty() || res.Code != 0 {
+				h.log.Warn(fmt.Sprintf(
+					"checkAndSend QueryTxByHash failed. will rebroadcast after %f second",
+					BlockRetryInterval.Seconds()),
+					"tx hash", txHashStr,
+					"err or res.empty", err)
+
+				//broadcast if not on chain
+				_, err = h.conn.client.BroadcastTx(txBts)
+				if err != nil && err != errType.ErrTxInMempoolCache {
+					h.log.Warn("checkAndSend BroadcastTx failed  will retry", "failed info", err)
+				}
+				time.Sleep(BlockRetryInterval)
+				retry--
+				continue
+			}
+			break
+		}
+	}
+	h.log.Info("checkAndSend success", "txHash", txHashStr, "type", typeStr)
 	return nil
 }
