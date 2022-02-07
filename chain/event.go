@@ -175,6 +175,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
+		return nil
 		// if len(event.Attributes) != 3 {
 		// 	return ErrEventAttributeNumberUnMatch
 		// }
@@ -205,6 +206,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		// m.Reason = core.ReasonWithdrawReportedEvent
 		// m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
+		return nil
 		// if len(event.Attributes) != 3 {
 		// 	return ErrEventAttributeNumberUnMatch
 		// }
