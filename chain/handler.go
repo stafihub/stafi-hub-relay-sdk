@@ -2,6 +2,7 @@ package chain
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/ChainSafe/log15"
@@ -95,6 +96,7 @@ func (w *Handler) handleMessage(m *core.Message) error {
 }
 
 func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
+	w.log.Info("handleExeLiquidityBond", "msg", m)
 	proposal, ok := m.Content.(core.ProposalExeLiquidityBond)
 	if !ok {
 		return fmt.Errorf("ProposalLiquidityBond cast failed, %+v", m)
@@ -163,6 +165,7 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 }
 
 func (w *Handler) handleActiveReport(m *core.Message) error {
+	w.log.Info("handleActiveReport", "msg", m)
 	proposal, ok := m.Content.(core.ProposalActiveReport)
 	if !ok {
 		return fmt.Errorf("ProposalActiveReport cast failed, %+v", m)
@@ -177,6 +180,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 }
 
 func (w *Handler) handleWithdrawReport(m *core.Message) error {
+	w.log.Info("handleWithdrawReport", "msg", m)
 	proposal, ok := m.Content.(core.ProposalWithdrawReport)
 	if !ok {
 		return fmt.Errorf("ProposalWithdrawReport cast failed, %+v", m)
@@ -191,6 +195,7 @@ func (w *Handler) handleWithdrawReport(m *core.Message) error {
 }
 
 func (w *Handler) handleTransferReport(m *core.Message) error {
+	w.log.Info("handleTransferReport", "msg", m)
 	proposal, ok := m.Content.(core.ProposalTransferReport)
 	if !ok {
 		return fmt.Errorf("ProposalTransferReport cast failed, %+v", m)
@@ -205,6 +210,7 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {
+	w.log.Info("handleSubmitSignature", "msg", m)
 	proposal, ok := m.Content.(core.ParamSubmitSignature)
 	if !ok {
 		return fmt.Errorf("ProposalSubmitSignature cast failed, %+v", m)
@@ -219,6 +225,7 @@ func (w *Handler) handleSubmitSignature(m *core.Message) error {
 }
 
 func (w *Handler) handleGetPools(m *core.Message) error {
+	w.log.Info("handleGetPools", "msg", m)
 	getPools, ok := m.Content.(core.ParamGetPools)
 	if !ok {
 		return fmt.Errorf("GetPools cast failed, %+v", m)
@@ -237,7 +244,9 @@ func (w *Handler) handleGetPools(m *core.Message) error {
 func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string, err error) error {
 	if err != nil {
 		switch {
-
+		case strings.Contains(err.Error(), "signature repeated"):
+			h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
+			return nil
 		}
 		return err
 	} else {

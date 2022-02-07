@@ -30,7 +30,7 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 	for _, tx := range txs {
 		for _, log := range tx.Logs {
 			for _, event := range log.Events {
-				err := l.processStringEvents(event)
+				err := l.processStringEvents(event, currentBlock)
 				if err != nil {
 					return err
 				}
@@ -41,7 +41,7 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 	return nil
 }
 
-func (l *Listener) processStringEvents(event types.StringEvent) error {
+func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int64) error {
 	l.log.Debug("processStringEvents", "event", event)
 	m := core.Message{
 		Source:      l.symbol,
@@ -232,13 +232,8 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 			return fmt.Errorf("era overflow %d", era)
 		}
 
-		txType, err := strconv.Atoi(event.Attributes[3].Value)
-		if err != nil {
-			return err
-		}
-		if int64(txType) > int64(maxUint32) {
-			return fmt.Errorf("txType overflow %d", era)
-		}
+		txType := event.Attributes[3].Value
+		useTxType := stafiHubXLedgerTypes.OriginalTxType_value[txType]
 
 		proposalId, err := hex.DecodeString(event.Attributes[4].Value)
 		if err != nil {
@@ -249,7 +244,7 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 			Denom:      event.Attributes[0].Value,
 			Era:        uint32(era),
 			Pool:       event.Attributes[2].Value,
-			TxType:     stafiHubXLedgerTypes.OriginalTxType(txType),
+			TxType:     stafiHubXLedgerTypes.OriginalTxType(useTxType),
 			ProposalId: proposalId,
 			Signatures: [][]byte{},
 		}
@@ -274,11 +269,12 @@ func (l *Listener) processStringEvents(event types.StringEvent) error {
 			e.Signatures = append(e.Signatures, sigBts)
 		}
 
-		m.Reason = core.ReasonTransferReportedEvent
+		m.Reason = core.ReasonSignatureEnoughEvent
 		m.Content = e
 
 	default:
 		return nil
 	}
+	l.log.Info("find event", "msg", m, "block number", blockNumber)
 	return l.submitMessage(&m)
 }
