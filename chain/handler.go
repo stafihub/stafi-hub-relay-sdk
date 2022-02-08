@@ -122,15 +122,22 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 		return fmt.Errorf("ProposalSetChainEra cast failed, %+v", m)
 	}
 
+	eraOnChain := uint32(0)
 	chainEra, err := w.conn.client.QueryChainEra(proposal.Denom)
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "not found") {
+			eraOnChain = proposal.Era - 1
+		} else {
+			return err
+		}
+	} else {
+		eraOnChain = chainEra.GetEra()
 	}
 
-	if chainEra.GetEra() >= proposal.Era {
+	if eraOnChain >= proposal.Era {
 		return nil
 	}
-	continuable, err := w.conn.client.QueryEraContinuable(proposal.Denom, chainEra.GetEra())
+	continuable, err := w.conn.client.QueryEraContinuable(proposal.Denom, eraOnChain)
 	if err != nil {
 		return err
 	}
@@ -138,8 +145,8 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 		return nil
 	}
 
-	useEra := chainEra.GetEra() + 1
-	w.log.Info("will set newChainEra", "new era", useEra, "symbol", proposal.Denom)
+	useEra := eraOnChain + 1
+	w.log.Info("will set newChainEra", "newEra", useEra, "symbol", proposal.Denom)
 
 	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, useEra)
