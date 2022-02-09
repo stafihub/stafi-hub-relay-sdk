@@ -63,7 +63,7 @@ func (l *Listener) start() error {
 		err := l.pollBlocks()
 		if err != nil {
 			l.log.Error("Polling blocks failed", "err", err)
-			panic(err)
+			l.sysErrChan <- err
 		}
 	}()
 
@@ -76,7 +76,8 @@ func (l *Listener) pollBlocks() error {
 	for {
 		select {
 		case <-l.stopChan:
-			return ErrorTerminated
+			l.log.Info("pollBlocks receive stop chan, will stop")
+			return nil
 		default:
 			if retry <= 0 {
 				return fmt.Errorf("pollBlocks reach retry limit ,symbol: %s", l.symbol)

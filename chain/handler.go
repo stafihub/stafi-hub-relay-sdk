@@ -61,7 +61,7 @@ func (w *Handler) msgHandler() {
 	for {
 		select {
 		case <-w.stopChan:
-			w.log.Info("msgHandler stop")
+			w.log.Info("msgHandler receive stopChain, will stop")
 			return
 		case msg := <-w.msgChan:
 			err := w.handleMessage(msg)
