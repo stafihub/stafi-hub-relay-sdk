@@ -10,7 +10,7 @@ import (
 	errType "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
-	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
+	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
 
 const msgLimit = 4096

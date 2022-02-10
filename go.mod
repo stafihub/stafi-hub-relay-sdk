@@ -1,4 +1,4 @@
-module github.com/stafiprotocol/stafi-hub-relay-sdk
+module github.com/stafihub/stafi-hub-relay-sdk
 
 go 1.17
 
