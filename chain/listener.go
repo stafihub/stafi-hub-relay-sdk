@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/ChainSafe/log15"
+	"github.com/stafihub/rtoken-relay-core/common/core"
 	"github.com/stafiprotocol/chainbridge/utils/blockstore"
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
 )
 
 var (

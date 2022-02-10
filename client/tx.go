@@ -9,7 +9,7 @@ import (
 	xAuthClient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/spf13/cobra"
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/core"
 )
 
 func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) error {

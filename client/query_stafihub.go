@@ -3,11 +3,11 @@ package client
 import (
 	"context"
 
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
-	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
+	"github.com/stafihub/rtoken-relay-core/common/core"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 )
 
-func (c *Client) QuerySnapshot(shotId []byte) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
+func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
 	done := core.UseSdkConfigContext(AccountPrefix)
 	defer done()
 
@@ -64,7 +64,7 @@ func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.Quer
 	return cc.(*stafiHubXLedgerTypes.QueryGetPoolDetailResponse), nil
 }
 
-func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubXLedgerTypes.OriginalTxType, proposalId []byte) (*stafiHubXLedgerTypes.QueryGetSignatureResponse, error) {
+func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubXLedgerTypes.OriginalTxType, proposalId string) (*stafiHubXLedgerTypes.QueryGetSignatureResponse, error) {
 	done := core.UseSdkConfigContext(AccountPrefix)
 	defer done()
 

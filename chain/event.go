@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
-	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
+	"github.com/stafihub/rtoken-relay-core/common/core"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 )
 
 const maxUint32 = ^uint32(0)
@@ -85,11 +85,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return nil
 		}
 
-		shotId, err := hex.DecodeString(e.ShotId)
-		if err != nil {
-			return err
-		}
-		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(e.ShotId)
 		if err != nil {
 			return err
 		}
@@ -114,11 +110,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return nil
 		}
 
-		shotId, err := hex.DecodeString(e.ShotId)
-		if err != nil {
-			return err
-		}
-		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(e.ShotId)
 		if err != nil {
 			return err
 		}
@@ -148,11 +140,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
 		}
-		shotId, err := hex.DecodeString(e.ShotId)
-		if err != nil {
-			return err
-		}
-		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+		snapshotRes, err := l.conn.client.QuerySnapshot(e.ShotId)
 		if err != nil {
 			return err
 		}
@@ -237,10 +225,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		txType := event.Attributes[3].Value
 		useTxType := stafiHubXLedgerTypes.OriginalTxType_value[txType]
 
-		proposalId, err := hex.DecodeString(event.Attributes[4].Value)
-		if err != nil {
-			return err
-		}
+		proposalId := event.Attributes[4].Value
 
 		e := core.EventSignatureEnough{
 			Denom:      event.Attributes[0].Value,

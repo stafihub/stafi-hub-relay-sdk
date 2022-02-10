@@ -8,9 +8,9 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/types"
 	errType "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/core"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
-	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
 )
 
 const msgLimit = 4096

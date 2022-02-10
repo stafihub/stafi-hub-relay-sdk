@@ -7,8 +7,8 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/stafiprotocol/rtoken-relay-core/common/config"
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/config"
+	"github.com/stafihub/rtoken-relay-core/common/core"
 	hubClient "github.com/stafiprotocol/stafi-hub-relay-sdk/client"
 )
 

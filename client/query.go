@@ -15,7 +15,7 @@ import (
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	xDistriTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	xStakeTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/core"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 

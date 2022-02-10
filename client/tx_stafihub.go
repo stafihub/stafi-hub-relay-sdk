@@ -3,9 +3,9 @@ package client
 import (
 	"fmt"
 
-	"github.com/stafiprotocol/rtoken-relay-core/common/core"
-	stafiHubXLedgerTypes "github.com/stafiprotocol/stafihub/x/ledger/types"
-	stafiHubXRvoteTypes "github.com/stafiprotocol/stafihub/x/rvote/types"
+	"github.com/stafihub/rtoken-relay-core/common/core"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
+	stafiHubXRvoteTypes "github.com/stafihub/stafihub/x/rvote/types"
 )
 
 func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, []byte, error) {

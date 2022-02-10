@@ -16,10 +16,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/ibc-go/modules/apps/transfer"
-	stafiHubXLedger "github.com/stafiprotocol/stafihub/x/ledger"
-	stafiHubXRelayer "github.com/stafiprotocol/stafihub/x/relayers"
-	stafiHubXRvote "github.com/stafiprotocol/stafihub/x/rvote"
-	stafiHubXSudo "github.com/stafiprotocol/stafihub/x/sudo"
+	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
+	stafiHubXRelayer "github.com/stafihub/stafihub/x/relayers"
+	stafiHubXRvote "github.com/stafihub/stafihub/x/rvote"
+	stafiHubXSudo "github.com/stafihub/stafihub/x/sudo"
 )
 
 // EncodingConfig specifies the concrete encoding types to use for a given app.
