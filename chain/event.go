@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -11,8 +12,8 @@ import (
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 )
 
-const maxUint32 = ^uint32(0)
-const maxInt32 = int32(maxUint32 >> 1)
+const maxUint32 = math.MaxUint32
+const maxInt32 = math.MaxInt32
 
 var (
 	ErrEventAttributeNumberUnMatch = errors.New("ErrEventAttributeNumberTooFew")
@@ -251,7 +252,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		for _, v := range signature.Signature.GetSigs() {
 			sigBts, err := hex.DecodeString(v)
 			if err != nil {
-				return err
+				return fmt.Errorf("hex.DecodeString failed, err: %s, value: %s", err, v)
 			}
 			e.Signatures = append(e.Signatures, sigBts)
 		}

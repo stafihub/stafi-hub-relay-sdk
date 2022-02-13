@@ -163,3 +163,19 @@ func (c *Client) QueryEraContinuable(denom string, era uint32) (bool, error) {
 	}
 	return true, nil
 }
+
+func (c *Client) QueryRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRParamsResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXLedgerTypes.QueryGetRParamsRequest{
+		Denom: denom,
+	}
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.GetRParams(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryGetRParamsResponse), nil
+}

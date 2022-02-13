@@ -5,12 +5,12 @@ go 1.17
 require (
 	github.com/ChainSafe/log15 v1.0.0
 	github.com/JFJun/go-substrate-crypto v1.0.1
-	github.com/cosmos/cosmos-sdk v0.44.5
+	github.com/cosmos/cosmos-sdk v0.45.1
 	github.com/cosmos/ibc-go v1.2.5
 	github.com/ethereum/go-ethereum v1.10.15
 	github.com/spf13/cobra v1.2.1
 	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220210021838-4e8ffb210f39
-	github.com/stafihub/stafihub v0.0.0-20220209165340-5b4ac219fb84
+	github.com/stafihub/stafihub v0.0.0-20220212155752-b41e78dd51e3
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.14

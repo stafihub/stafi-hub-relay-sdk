@@ -8,6 +8,7 @@ import (
 	"github.com/ChainSafe/log15"
 	"github.com/stafihub/rtoken-relay-core/common/config"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 )
 
 var (
@@ -101,4 +102,8 @@ func (c *Chain) Name() string {
 //stop will stop handler and listener
 func (c *Chain) Stop() {
 	close(c.stop)
+}
+
+func (c *Chain) GetRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRParamsResponse, error) {
+	return c.conn.client.QueryRParams(denom)
 }
