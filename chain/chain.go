@@ -21,7 +21,7 @@ type Chain struct {
 	name        string
 	conn        *Connection
 	listener    *Listener // The listener of this chain
-	handler     *Handler  // The writer of the chain
+	handler     *Handler  // The msg handler of the chain
 	stop        chan<- struct{}
 	initialized bool
 }
@@ -106,4 +106,12 @@ func (c *Chain) Stop() {
 
 func (c *Chain) GetRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRParamsResponse, error) {
 	return c.conn.client.QueryRParams(denom)
+}
+
+func (c *Chain) GetPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.QueryGetPoolDetailResponse, error) {
+	return c.conn.client.QueryPoolDetail(denom, pool)
+}
+
+func (c *Chain) GetPools(denom string) (*stafiHubXLedgerTypes.QueryPoolsByDenomResponse, error) {
+	return c.conn.client.QueryPools(denom)
 }

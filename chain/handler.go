@@ -9,8 +9,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	errType "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
-	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 )
 
 const msgLimit = 4096
@@ -43,13 +43,18 @@ func (w *Handler) start() error {
 	return nil
 }
 
-//resolve msg from other chains
+// resolve msg from other chains
 func (w *Handler) HandleMessage(m *core.Message) {
+	// deal get msg
 	switch m.Reason {
 	case core.ReasonGetPools:
 		go w.handleGetPools(m)
 		return
+	case core.ReasonGetSignatures:
+		go w.handleGetSignatures(m)
+		return
 	}
+	// deal write msg
 	w.queueMessage(m)
 }
 
@@ -73,7 +78,7 @@ func (w *Handler) msgHandler() {
 	}
 }
 
-//resolve msg from other chains
+//resolve write msg from other chains
 func (w *Handler) handleMessage(m *core.Message) error {
 	switch m.Reason {
 	case core.ReasonExeLiquidityBond:
@@ -108,7 +113,7 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 		done()
 		return err
 	}
-	content := stafiHubXLedgerTypes.NewExecuteBondProposal(w.conn.client.GetFromAddress(), proposal.Denom, bonder, proposal.Pool, proposal.Blockhash, proposal.Txhash, proposal.Amount)
+	content := stafiHubXLedgerTypes.NewExecuteBondProposal(w.conn.client.GetFromAddress(), proposal.Denom, bonder, proposal.Pool, proposal.Txhash, proposal.Amount)
 	done()
 
 	txHash, txBts, err := w.conn.client.SubmitProposal(content)
@@ -240,11 +245,28 @@ func (w *Handler) handleGetPools(m *core.Message) error {
 	pools, err := w.conn.client.QueryPools(getPools.Denom)
 	if err != nil {
 		getPools.Pools <- []string{}
-		return err
+		return nil
 	}
 	getPools.Pools <- pools.GetAddrs()
 
 	w.log.Info("getPools", "pools", pools.GetAddrs())
+	return nil
+}
+
+func (w *Handler) handleGetSignatures(m *core.Message) error {
+	w.log.Info("handleGetSignature", "msg", m)
+	getSiganture, ok := m.Content.(core.ParamGetSignatures)
+	if !ok {
+		return fmt.Errorf("GetSignature cast failed, %+v", m)
+	}
+	sigs, err := w.conn.client.QuerySignature(getSiganture.Denom, getSiganture.Pool, getSiganture.Era, getSiganture.TxType, getSiganture.PropId)
+	if err != nil {
+		getSiganture.Sigs <- []string{}
+		return nil
+	}
+	getSiganture.Sigs <- sigs.Signature.Sigs
+
+	w.log.Info("getSignatures", "sigs", sigs.Signature.Sigs)
 	return nil
 }
 

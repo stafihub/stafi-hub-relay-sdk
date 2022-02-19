@@ -15,7 +15,7 @@ import (
 	rpcHttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
-const AccountPrefix = "fis"
+const AccountPrefix = "stafi"
 
 //stafihub client
 type Client struct {

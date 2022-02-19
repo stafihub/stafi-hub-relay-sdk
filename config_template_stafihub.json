@@ -12,8 +12,7 @@
         "chainId": "chain-AALfXF",
         "denom": "fis",
         "gasPrice": "0.00001fis",
-        "account": "key0",
-        "caredSymbol": "ratom"
+        "account": "key0"
       }
     }
   ]

@@ -1,11 +1,11 @@
 package chain
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafihub/rtoken-relay-core/common/core"
@@ -48,6 +48,9 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		Source:      l.symbol,
 		Destination: l.caredSymbol,
 	}
+
+	oldState := make(map[string]stafiHubXLedgerTypes.PoolBondState)
+	var shotId string
 	switch {
 	case event.Type == stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
 		if len(event.Attributes) != 5 {
@@ -96,6 +99,8 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonEraPoolUpdatedEvent
 		m.Content = e
+		oldState[event.Type] = stafiHubXLedgerTypes.EraUpdated
+		shotId = e.ShotId
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeBondReported:
 		if len(event.Attributes) != 3 {
@@ -128,6 +133,9 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		e.Snapshot = snapshotRes.Shot
 		m.Reason = core.ReasonBondReportedEvent
 		m.Content = e
+		oldState[event.Type] = stafiHubXLedgerTypes.BondReported
+		shotId = e.ShotId
+
 	case event.Type == stafiHubXLedgerTypes.EventTypeActiveReported:
 		if len(event.Attributes) != 3 {
 			return ErrEventAttributeNumberUnMatch
@@ -163,106 +171,44 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		e.PoolUnbond = unbondRes.Unbond
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
+		oldState[event.Type] = stafiHubXLedgerTypes.ActiveReported
+		shotId = e.ShotId
+
 	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
 		return nil
-		// if len(event.Attributes) != 3 {
-		// 	return ErrEventAttributeNumberUnMatch
-		// }
-
-		// e := core.EventWithdrawReported{
-		// 	Denom:       event.Attributes[0].Value,
-		// 	ShotId:      event.Attributes[1].Value,
-		// 	LasterVoter: event.Attributes[2].Value,
-		// }
-		// if l.caredSymbol != core.RSymbol(e.Denom) {
-		// 	return nil
-		// }
-		// shotId, err := hex.DecodeString(e.ShotId)
-		// if err != nil {
-		// 	return err
-		// }
-		// snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
-		// if err != nil {
-		// 	return err
-		// }
-		// unbondRes, err := l.conn.client.QueryPoolUnbond(e.Denom, snapshotRes.Shot.Pool, snapshotRes.Shot.Era)
-		// if err != nil {
-		// 	return err
-		// }
-
-		// e.Snapshot = snapshotRes.Shot
-		// e.PoolUnbond = unbondRes.Unbond
-		// m.Reason = core.ReasonWithdrawReportedEvent
-		// m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
 		return nil
-		// if len(event.Attributes) != 3 {
-		// 	return ErrEventAttributeNumberUnMatch
-		// }
-
-		// e := core.EventTransferReported{
-		// 	Denom:       event.Attributes[0].Value,
-		// 	ShotId:      event.Attributes[1].Value,
-		// 	LasterVoter: event.Attributes[2].Value,
-		// }
-		// if l.caredSymbol != core.RSymbol(e.Denom) {
-		// 	return nil
-		// }
-		// m.Reason = core.ReasonTransferReportedEvent
-		// m.Content = e
 	case event.Type == stafiHubXLedgerTypes.EventTypeSignatureEnough:
-		if len(event.Attributes) != 5 {
-			return ErrEventAttributeNumberUnMatch
-		}
-
-		era, err := strconv.Atoi(event.Attributes[1].Value)
-		if err != nil {
-			return err
-		}
-		if int64(era) > int64(maxInt32) {
-			return fmt.Errorf("era overflow %d", era)
-		}
-
-		txType := event.Attributes[3].Value
-		useTxType := stafiHubXLedgerTypes.OriginalTxType_value[txType]
-
-		proposalId := event.Attributes[4].Value
-
-		e := core.EventSignatureEnough{
-			Denom:      event.Attributes[0].Value,
-			Era:        uint32(era),
-			Pool:       event.Attributes[2].Value,
-			TxType:     stafiHubXLedgerTypes.OriginalTxType(useTxType),
-			ProposalId: proposalId,
-			Signatures: [][]byte{},
-		}
-		if l.caredSymbol != core.RSymbol(e.Denom) {
-			return nil
-		}
-		poolDetail, err := l.conn.client.QueryPoolDetail(e.Denom, e.Pool)
-		if err != nil {
-			return err
-		}
-		e.Threshold = poolDetail.Detail.Threshold
-
-		signature, err := l.conn.client.QuerySignature(e.Denom, e.Pool, e.Era, e.TxType, e.ProposalId)
-		if err != nil {
-			return err
-		}
-		for _, v := range signature.Signature.GetSigs() {
-			sigBts, err := hex.DecodeString(v)
-			if err != nil {
-				return fmt.Errorf("hex.DecodeString failed, err: %s, value: %s", err, v)
-			}
-			e.Signatures = append(e.Signatures, sigBts)
-		}
-
-		m.Reason = core.ReasonSignatureEnoughEvent
-		m.Content = e
+		return nil
 
 	default:
 		return nil
 	}
 	l.log.Info("find event", "msg", m, "block number", blockNumber)
-	return l.submitMessage(&m)
+	err := l.submitMessage(&m)
+	if err != nil {
+		return err
+	}
+
+	// here we wait until snapshot's bondstate change to another
+	retry := 0
+	for {
+		if retry > BlockRetryLimit {
+			return fmt.Errorf("snapshot event: %s deal timeout", event.Type)
+		}
+		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+		if err != nil {
+			l.log.Warn("QuerySnapshot failed", "err", err)
+			time.Sleep(BlockRetryInterval)
+			retry++
+			continue
+		}
+		if snapshotRes.GetShot().BondState == oldState[event.Type] {
+			time.Sleep(BlockRetryInterval)
+			retry++
+			continue
+		}
+		break
+	}
+	return nil
 }
