@@ -13,7 +13,6 @@ import (
 )
 
 const maxUint32 = math.MaxUint32
-const maxInt32 = math.MaxInt32
 
 var (
 	ErrEventAttributeNumberUnMatch = errors.New("ErrEventAttributeNumberTooFew")

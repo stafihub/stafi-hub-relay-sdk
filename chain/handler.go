@@ -106,6 +106,14 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalLiquidityBond cast failed, %+v", m)
 	}
+	_, err := w.conn.client.QueryBondRecord(proposal.Denom, proposal.Txhash)
+	if err != nil && !strings.Contains(err.Error(), "NotFound") {
+		return err
+	}
+	if err == nil {
+		w.log.Warn("handleExeLiquidityBond already exe bond, no need submitproposal", "msg", m)
+		return nil
+	}
 
 	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
 	bonder, err := types.AccAddressFromBech32(proposal.Bonder)

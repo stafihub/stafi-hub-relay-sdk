@@ -179,3 +179,21 @@ func (c *Client) QueryRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRPara
 	}
 	return cc.(*stafiHubXLedgerTypes.QueryGetRParamsResponse), nil
 }
+
+func (c *Client) QueryBondRecord(denom, txHash string) (*stafiHubXLedgerTypes.QueryGetBondRecordResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
+	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXLedgerTypes.QueryGetBondRecordRequest{
+		Denom:  denom,
+		Txhash: txHash,
+	}
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.GetBondRecord(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryGetBondRecordResponse), nil
+}
