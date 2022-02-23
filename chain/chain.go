@@ -112,6 +112,6 @@ func (c *Chain) GetPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.QueryGe
 	return c.conn.client.QueryPoolDetail(denom, pool)
 }
 
-func (c *Chain) GetPools(denom string) (*stafiHubXLedgerTypes.QueryPoolsByDenomResponse, error) {
+func (c *Chain) GetPools(denom string) (*stafiHubXLedgerTypes.QueryBondedPoolsByDenomResponse, error) {
 	return c.conn.client.QueryPools(denom)
 }
