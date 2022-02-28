@@ -1101,6 +1101,8 @@ github.com/spf13/viper v1.8.1/go.mod h1:o0Pch8wJ9BVSWGQMbra6iw0oQ5oktSIBaujf1rJH
 github.com/ssgreg/nlreturn/v2 v2.1.0/go.mod h1:E/iiPB78hV7Szg2YfRgyIrk1AD6JVMTRkkxBiELzh2I=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220219031646-b875374d84f2 h1:29BLSxQKVmA87EF/dVlHZuPFSWwik2lwkm3+hZ9yBkg=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220219031646-b875374d84f2/go.mod h1:yTuUlCWpZndefs48NARXXgqyQNnMuiHLAZusRec578A=
+github.com/stafihub/rtoken-relay-core/common v0.0.0-20220228001555-fa0b8721f5a3 h1:N+IJOyKo/1NqXYmhh0HKZE2018vIyLpJMBB0/9m2Vqc=
+github.com/stafihub/rtoken-relay-core/common v0.0.0-20220228001555-fa0b8721f5a3/go.mod h1:SnpkOME4nRY4vGi+UYACBGf33f6lmn40AIoOVKtqlII=
 github.com/stafihub/stafihub v0.0.0-20220219015456-58f745d1747a/go.mod h1:XRZTjAkYJfBH8TJwklvHvKXOHZPimnAm4OsnsUR3Zws=
 github.com/stafihub/stafihub v0.0.0-20220223081716-52cef48158f2 h1:Fx68E6btYKnD5YfGYd/Cn1Pt4Wgs6UW3LDTCpBw27CI=
 github.com/stafihub/stafihub v0.0.0-20220223081716-52cef48158f2/go.mod h1:XRZTjAkYJfBH8TJwklvHvKXOHZPimnAm4OsnsUR3Zws=
