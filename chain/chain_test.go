@@ -16,14 +16,11 @@ var (
 	option = chain.ConfigOption{
 		BlockstorePath: "/Users/tpkeeper/gowork/stafi/rtoken-relay-core/blockstore",
 		StartBlock:     0,
-		ChainID:        "my-chain",
-		Denom:          "stake",
 		GasPrice:       "0.0001stake",
 		Account:        "my-account",
 	}
 	cfg = config.RawChainConfig{
 		Name:         "testChain",
-		Type:         "stafiHub",
 		Rsymbol:      "RFIS",
 		Endpoint:     "http://127.0.0.1:26657",
 		KeystorePath: "/Users/tpkeeper/.stafihub",
