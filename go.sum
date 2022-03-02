@@ -1112,6 +1112,8 @@ github.com/stafihub/stafihub v0.0.0-20220223081716-52cef48158f2 h1:Fx68E6btYKnD5
 github.com/stafihub/stafihub v0.0.0-20220223081716-52cef48158f2/go.mod h1:XRZTjAkYJfBH8TJwklvHvKXOHZPimnAm4OsnsUR3Zws=
 github.com/stafihub/stafihub v0.0.0-20220225074939-d4197f3982ce h1:+eKBHWoC5gCYFS/NaAXCJJKm4DSsom6OoSeKTOEfI1w=
 github.com/stafihub/stafihub v0.0.0-20220225074939-d4197f3982ce/go.mod h1:XRZTjAkYJfBH8TJwklvHvKXOHZPimnAm4OsnsUR3Zws=
+github.com/stafihub/stafihub v0.0.0-20220302140630-6000647be7fb h1:loQ63dsJ62kpjBRlGr3NrXKYWK1Pa1aOuZrMmincBnA=
+github.com/stafihub/stafihub v0.0.0-20220302140630-6000647be7fb/go.mod h1:XRZTjAkYJfBH8TJwklvHvKXOHZPimnAm4OsnsUR3Zws=
 github.com/stafiprotocol/chainbridge v1.0.0 h1:CT5ActFpHt4WEw+VvcCNw/bTLVrrnxK348ro5r0GMds=
 github.com/stafiprotocol/chainbridge v1.0.0/go.mod h1:yJs9Zg9VbF6QtDO5a+CsfwQCcL9PojKWnCd040JRWlE=
 github.com/stafiprotocol/go-substrate-rpc-client v1.0.9/go.mod h1:P3xucNyw6UjKvCvGg0eiQJhcRyZsUv5a9akxDTLMHFk=
