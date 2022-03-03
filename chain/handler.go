@@ -11,6 +11,7 @@ import (
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
+	stafiHubXRelayersTypes "github.com/stafihub/stafihub/x/relayers/types"
 )
 
 const msgLimit = 4096
@@ -283,6 +284,9 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 		switch {
 		case strings.Contains(err.Error(), "signature repeated"):
 			h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
+			return nil
+		case strings.Contains(err.Error(), stafiHubXRelayersTypes.ErrAlreadyVoted.Error()):
+			h.log.Info("no need send, already voted", "txHash", txHashStr, "type", typeStr)
 			return nil
 		}
 		return err
