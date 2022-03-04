@@ -12,6 +12,7 @@ import (
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRelayersTypes "github.com/stafihub/stafihub/x/relayers/types"
+	"google.golang.org/grpc/codes"
 )
 
 const msgLimit = 4096
@@ -139,7 +140,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 	eraOnChain := uint32(0)
 	chainEra, err := w.conn.client.QueryChainEra(proposal.Denom)
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if strings.Contains(err.Error(), codes.NotFound.String()) {
 			eraOnChain = proposal.Era - 1
 		} else {
 			return err
@@ -282,7 +283,7 @@ func (w *Handler) handleGetSignatures(m *core.Message) error {
 func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string, err error) error {
 	if err != nil {
 		switch {
-		case strings.Contains(err.Error(), "signature repeated"):
+		case strings.Contains(err.Error(), stafiHubXLedgerTypes.ErrSignatureRepeated.Error()):
 			h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
 			return nil
 		case strings.Contains(err.Error(), stafiHubXRelayersTypes.ErrAlreadyVoted.Error()):

@@ -173,20 +173,43 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		oldState[event.Type] = stafiHubXLedgerTypes.ActiveReported
 		shotId = e.ShotId
 
-	case event.Type == stafiHubXLedgerTypes.EventTypeWithdrawReported:
-		return nil
-	case event.Type == stafiHubXLedgerTypes.EventTypeTransferReported:
-		return nil
-	case event.Type == stafiHubXLedgerTypes.EventTypeSignatureEnough:
-		return nil
+	case event.Type == stafiHubXLedgerTypes.EventTypeRParamsChanged:
+		if len(event.Attributes) != 1 {
+			return ErrEventAttributeNumberUnMatch
+		}
+		denom := event.Attributes[0].Value
+		if l.caredSymbol != core.RSymbol(denom) {
+			return nil
+		}
+		rparams, err := l.conn.client.QueryRParams(denom)
+		if err != nil {
+			return err
+		}
+
+		eventRParams := core.EventRParamsChanged{
+			Denom:            denom,
+			GasPrice:         rparams.RParams.GasPrice,
+			EraSeconds:       rparams.RParams.EraSeconds,
+			LeastBond:        rparams.RParams.LeastBond,
+			Offset:           rparams.RParams.Offset,
+			TargetValidators: rparams.RParams.Validators,
+		}
+
+		m.Reason = core.ReasonRParamsChangedEvent
+		m.Content = eventRParams
 
 	default:
 		return nil
 	}
+
 	l.log.Info("find event", "msg", m, "block number", blockNumber)
 	err := l.submitMessage(&m)
 	if err != nil {
 		return err
+	}
+	// no need wait
+	if m.Reason == core.ReasonRParamsChangedEvent {
+		return nil
 	}
 
 	// here we wait until snapshot's bondstate change to another
