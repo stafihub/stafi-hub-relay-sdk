@@ -25,10 +25,10 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 	defer done()
 	res, err := c.clientCtx.BroadcastTx(tx)
 	if err != nil {
-		return "", err
+		return res.TxHash, err
 	}
 	if res.Code != 0 {
-		return "", fmt.Errorf("broadcast err with res.code: %d", res.Code)
+		return res.TxHash, fmt.Errorf("broadcast err with res.code: %d", res.Code)
 	}
 	return res.TxHash, nil
 }
@@ -56,7 +56,7 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("clientTx.CalculateGas failed: %s", err)
 	}
-	txf = txf.WithGas(adjusted)
+	txf = txf.WithGas(adjusted * 2)
 
 	txBuilderRaw, err := clientTx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {

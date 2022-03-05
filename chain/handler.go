@@ -291,33 +291,42 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 			return nil
 		}
 		return err
-	} else {
-		retry := BlockRetryLimit
-		for {
-			if retry <= 0 {
-				return fmt.Errorf("checkAndSend broadcast tx reach retry limit, tx hash: %s", txHashStr)
-			}
-			//check on chain
-			res, err := h.conn.client.QueryTxByHash(txHashStr)
-			if err != nil || res.Empty() || res.Code != 0 {
+	}
+
+	retry := BlockRetryLimit
+	for {
+		if retry <= 0 {
+			return fmt.Errorf("checkAndSend broadcast tx reach retry limit, tx hash: %s", txHashStr)
+		}
+		//check on chain
+		res, err := h.conn.client.QueryTxByHash(txHashStr)
+		if err != nil || res.Empty() || res.Code != 0 {
+			if res != nil {
+				h.log.Warn(fmt.Sprintf(
+					"checkAndSend QueryTxByHash, tx failed. will rebroadcast after %f second",
+					BlockRetryInterval.Seconds()),
+					"tx hash", txHashStr,
+					"res.code", res.Code)
+			} else {
 				h.log.Warn(fmt.Sprintf(
 					"checkAndSend QueryTxByHash failed. will rebroadcast after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
-					"err or res.empty", err)
-
-				//broadcast if not on chain
-				_, err = h.conn.client.BroadcastTx(txBts)
-				if err != nil && err != errType.ErrTxInMempoolCache {
-					h.log.Warn("checkAndSend BroadcastTx failed  will retry", "failed info", err)
-				}
-				time.Sleep(BlockRetryInterval)
-				retry--
-				continue
+					"err", err)
 			}
-			break
+
+			//broadcast if not on chain
+			_, err = h.conn.client.BroadcastTx(txBts)
+			if err != nil && err != errType.ErrTxInMempoolCache {
+				h.log.Warn("checkAndSend BroadcastTx failed  will retry", "failed info", err)
+			}
+			time.Sleep(BlockRetryInterval)
+			retry--
+			continue
 		}
+		break
 	}
+
 	h.log.Info("checkAndSend success", "txHash", txHashStr, "type", typeStr)
 	return nil
 }
