@@ -213,21 +213,15 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 	}
 
 	// here we wait until snapshot's bondstate change to another
-	retry := 0
 	for {
-		if retry > BlockRetryLimit {
-			return fmt.Errorf("snapshot event: %s deal timeout", event.Type)
-		}
 		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 		if err != nil {
 			l.log.Warn("QuerySnapshot failed", "err", err)
 			time.Sleep(BlockRetryInterval)
-			retry++
 			continue
 		}
 		if snapshotRes.GetShot().BondState == oldState[event.Type] {
 			time.Sleep(BlockRetryInterval)
-			retry++
 			continue
 		}
 		break

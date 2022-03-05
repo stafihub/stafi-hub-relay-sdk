@@ -19,7 +19,7 @@ type Connection struct {
 }
 
 func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log15.Logger) (*Connection, error) {
-	fmt.Printf("Will open stafihub wallet from <%s>. \nPlease ", cfg.KeystorePath)
+	fmt.Printf("Will open %s wallet from <%s>. \nPlease ", cfg.Name, cfg.KeystorePath)
 	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin)
 	if err != nil {
 		return nil, err
