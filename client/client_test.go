@@ -54,7 +54,8 @@ func initClient() {
 
 	var err error
 	// client, err = rpc.NewClient(key, "stargate-final", "key0", "0.04umuon", "umuon", "https://testcosmosrpc.wetez.io:443")
-	client, err = hubClient.NewClient(nil, "", "", "http://127.0.0.1:26657")
+	// client, err = hubClient.NewClient(nil, "", "", "http://127.0.0.1:26657")
+	client, err = hubClient.NewClient(nil, "", "", "https://test-rpc1.stafihub.io:443")
 	// client, err = hubClient.NewClient(nil, "my-account", "", "0.04stake", "stake", "https://testcosmosrpc.wetez.io:443")
 	// client, _ = rpc.NewClient(key, "cosmoshub-4", "self", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
 	// client, err = hubClient.NewClient(nil, "cosmoshub-4", "", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
@@ -91,7 +92,7 @@ func TestClient_QueryTxByHash(t *testing.T) {
 
 func TestGetTxs(t *testing.T) {
 	initClient()
-	txs, err := client.GetBlockTxs(3203)
+	txs, err := client.GetBlockTxs(31268)
 	if err != nil {
 		t.Fatal(err)
 	}

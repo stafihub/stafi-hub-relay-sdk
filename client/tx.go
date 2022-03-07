@@ -28,7 +28,7 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 		return res.TxHash, err
 	}
 	if res.Code != 0 {
-		return res.TxHash, fmt.Errorf("broadcast err with res.code: %d", res.Code)
+		return res.TxHash, fmt.Errorf("broadcast err, res.codespace: %s, res.code: %d, res.raw_log: %s", res.Codespace, res.Code, res.RawLog)
 	}
 	return res.TxHash, nil
 }

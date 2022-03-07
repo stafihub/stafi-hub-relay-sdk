@@ -12,6 +12,7 @@ import (
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRelayersTypes "github.com/stafihub/stafihub/x/relayers/types"
+	stafiHubXRVoteTypes "github.com/stafihub/stafihub/x/rvote/types"
 	"google.golang.org/grpc/codes"
 )
 
@@ -288,6 +289,12 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 			return nil
 		case strings.Contains(err.Error(), stafiHubXRelayersTypes.ErrAlreadyVoted.Error()):
 			h.log.Info("no need send, already voted", "txHash", txHashStr, "type", typeStr)
+			return nil
+		case strings.Contains(err.Error(), stafiHubXRVoteTypes.ErrProposalAlreadyApproved.Error()):
+			h.log.Info("no need send, already approved", "txHash", txHashStr, "type", typeStr)
+			return nil
+		case strings.Contains(err.Error(), stafiHubXRVoteTypes.ErrProposalAlreadyExpired.Error()):
+			h.log.Info("no need send, already expired", "txHash", txHashStr, "type", typeStr)
 			return nil
 		}
 		return err
