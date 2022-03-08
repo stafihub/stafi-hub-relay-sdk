@@ -259,3 +259,9 @@ func TestSort(t *testing.T) {
 
 	t.Log(string(txBts))
 }
+
+func TestZeroAddress(t *testing.T){
+	addressBts:=[20]byte{}
+	ac:=types.AccAddress(addressBts[:])
+	t.Log(ac.String())
+}

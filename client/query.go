@@ -240,7 +240,7 @@ func (c *Client) GetChainId() (string, error) {
 	defer done()
 	status, err := c.getStatus()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return status.NodeInfo.Network, nil
 }

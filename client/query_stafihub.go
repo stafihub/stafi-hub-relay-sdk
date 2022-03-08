@@ -5,6 +5,7 @@ import (
 
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
+	stafiHubXSudoTypes "github.com/stafihub/stafihub/x/sudo/types"
 )
 
 func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
@@ -196,4 +197,21 @@ func (c *Client) QueryBondRecord(denom, txHash string) (*stafiHubXLedgerTypes.Qu
 		return nil, err
 	}
 	return cc.(*stafiHubXLedgerTypes.QueryGetBondRecordResponse), nil
+}
+
+func (c *Client) QueryAddressPrefix(denom string) (*stafiHubXSudoTypes.QueryAddressPrefixResponse, error) {
+	done := core.UseSdkConfigContext(AccountPrefix)
+	defer done()
+
+	queryClient := stafiHubXSudoTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXSudoTypes.QueryAddressPrefixRequest{
+		Denom: denom,
+	}
+	cc, err := Retry(func() (interface{}, error) {
+		return queryClient.AddressPrefix(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXSudoTypes.QueryAddressPrefixResponse), nil
 }
