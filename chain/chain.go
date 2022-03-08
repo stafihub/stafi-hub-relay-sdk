@@ -9,6 +9,7 @@ import (
 	"github.com/stafihub/rtoken-relay-core/common/config"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
+	stafiHubXSudoTypes "github.com/stafihub/stafihub/x/sudo/types"
 )
 
 var (
@@ -114,4 +115,8 @@ func (c *Chain) GetPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.QueryGe
 
 func (c *Chain) GetPools(denom string) (*stafiHubXLedgerTypes.QueryBondedPoolsByDenomResponse, error) {
 	return c.conn.client.QueryPools(denom)
+}
+
+func (c *Chain) GetAddressPrefix(denom string) (*stafiHubXSudoTypes.QueryAddressPrefixResponse, error) {
+	return c.conn.client.QueryAddressPrefix(denom)
 }
