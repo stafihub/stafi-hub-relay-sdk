@@ -15,7 +15,15 @@ import (
 	rpcHttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
-const AccountPrefix = "stafi"
+var accountPrefix = "stafi"
+
+func GetAccountPrefix() string {
+	return accountPrefix
+}
+
+func SetAccountPrefix(prefix string) {
+	accountPrefix = prefix
+}
 
 //stafihub client
 type Client struct {

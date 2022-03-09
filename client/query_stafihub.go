@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -27,7 +27,7 @@ func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSna
 }
 
 func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedgerTypes.QueryGetPoolUnbondResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -47,7 +47,7 @@ func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedg
 }
 
 func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.QueryGetPoolDetailResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -66,7 +66,7 @@ func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.Quer
 }
 
 func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubXLedgerTypes.OriginalTxType, proposalId string) (*stafiHubXLedgerTypes.QueryGetSignatureResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -88,7 +88,7 @@ func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubX
 }
 
 func (c *Client) QueryPools(denom string) (*stafiHubXLedgerTypes.QueryBondedPoolsByDenomResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -106,7 +106,7 @@ func (c *Client) QueryPools(denom string) (*stafiHubXLedgerTypes.QueryBondedPool
 }
 
 func (c *Client) QueryChainEra(denom string) (*stafiHubXLedgerTypes.QueryGetChainEraResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -124,7 +124,7 @@ func (c *Client) QueryChainEra(denom string) (*stafiHubXLedgerTypes.QueryGetChai
 }
 
 func (c *Client) QueryEraSnapShotList(denom string, era uint32) (*stafiHubXLedgerTypes.QueryGetEraSnapshotResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -143,7 +143,7 @@ func (c *Client) QueryEraSnapShotList(denom string, era uint32) (*stafiHubXLedge
 }
 
 func (c *Client) QueryEraContinuable(denom string, era uint32) (bool, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -166,7 +166,7 @@ func (c *Client) QueryEraContinuable(denom string, era uint32) (bool, error) {
 }
 
 func (c *Client) QueryRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRParamsResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
 	params := &stafiHubXLedgerTypes.QueryGetRParamsRequest{
@@ -182,7 +182,7 @@ func (c *Client) QueryRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRPara
 }
 
 func (c *Client) QueryBondRecord(denom, txHash string) (*stafiHubXLedgerTypes.QueryGetBondRecordResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
@@ -200,7 +200,7 @@ func (c *Client) QueryBondRecord(denom, txHash string) (*stafiHubXLedgerTypes.Qu
 }
 
 func (c *Client) QueryAddressPrefix(denom string) (*stafiHubXSudoTypes.QueryAddressPrefixResponse, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXSudoTypes.NewQueryClient(c.Ctx())

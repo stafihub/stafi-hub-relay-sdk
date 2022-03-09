@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, []byte, error) {
-	done := core.UseSdkConfigContext(AccountPrefix)
+	done := core.UseSdkConfigContext(GetAccountPrefix())
 	msg, err := stafiHubXRvoteTypes.NewMsgSubmitProposal(c.GetFromAddress(), content)
 	if err != nil {
 		done()

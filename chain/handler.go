@@ -118,7 +118,7 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 		return nil
 	}
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	bonder, err := types.AccAddressFromBech32(proposal.Bonder)
 	if err != nil {
 		done()
@@ -164,7 +164,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 	useEra := eraOnChain + 1
 	w.log.Info("will set newChainEra", "newEra", useEra, "symbol", proposal.Denom)
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, useEra)
 	done()
 
@@ -179,7 +179,7 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
 	}
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
 	done()
 
@@ -194,7 +194,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 		return fmt.Errorf("ProposalActiveReport cast failed, %+v", m)
 	}
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	content := stafiHubXLedgerTypes.NewActiveReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Staked, proposal.Unstaked)
 	done()
 
@@ -209,7 +209,7 @@ func (w *Handler) handleWithdrawReport(m *core.Message) error {
 		return fmt.Errorf("ProposalWithdrawReport cast failed, %+v", m)
 	}
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	content := stafiHubXLedgerTypes.NewWithdrawReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
 	done()
 
@@ -224,7 +224,7 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 		return fmt.Errorf("ProposalTransferReport cast failed, %+v", m)
 	}
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	content := stafiHubXLedgerTypes.NewTransferReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
 	done()
 
@@ -239,7 +239,7 @@ func (w *Handler) handleSubmitSignature(m *core.Message) error {
 		return fmt.Errorf("ProposalSubmitSignature cast failed, %+v", m)
 	}
 
-	done := core.UseSdkConfigContext(hubClient.AccountPrefix)
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
 	msg := stafiHubXLedgerTypes.NewMsgSubmitSignature(w.conn.client.GetFromAddress().String(), proposal.Denom, proposal.Era, proposal.Pool, proposal.TxType, proposal.PropId, proposal.Signature)
 	done()
 
