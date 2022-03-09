@@ -9,11 +9,12 @@ require (
 	github.com/cosmos/ibc-go v1.2.5
 	github.com/ethereum/go-ethereum v1.10.15
 	github.com/spf13/cobra v1.2.1
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220304071726-3493a910c902
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220309091800-e1cba7aee072
 	github.com/stafihub/stafihub v0.0.0-20220308093550-e7a125f19054
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.14
+	google.golang.org/grpc v1.44.0
 )
 
 require (
@@ -109,7 +110,6 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220302033224-9aa15565e42a // indirect
-	google.golang.org/grpc v1.44.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
