@@ -12,12 +12,17 @@ import (
 	"github.com/stafihub/rtoken-relay-core/common/core"
 )
 
-func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) error {
+func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 	msg := xBankTypes.NewMsgSend(c.clientCtx.GetFromAddress(), toAddr, amount)
-	cmd := cobra.Command{}
-	return clientTx.GenerateOrBroadcastTxCLI(c.clientCtx, cmd.Flags(), msg)
+
+	txBts, err := c.ConstructAndSignTx(msg)
+	if err != nil {
+		return "", err
+	}
+
+	return c.BroadcastTx(txBts)
 }
 
 func (c *Client) BroadcastTx(tx []byte) (string, error) {
