@@ -14,8 +14,8 @@ import (
 
 func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
-	defer done()
 	msg := xBankTypes.NewMsgSend(c.clientCtx.GetFromAddress(), toAddr, amount)
+	done()
 
 	txBts, err := c.ConstructAndSignTx(msg)
 	if err != nil {
