@@ -25,6 +25,14 @@ func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) (
 	return c.BroadcastTx(txBts)
 }
 
+func (c *Client) BroadcastBatchMsg(msgs []types.Msg) (string, error) {
+	txBts, err := c.ConstructAndSignTx(msgs...)
+	if err != nil {
+		return "", err
+	}
+	return c.BroadcastTx(txBts)
+}
+
 func (c *Client) BroadcastTx(tx []byte) (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
