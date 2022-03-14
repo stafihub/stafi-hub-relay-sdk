@@ -12,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JFJun/go-substrate-crypto/ss58"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
@@ -62,15 +61,6 @@ func initClient() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-
-
-
-func TestClient_SendTo(t *testing.T) {
-	initClient()
-	err := client.SingleTransferTo(addrMultiSig1, types.NewCoins(types.NewInt64Coin(client.GetDenom(), 50000)))
-	assert.NoError(t, err)
 }
 
 func TestClient_QueryTxByHash(t *testing.T) {
@@ -200,18 +190,25 @@ func TestClient_GetSequence(t *testing.T) {
 }
 func TestMemo(t *testing.T) {
 	initClient()
-	res, err := client.QueryTxByHash("c7e3f7baf5a5f1d8cbc112080f32070dddd7cca5fe4272e06f8d42c17b25193f")
+	// res, err := client.QueryTxByHash("c7e3f7baf5a5f1d8cbc112080f32070dddd7cca5fe4272e06f8d42c17b25193f")
+	// assert.NoError(t, err)
+	txBts, err := hex.DecodeString("0ada010ac0010a2c2f73746166696875622e73746166696875622e6c65646765722e4d73674c6971756964697479556e626f6e64128f010a2c737461666931356c6e653730796b3235347330706d32646136673539723832636a796d7a6a71767671787a37122a69616131356e706c743477663639366430356c666667706a6b7366397632796c66307335767a7a6d336c1a0731757269726973222a69616131356c6e653730796b3235347330706d32646136673539723832636a796d7a6a717a3973613568121575736520796f757220706f77657220776973656c7912660a500a460a1f2f636f736d6f732e63727970746f2e736563703235366b312e5075624b657912230a2102b55d8e6a0b7a57364cf2437c793ebed3b103e7dec4c56b87258972230252127812040a020801180312120a0c0a047566697312043435303010a0fe0a1a403b89ceb1ede49a88270f215136e62fab924e3cee762a3404ea5693b3096a806f508f47ce5870249ee7cc9c91a05058f7694dd95263ba7b431899722c5d51a44c")
+	// txBts, err := hex.DecodeString("0ac7010ac4010a2c2f73746166696875622e73746166696875622e6c65646765722e4d73674c6971756964697479556e626f6e641293010a2c737461666931356c6e653730796b3235347330706d32646136673539723832636a796d7a6a71767671787a37122a69616131356e706c743477663639366430356c666667706a6b7366397632796c66307335767a7a6d336c1a0b0a06757269726973120131222a69616131767a6632386b706d7332747a72666b61613634356b6172707a3471386776613074657579773712650a500a460a1f2f636f736d6f732e63727970746f2e736563703235366b312e5075624b657912230a2102b55d8e6a0b7a57364cf2437c793ebed3b103e7dec4c56b87258972230252127812040a020801180212110a0b0a0475666973120335303010c09a0c1a405ffb2ce2bc9d120956b24c20749240c1e49953274c6d400e04da234c48059aef758c66895b78e2bee28b9c5ac6a619278db40a0708dfa00e94786aaa7f0d5e71")
 	assert.NoError(t, err)
-	tx, err := client.GetTxConfig().TxDecoder()(res.Tx.GetValue())
-	//tx, err := client.GetTxConfig().TxJSONDecoder()(res.Tx.Value)
-	assert.NoError(t, err)
-	memoTx, ok := tx.(types.TxWithMemo)
-	assert.Equal(t, true, ok)
-	t.Log(memoTx.GetMemo())
-	hb, _ := hexutil.Decode("0xbebd0355ae360c8e6a7ed940a819838c66ca7b8f581f9c0e81dbb5faff346a30")
-	//t.Log(string(hb))
-	bonderAddr, _ := ss58.Encode(hb, ss58.StafiPrefix)
-	t.Log(bonderAddr)
+	// t.Log(string(txBts))
+	tx, err := client.GetTxConfig().TxDecoder()(txBts)
+	// tx, err := client.GetTxConfig().TxJSONDecoder()(txBts)
+	if err!=nil{
+		t.Fatal(err.Error())
+	}
+	t.Log(tx)
+	// memoTx, ok := tx.(types.TxWithMemo)
+	// assert.Equal(t, true, ok)
+	// t.Log(memoTx.GetMemo())
+	// hb, _ := hexutil.Decode("0xbebd0355ae360c8e6a7ed940a819838c66ca7b8f581f9c0e81dbb5faff346a30")
+	// //t.Log(string(hb))
+	// bonderAddr, _ := ss58.Encode(hb, ss58.StafiPrefix)
+	// t.Log(bonderAddr)
 }
 
 func TestMultiThread(t *testing.T) {
@@ -260,8 +257,8 @@ func TestSort(t *testing.T) {
 	t.Log(string(txBts))
 }
 
-func TestZeroAddress(t *testing.T){
-	addressBts:=[20]byte{}
-	ac:=types.AccAddress(addressBts[:])
+func TestZeroAddress(t *testing.T) {
+	addressBts := [20]byte{}
+	ac := types.AccAddress(addressBts[:])
 	t.Log(ac.String())
 }
