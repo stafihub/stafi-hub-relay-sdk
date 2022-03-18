@@ -296,7 +296,11 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 		case strings.Contains(err.Error(), stafiHubXRVoteTypes.ErrProposalAlreadyExpired.Error()):
 			h.log.Info("no need send, already expired", "txHash", txHashStr, "type", typeStr)
 			return nil
+		case strings.Contains(err.Error(), stafiHubXLedgerTypes.ErrEraNotContinuable.Error()):
+			h.log.Info("no need send, already update new era", "txHash", txHashStr, "type", typeStr)
+			return nil
 		}
+
 		return err
 	}
 
