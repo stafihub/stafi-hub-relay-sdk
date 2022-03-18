@@ -104,7 +104,7 @@ func (w *Handler) handleMessage(m *core.Message) error {
 }
 
 func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
-	w.log.Info("handleExeLiquidityBond", "msg", m)
+	w.log.Info("handleExeLiquidityBond", "m", m)
 	proposal, ok := m.Content.(core.ProposalExeLiquidityBond)
 	if !ok {
 		return fmt.Errorf("ProposalLiquidityBond cast failed, %+v", m)
@@ -132,7 +132,7 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 }
 
 func (w *Handler) handleNewChainEra(m *core.Message) error {
-	w.log.Debug("handleNewChainEra", "msg", m)
+	w.log.Debug("handleNewChainEra", "m", m)
 	proposal, ok := m.Content.(core.ProposalSetChainEra)
 	if !ok {
 		return fmt.Errorf("ProposalSetChainEra cast failed, %+v", m)
@@ -173,7 +173,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 }
 
 func (w *Handler) handleBondReport(m *core.Message) error {
-	w.log.Info("handleBondReport", "msg", m)
+	w.log.Info("handleBondReport", "m", m)
 	proposal, ok := m.Content.(core.ProposalBondReport)
 	if !ok {
 		return fmt.Errorf("ProposalBondReport cast failed, %+v", m)
@@ -188,7 +188,7 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 }
 
 func (w *Handler) handleActiveReport(m *core.Message) error {
-	w.log.Info("handleActiveReport", "msg", m)
+	w.log.Info("handleActiveReport", "m", m)
 	proposal, ok := m.Content.(core.ProposalActiveReport)
 	if !ok {
 		return fmt.Errorf("ProposalActiveReport cast failed, %+v", m)
@@ -203,7 +203,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 }
 
 func (w *Handler) handleWithdrawReport(m *core.Message) error {
-	w.log.Info("handleWithdrawReport", "msg", m)
+	w.log.Info("handleWithdrawReport", "m", m)
 	proposal, ok := m.Content.(core.ProposalWithdrawReport)
 	if !ok {
 		return fmt.Errorf("ProposalWithdrawReport cast failed, %+v", m)
@@ -218,7 +218,7 @@ func (w *Handler) handleWithdrawReport(m *core.Message) error {
 }
 
 func (w *Handler) handleTransferReport(m *core.Message) error {
-	w.log.Info("handleTransferReport", "msg", m)
+	w.log.Info("handleTransferReport", "m", m)
 	proposal, ok := m.Content.(core.ProposalTransferReport)
 	if !ok {
 		return fmt.Errorf("ProposalTransferReport cast failed, %+v", m)
@@ -233,7 +233,7 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {
-	w.log.Info("handleSubmitSignature", "msg", m)
+	w.log.Info("handleSubmitSignature", "m", m)
 	proposal, ok := m.Content.(core.ParamSubmitSignature)
 	if !ok {
 		return fmt.Errorf("ProposalSubmitSignature cast failed, %+v", m)
@@ -248,7 +248,7 @@ func (w *Handler) handleSubmitSignature(m *core.Message) error {
 }
 
 func (w *Handler) handleGetPools(m *core.Message) error {
-	w.log.Info("handleGetPools", "msg", m)
+	w.log.Info("handleGetPools", "m", m)
 	getPools, ok := m.Content.(core.ParamGetPools)
 	if !ok {
 		return fmt.Errorf("GetPools cast failed, %+v", m)
@@ -265,7 +265,7 @@ func (w *Handler) handleGetPools(m *core.Message) error {
 }
 
 func (w *Handler) handleGetSignatures(m *core.Message) error {
-	w.log.Info("handleGetSignature", "msg", m)
+	w.log.Info("handleGetSignature", "m", m)
 	getSiganture, ok := m.Content.(core.ParamGetSignatures)
 	if !ok {
 		return fmt.Errorf("GetSignature cast failed, %+v", m)
