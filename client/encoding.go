@@ -15,7 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/ibc-go/modules/apps/transfer"
+	"github.com/cosmos/ibc-go/v3/modules/apps/transfer"
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
 	stafiHubXRelayer "github.com/stafihub/stafihub/x/relayers"

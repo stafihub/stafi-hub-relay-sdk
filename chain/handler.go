@@ -124,7 +124,9 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 		done()
 		return err
 	}
-	content := stafiHubXLedgerTypes.NewExecuteBondProposal(w.conn.client.GetFromAddress(), proposal.Denom, bonder, proposal.Pool, proposal.Txhash, proposal.Amount)
+	content := stafiHubXLedgerTypes.NewExecuteBondProposal(
+		w.conn.client.GetFromAddress(), proposal.Denom, bonder,
+		proposal.Pool, proposal.Txhash, proposal.Amount, proposal.State)
 	done()
 
 	txHash, txBts, err := w.conn.client.SubmitProposal(content)
