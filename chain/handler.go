@@ -109,12 +109,12 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 	if !ok {
 		return fmt.Errorf("ProposalLiquidityBond cast failed, %+v", m)
 	}
-	_, err := w.conn.client.QueryBondRecord(proposal.Denom, proposal.Txhash)
+	recordRes, err := w.conn.client.QueryBondRecord(proposal.Denom, proposal.Txhash)
 	if err != nil && !strings.Contains(err.Error(), "NotFound") {
 		return err
 	}
-	if err == nil {
-		w.log.Warn("handleExeLiquidityBond already exe bond, no need submitproposal", "msg", m)
+	if err == nil && recordRes.BondRecord.State == stafiHubXLedgerTypes.LiquidityBondStateVerifyOk {
+		w.log.Warn("handleExeLiquidityBond already verifyOk, no need submitproposal", "msg", m)
 		return nil
 	}
 
