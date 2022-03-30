@@ -963,6 +963,8 @@ github.com/stafihub/rtoken-relay-core/common v0.0.0-20220322131640-349d7a0561fd 
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220322131640-349d7a0561fd/go.mod h1:qS2egz/kfv/6cs2xz6avrBdfaFmtz32hcJBlKWOSLV0=
 github.com/stafihub/stafihub v0.0.0-20220322130142-64175d4412cd h1:JuZGkuYt13TtYwwIeYnoPVnsFcFP/S3URGCTXYM8hKc=
 github.com/stafihub/stafihub v0.0.0-20220322130142-64175d4412cd/go.mod h1:vBctZvC1wdki7TGoOkUvbModkh8QRkKYrZ7Xx4xzh44=
+github.com/stafihub/stafihub v0.0.0-20220329070817-9ddbe40be6ad h1:uF0lrS9KlQt2ahqzI3RuwnrcRNNHceQGxBXXFakqHOg=
+github.com/stafihub/stafihub v0.0.0-20220329070817-9ddbe40be6ad/go.mod h1:vBctZvC1wdki7TGoOkUvbModkh8QRkKYrZ7Xx4xzh44=
 github.com/stafiprotocol/chainbridge v1.0.0 h1:CT5ActFpHt4WEw+VvcCNw/bTLVrrnxK348ro5r0GMds=
 github.com/stafiprotocol/chainbridge v1.0.0/go.mod h1:yJs9Zg9VbF6QtDO5a+CsfwQCcL9PojKWnCd040JRWlE=
 github.com/stafiprotocol/go-substrate-rpc-client v1.0.9/go.mod h1:P3xucNyw6UjKvCvGg0eiQJhcRyZsUv5a9akxDTLMHFk=
