@@ -227,8 +227,6 @@ github.com/coreos/pkg v0.0.0-20160727233714-3ac0863d7acf/go.mod h1:E3G3o1h8I7cfc
 github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfcXa63jLwjI0eiQQMgzzUDFVpN/nH/eA=
 github.com/cosmos/btcutil v1.0.4 h1:n7C2ngKXo7UC9gNyMNLbzqz7Asuf+7Qv4gnX/rOdQ44=
 github.com/cosmos/btcutil v1.0.4/go.mod h1:Ffqc8Hn6TJUdDgHBwIZLtrLQC1KdJ9jGJl/TvgUaxbU=
-github.com/cosmos/cosmos-sdk v0.45.1 h1:PY79YxPea5qlRLExRnzg8/rT1Scc8GGgRs22p7DX99Q=
-github.com/cosmos/cosmos-sdk v0.45.1/go.mod h1:XXS/asyCqWNWkx2rW6pSuen+EVcpAFxq6khrhnZgHaQ=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=
@@ -959,10 +957,10 @@ github.com/spf13/viper v1.8.1/go.mod h1:o0Pch8wJ9BVSWGQMbra6iw0oQ5oktSIBaujf1rJH
 github.com/spf13/viper v1.10.0/go.mod h1:SoyBPwAtKDzypXNDFKN5kzH7ppppbGZtls1UpIy5AsM=
 github.com/spf13/viper v1.10.1 h1:nuJZuYpG7gTj/XqiUwg8bA0cp1+M2mC3J4g5luUYBKk=
 github.com/spf13/viper v1.10.1/go.mod h1:IGlFPqhNAPKRxohIzWpI5QEy4kuI7tcl5WvR+8qy1rU=
+github.com/stafihub/cosmos-sdk v0.45.1-stafihub-0.0.4 h1:8PkswoRbskzpU8gPhxnx0SBWMfbIcFsKph0+Ek4jPac=
+github.com/stafihub/cosmos-sdk v0.45.1-stafihub-0.0.4/go.mod h1:XXS/asyCqWNWkx2rW6pSuen+EVcpAFxq6khrhnZgHaQ=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220322131640-349d7a0561fd h1:p+pH8uNa9z3iiZLcWN4zGxJ65lZXGWbE2mSgd3nAWa4=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220322131640-349d7a0561fd/go.mod h1:qS2egz/kfv/6cs2xz6avrBdfaFmtz32hcJBlKWOSLV0=
-github.com/stafihub/stafihub v0.0.0-20220322130142-64175d4412cd h1:JuZGkuYt13TtYwwIeYnoPVnsFcFP/S3URGCTXYM8hKc=
-github.com/stafihub/stafihub v0.0.0-20220322130142-64175d4412cd/go.mod h1:vBctZvC1wdki7TGoOkUvbModkh8QRkKYrZ7Xx4xzh44=
 github.com/stafihub/stafihub v0.0.0-20220329070817-9ddbe40be6ad h1:uF0lrS9KlQt2ahqzI3RuwnrcRNNHceQGxBXXFakqHOg=
 github.com/stafihub/stafihub v0.0.0-20220329070817-9ddbe40be6ad/go.mod h1:vBctZvC1wdki7TGoOkUvbModkh8QRkKYrZ7Xx4xzh44=
 github.com/stafiprotocol/chainbridge v1.0.0 h1:CT5ActFpHt4WEw+VvcCNw/bTLVrrnxK348ro5r0GMds=

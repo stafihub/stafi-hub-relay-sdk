@@ -224,8 +224,21 @@ func (c *Client) GetTxs(events []string, page, limit int, orderBy string) (*type
 	return cc.(*types.SearchTxsResult), nil
 }
 
+func (c *Client) GetTxsWithParseErrSkip(events []string, page, limit int, orderBy string) (*types.SearchTxsResult, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+	cc, err := retry(func() (interface{}, error) {
+		return xAuthTx.QueryTxsByEventsWithParseErrSkip(c.clientCtx, events, page, limit, orderBy)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*types.SearchTxsResult), nil
+}
+
+// will skip txs that parse failed
 func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
-	searchTxs, err := c.GetTxs([]string{fmt.Sprintf("tx.height=%d", height)}, 1, 1000, "asc")
+	searchTxs, err := c.GetTxsWithParseErrSkip([]string{fmt.Sprintf("tx.height=%d", height)}, 1, 1000, "asc")
 	if err != nil {
 		return nil, err
 	}
