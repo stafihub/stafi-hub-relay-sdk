@@ -6,7 +6,7 @@ import (
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXBridgeTypes "github.com/stafihub/stafihub/x/bridge/types"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
-	stafiHubXSudoTypes "github.com/stafihub/stafihub/x/sudo/types"
+	stafiHubXRBankTypes "github.com/stafihub/stafihub/x/rbank/types"
 )
 
 func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
@@ -200,12 +200,12 @@ func (c *Client) QueryBondRecord(denom, txHash string) (*stafiHubXLedgerTypes.Qu
 	return cc.(*stafiHubXLedgerTypes.QueryGetBondRecordResponse), nil
 }
 
-func (c *Client) QueryAddressPrefix(denom string) (*stafiHubXSudoTypes.QueryAddressPrefixResponse, error) {
+func (c *Client) QueryAddressPrefix(denom string) (*stafiHubXRBankTypes.QueryAddressPrefixResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXSudoTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXSudoTypes.QueryAddressPrefixRequest{
+	queryClient := stafiHubXRBankTypes.NewQueryClient(c.Ctx())
+	params := &stafiHubXRBankTypes.QueryAddressPrefixRequest{
 		Denom: denom,
 	}
 	cc, err := Retry(func() (interface{}, error) {
@@ -214,7 +214,7 @@ func (c *Client) QueryAddressPrefix(denom string) (*stafiHubXSudoTypes.QueryAddr
 	if err != nil {
 		return nil, err
 	}
-	return cc.(*stafiHubXSudoTypes.QueryAddressPrefixResponse), nil
+	return cc.(*stafiHubXRBankTypes.QueryAddressPrefixResponse), nil
 }
 
 func (c *Client) QueryBridgeProposalDetail(chainId uint32, depositNonce uint64, resourceId, amount, receiver string) (*stafiHubXBridgeTypes.QueryProposalDetailResponse, error) {

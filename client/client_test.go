@@ -82,7 +82,7 @@ func TestClient_QueryTxByHash(t *testing.T) {
 
 func TestGetTxs(t *testing.T) {
 	initClient()
-	txs, err := client.GetBlockTxs(31268)
+	txs, err := client.GetBlockTxs(147694)
 	if err != nil {
 		t.Fatal(err)
 	}

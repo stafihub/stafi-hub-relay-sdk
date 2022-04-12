@@ -20,6 +20,7 @@ import (
 	ibcCore "github.com/cosmos/ibc-go/v3/modules/core"
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
+	stafiHubXRBank "github.com/stafihub/stafihub/x/rbank"
 	stafiHubXRelayer "github.com/stafihub/stafihub/x/relayers"
 	stafiHubXRmintReward "github.com/stafihub/stafihub/x/rmintreward"
 	stafiHubXRvalidator "github.com/stafihub/stafihub/x/rvalidator"
@@ -62,6 +63,7 @@ func MakeEncodingConfig() EncodingConfig {
 		stafiHubXBridge.AppModuleBasic{},
 		stafiHubXRvalidator.AppModuleBasic{},
 		stafiHubXRmintReward.AppModuleBasic{},
+		stafiHubXRBank.AppModuleBasic{},
 	)
 	moduleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	moduleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)

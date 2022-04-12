@@ -75,7 +75,6 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			LastEra:     uint32(lastEra),
 			CurrentEra:  uint32(currentEra),
 			ShotId:      event.Attributes[3].Value,
-			LasterVoter: event.Attributes[4].Value,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
@@ -109,7 +108,6 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		e := core.EventBondReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
-			LasterVoter: event.Attributes[2].Value,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
@@ -143,7 +141,6 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		e := core.EventActiveReported{
 			Denom:       event.Attributes[0].Value,
 			ShotId:      event.Attributes[1].Value,
-			LasterVoter: event.Attributes[2].Value,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil

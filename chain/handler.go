@@ -92,8 +92,6 @@ func (w *Handler) handleMessage(m *core.Message) error {
 		return w.handleBondReport(m)
 	case core.ReasonActiveReport:
 		return w.handleActiveReport(m)
-	case core.ReasonWithdrawReport:
-		return w.handleWithdrawReport(m)
 	case core.ReasonTransferReport:
 		return w.handleTransferReport(m)
 	case core.ReasonSubmitSignature:
@@ -202,21 +200,6 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 
 	txHash, txBts, err := w.conn.client.SubmitProposal(content)
 	return w.checkAndReSend(txHash, txBts, "activeReportProposal", err)
-}
-
-func (w *Handler) handleWithdrawReport(m *core.Message) error {
-	w.log.Info("handleWithdrawReport", "m", m)
-	proposal, ok := m.Content.(core.ProposalWithdrawReport)
-	if !ok {
-		return fmt.Errorf("ProposalWithdrawReport cast failed, %+v", m)
-	}
-
-	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
-	content := stafiHubXLedgerTypes.NewWithdrawReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
-	done()
-
-	txHash, txBts, err := w.conn.client.SubmitProposal(content)
-	return w.checkAndReSend(txHash, txBts, "withdrawReportProposal", err)
 }
 
 func (w *Handler) handleTransferReport(m *core.Message) error {
