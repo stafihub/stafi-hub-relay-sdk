@@ -52,7 +52,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 	var shotId string
 	switch {
 	case event.Type == stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
-		if len(event.Attributes) != 5 {
+		if len(event.Attributes) != 4 {
 			return ErrEventAttributeNumberUnMatch
 		}
 
@@ -101,7 +101,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		shotId = e.ShotId
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeBondReported:
-		if len(event.Attributes) != 3 {
+		if len(event.Attributes) != 2 {
 			return ErrEventAttributeNumberUnMatch
 		}
 
@@ -134,7 +134,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		shotId = e.ShotId
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeActiveReported:
-		if len(event.Attributes) != 3 {
+		if len(event.Attributes) != 2 {
 			return ErrEventAttributeNumberUnMatch
 		}
 
