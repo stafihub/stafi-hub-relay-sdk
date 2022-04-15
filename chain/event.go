@@ -171,7 +171,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		shotId = e.ShotId
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeRParamsChanged:
-		if len(event.Attributes) != 1 {
+		if len(event.Attributes) != 6 {
 			return ErrEventAttributeNumberUnMatch
 		}
 		denom := event.Attributes[0].Value
