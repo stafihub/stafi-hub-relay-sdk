@@ -38,10 +38,10 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 	defer done()
 	res, err := c.clientCtx.BroadcastTx(tx)
 	if err != nil {
-		return res.TxHash, err
+		return "", err
 	}
 	if res.Code != 0 {
-		return res.TxHash, fmt.Errorf("broadcast err, res.codespace: %s, res.code: %d, res.raw_log: %s", res.Codespace, res.Code, res.RawLog)
+		return "", fmt.Errorf("broadcast err, res.codespace: %s, res.code: %d, res.raw_log: %s", res.Codespace, res.Code, res.RawLog)
 	}
 	return res.TxHash, nil
 }
