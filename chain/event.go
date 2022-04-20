@@ -71,10 +71,10 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return fmt.Errorf("current era overflow %d", currentEra)
 		}
 		e := core.EventEraPoolUpdated{
-			Denom:       event.Attributes[0].Value,
-			LastEra:     uint32(lastEra),
-			CurrentEra:  uint32(currentEra),
-			ShotId:      event.Attributes[3].Value,
+			Denom:      event.Attributes[0].Value,
+			LastEra:    uint32(lastEra),
+			CurrentEra: uint32(currentEra),
+			ShotId:     event.Attributes[3].Value,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
@@ -106,8 +106,8 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 
 		e := core.EventBondReported{
-			Denom:       event.Attributes[0].Value,
-			ShotId:      event.Attributes[1].Value,
+			Denom:  event.Attributes[0].Value,
+			ShotId: event.Attributes[1].Value,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil
@@ -139,8 +139,8 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 
 		e := core.EventActiveReported{
-			Denom:       event.Attributes[0].Value,
-			ShotId:      event.Attributes[1].Value,
+			Denom:  event.Attributes[0].Value,
+			ShotId: event.Attributes[1].Value,
 		}
 		if l.caredSymbol != core.RSymbol(e.Denom) {
 			return nil

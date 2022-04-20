@@ -296,26 +296,41 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 		}
 		//check on chain
 		res, err := h.conn.client.QueryTxByHash(txHashStr)
-		if err != nil || res.Empty() || res.Code != 0 {
+		if err != nil {
+			switch {
+			case strings.Contains(err.Error(), stafiHubXLedgerTypes.ErrSignatureRepeated.Error()):
+				h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
+				return nil
+			case strings.Contains(err.Error(), stafiHubXRelayersTypes.ErrAlreadyVoted.Error()):
+				h.log.Info("no need send, already voted", "txHash", txHashStr, "type", typeStr)
+				return nil
+			case strings.Contains(err.Error(), stafiHubXRVoteTypes.ErrProposalAlreadyApproved.Error()):
+				h.log.Info("no need send, already approved", "txHash", txHashStr, "type", typeStr)
+				return nil
+			case strings.Contains(err.Error(), stafiHubXRVoteTypes.ErrProposalAlreadyExpired.Error()):
+				h.log.Info("no need send, already expired", "txHash", txHashStr, "type", typeStr)
+				return nil
+			case strings.Contains(err.Error(), stafiHubXLedgerTypes.ErrEraNotContinuable.Error()):
+				h.log.Info("no need send, already update new era", "txHash", txHashStr, "type", typeStr)
+				return nil
+			}
+		}
+
+		if err != nil || res.Empty() || res.Code != 0 || res.Height == 0 {
 			if res != nil {
 				h.log.Warn(fmt.Sprintf(
-					"checkAndSend QueryTxByHash, tx failed. will rebroadcast after %f second",
+					"checkAndSend QueryTxByHash, tx failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
 					"res.code", res.Code)
 			} else {
 				h.log.Warn(fmt.Sprintf(
-					"checkAndSend QueryTxByHash failed. will rebroadcast after %f second",
+					"checkAndSend QueryTxByHash failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
 					"err", err)
 			}
 
-			//broadcast if not on chain
-			_, err = h.conn.client.BroadcastTx(txBts)
-			if err != nil && err != errType.ErrTxInMempoolCache {
-				h.log.Warn("checkAndSend BroadcastTx failed  will retry", "failed info", err)
-			}
 			time.Sleep(BlockRetryInterval)
 			retry--
 			continue
