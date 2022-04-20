@@ -7,7 +7,6 @@ import (
 
 	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/types"
-	errType "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
