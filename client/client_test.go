@@ -68,9 +68,11 @@ func TestClient_QueryTxByHash(t *testing.T) {
 
 	for {
 
-		res, err := client.QueryTxByHash("cb21ff0aae81b98f39e1488bb26c098597fab336db45521be7d8aad057a973e3")
+		res, err := client.QueryTxByHash("486BFD082BC8638356BCA167E02D24ECA310BCB983A4F8770E226C7528E757F3")
 		assert.NoError(t, err)
 		t.Log(res.Height)
+		t.Log(fmt.Sprintf("%+v", res))
+		t.Log(fmt.Sprintf("%+v", res))
 
 		curBlock, err := client.GetCurrentBlockHeight()
 		assert.NoError(t, err)
