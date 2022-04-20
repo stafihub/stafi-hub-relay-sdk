@@ -56,7 +56,7 @@ func NewClient(k keyring.Keyring, fromName, gasPrice, endPoint string) (*Client,
 			WithLegacyAmino(encodingConfig.Amino).
 			WithInput(os.Stdin).
 			WithAccountRetriever(xAuthTypes.AccountRetriever{}).
-			WithBroadcastMode(flags.BroadcastBlock).
+			WithBroadcastMode(flags.BroadcastSync).
 			WithClient(rpcClient).
 			WithSkipConfirmation(true).         //skip password confirm
 			WithFromName(fromName).             //keyBase need FromName to find key info
