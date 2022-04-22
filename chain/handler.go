@@ -7,6 +7,7 @@ import (
 
 	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
@@ -126,8 +127,7 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 		proposal.Pool, proposal.Txhash, proposal.Amount, proposal.State)
 	done()
 
-	txHash, txBts, err := w.conn.client.SubmitProposal(content)
-	return w.checkAndReSend(txHash, txBts, "executeBondProposal", err)
+	return w.checkAndReSendWithProposalContent("executeBondProposal", content)
 }
 
 func (w *Handler) handleNewChainEra(m *core.Message) error {
@@ -167,8 +167,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, useEra)
 	done()
 
-	txHash, txBts, err := w.conn.client.SubmitProposal(content)
-	return w.checkAndReSend(txHash, txBts, "setChainEraProposal", err)
+	return w.checkAndReSendWithProposalContent("setChainEraProposal", content)
 }
 
 func (w *Handler) handleBondReport(m *core.Message) error {
@@ -182,8 +181,7 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
 	done()
 
-	txHash, txBts, err := w.conn.client.SubmitProposal(content)
-	return w.checkAndReSend(txHash, txBts, "bondReportProposal", err)
+	return w.checkAndReSendWithProposalContent("bondReportProposal", content)
 }
 
 func (w *Handler) handleActiveReport(m *core.Message) error {
@@ -197,8 +195,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewActiveReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Staked, proposal.Unstaked)
 	done()
 
-	txHash, txBts, err := w.conn.client.SubmitProposal(content)
-	return w.checkAndReSend(txHash, txBts, "activeReportProposal", err)
+	return w.checkAndReSendWithProposalContent("activeReportProposal", content)
 }
 
 func (w *Handler) handleTransferReport(m *core.Message) error {
@@ -212,8 +209,7 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewTransferReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
 	done()
 
-	txHash, txBts, err := w.conn.client.SubmitProposal(content)
-	return w.checkAndReSend(txHash, txBts, "transferReportProposal", err)
+	return w.checkAndReSendWithProposalContent("transferReportProposal", content)
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {
@@ -227,8 +223,7 @@ func (w *Handler) handleSubmitSignature(m *core.Message) error {
 	msg := stafiHubXLedgerTypes.NewMsgSubmitSignature(w.conn.client.GetFromAddress().String(), proposal.Denom, proposal.Era, proposal.Pool, proposal.TxType, proposal.PropId, proposal.Signature)
 	done()
 
-	txHash, txBts, err := w.conn.client.SubmitSignature(msg)
-	return w.checkAndReSend(txHash, txBts, "submitSignature", err)
+	return w.checkAndReSendWithSubmitSignature("submitSignature", msg)
 }
 
 func (w *Handler) handleGetPools(m *core.Message) error {
@@ -265,12 +260,69 @@ func (w *Handler) handleGetSignatures(m *core.Message) error {
 	return nil
 }
 
-func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string, err error) error {
+func (h *Handler) checkAndReSendWithSubmitSignature(typeStr string, sigMsg *stafiHubXLedgerTypes.MsgSubmitSignature) error {
+	txHashStr, _, err := h.conn.client.SubmitSignature(sigMsg)
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), stafiHubXLedgerTypes.ErrSignatureRepeated.Error()):
 			h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
 			return nil
+		}
+		return err
+	}
+
+	retry := BlockRetryLimit
+	for {
+		if retry <= 0 {
+			return fmt.Errorf("checkAndReSendWithSubmitSignature QueryTxByHash reach retry limit, tx hash: %s", txHashStr)
+		}
+		//check on chain
+		res, err := h.conn.client.QueryTxByHash(txHashStr)
+		if err != nil || res.Empty() || res.Height == 0 {
+			if res != nil {
+				h.log.Warn(fmt.Sprintf(
+					"checkAndReSendWithSubmitSignature QueryTxByHash, tx failed. will query after %f second",
+					BlockRetryInterval.Seconds()),
+					"tx hash", txHashStr,
+					"res.log", res.RawLog,
+					"res.code", res.Code)
+			} else {
+				h.log.Warn(fmt.Sprintf(
+					"checkAndReSendWithSubmitSignature QueryTxByHash failed. will query after %f second",
+					BlockRetryInterval.Seconds()),
+					"tx hash", txHashStr,
+					"err", err)
+			}
+
+			time.Sleep(BlockRetryInterval)
+			retry--
+			continue
+		}
+
+		if res.Code != 0 {
+			switch {
+			case strings.Contains(res.RawLog, stafiHubXLedgerTypes.ErrSignatureRepeated.Error()):
+				h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
+				return nil
+				// resend case
+			case strings.Contains(res.RawLog, errors.ErrOutOfGas.Error()):
+				return h.checkAndReSendWithSubmitSignature(txHashStr, sigMsg)
+			default:
+				return fmt.Errorf("tx failed, txHash: %s, rawlog: %s", txHashStr, res.RawLog)
+			}
+		}
+
+		break
+	}
+
+	h.log.Info("checkAndReSendWithSubmitSignature success", "txHash", txHashStr, "type", typeStr)
+	return nil
+}
+
+func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content stafiHubXRVoteTypes.Content) error {
+	txHashStr, _, err := h.conn.client.SubmitProposal(content)
+	if err != nil {
+		switch {
 		case strings.Contains(err.Error(), stafiHubXRelayersTypes.ErrAlreadyVoted.Error()):
 			h.log.Info("no need send, already voted", "txHash", txHashStr, "type", typeStr)
 			return nil
@@ -291,21 +343,21 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 	retry := BlockRetryLimit
 	for {
 		if retry <= 0 {
-			return fmt.Errorf("checkAndSend broadcast tx reach retry limit, tx hash: %s", txHashStr)
+			return fmt.Errorf("checkAndReSendWithProposalContent QueryTxByHash reach retry limit, tx hash: %s", txHashStr)
 		}
 		//check on chain
 		res, err := h.conn.client.QueryTxByHash(txHashStr)
 		if err != nil || res.Empty() || res.Height == 0 {
 			if res != nil {
 				h.log.Warn(fmt.Sprintf(
-					"checkAndSend QueryTxByHash, tx failed. will query after %f second",
+					"checkAndReSendWithProposalContent QueryTxByHash, tx failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
 					"res.log", res.RawLog,
 					"res.code", res.Code)
 			} else {
 				h.log.Warn(fmt.Sprintf(
-					"checkAndSend QueryTxByHash failed. will query after %f second",
+					"checkAndReSendWithProposalContent QueryTxByHash failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
 					"err", err)
@@ -318,9 +370,6 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 
 		if res.Code != 0 {
 			switch {
-			case strings.Contains(res.RawLog, stafiHubXLedgerTypes.ErrSignatureRepeated.Error()):
-				h.log.Info("no need send, already submit signature", "txHash", txHashStr, "type", typeStr)
-				return nil
 			case strings.Contains(res.RawLog, stafiHubXRelayersTypes.ErrAlreadyVoted.Error()):
 				h.log.Info("no need send, already voted", "txHash", txHashStr, "type", typeStr)
 				return nil
@@ -333,6 +382,10 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 			case strings.Contains(res.RawLog, stafiHubXLedgerTypes.ErrEraNotContinuable.Error()):
 				h.log.Info("no need send, already update new era", "txHash", txHashStr, "type", typeStr)
 				return nil
+
+			// resend case
+			case strings.Contains(res.RawLog, errors.ErrOutOfGas.Error()):
+				return h.checkAndReSendWithProposalContent(txHashStr, content)
 			default:
 				return fmt.Errorf("tx failed, txHash: %s, rawlog: %s", txHashStr, res.RawLog)
 			}
@@ -341,6 +394,6 @@ func (h *Handler) checkAndReSend(txHashStr string, txBts []byte, typeStr string,
 		break
 	}
 
-	h.log.Info("checkAndSend success", "txHash", txHashStr, "type", typeStr)
+	h.log.Info("checkAndReSendWithProposalContent success", "txHash", txHashStr, "type", typeStr)
 	return nil
 }

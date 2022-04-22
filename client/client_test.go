@@ -66,19 +66,53 @@ func initClient() {
 func TestClient_QueryTxByHash(t *testing.T) {
 	initClient()
 
-	for {
+	res, err := client.QueryTxByHash("7AB804A2E1E28870F534FA4BAA823AF101B54E2DA95293D5BC5382DDD3579211")
+	assert.NoError(t, err)
+	for _, e := range res.Events {
+		t.Log("e", e.String())
+	}
 
-		res, err := client.QueryTxByHash("486BFD082BC8638356BCA167E02D24ECA310BCB983A4F8770E226C7528E757F3")
-		assert.NoError(t, err)
-		t.Log(res.Height)
-		t.Log(fmt.Sprintf("%+v", res))
-		t.Log(fmt.Sprintf("%+v", res))
+	txs, err := client.GetBlockTxs(32652)
+	assert.NoError(t, err)
+	for _, tx := range txs {
+		if tx.TxHash == "7AB804A2E1E28870F534FA4BAA823AF101B54E2DA95293D5BC5382DDD3579211" {
 
-		curBlock, err := client.GetCurrentBlockHeight()
-		assert.NoError(t, err)
-		t.Log(curBlock)
-		time.Sleep(1 * time.Second)
-		t.Log("\n")
+			for _, log := range tx.Logs {
+				for i, event := range log.Events {
+					// eventIndex := log.MsgIndex*100 + uint32(i)
+					// if event.Type!="transfer"{
+					// 	continue
+					// }
+					t.Log("log.msgIndex", log.MsgIndex, "log.Log", log.Log, "eventIndex", i, "eventType", event.Type, "evetlen:", len(event.Attributes), "event", event.String())
+
+					eventIndex := log.MsgIndex*1000000 + uint32(i*10000)
+
+					if len(event.Attributes)%3 != 0 {
+						t.Log("attribute len error")
+					}
+
+					groupLen := len(event.Attributes) / 3
+					for group := 0; group < groupLen; group++ {
+						cursor := group * 3
+						recipient := event.Attributes[0+cursor].Value
+						from := event.Attributes[1+cursor].Value
+						amountStr := event.Attributes[2+cursor].Value
+
+						coins, err := types.ParseCoinsNormalized(amountStr)
+						if err != nil {
+							t.Log("parsecoin err")
+						}
+
+						for coinIndex, coin := range coins {
+							willUseEventIndex := eventIndex + uint32(group*100) + uint32(coinIndex)
+
+							t.Log(cursor, coin.Denom, coinIndex, willUseEventIndex, recipient, from, amountStr)
+						}
+					}
+				}
+			}
+
+		}
 	}
 }
 
