@@ -5,8 +5,8 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ChainSafe/log15"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	"github.com/stafiprotocol/chainbridge/utils/blockstore"
 )
 
@@ -24,12 +24,12 @@ type Listener struct {
 	blockstore  blockstore.Blockstorer
 	conn        *Connection
 	router      *core.Router
-	log         log15.Logger
+	log         log.Logger
 	stopChan    <-chan struct{}
 	sysErrChan  chan<- error
 }
 
-func NewListener(name string, symbol, caredSymbol core.RSymbol, startBlock uint64, bs blockstore.Blockstorer, conn *Connection, log log15.Logger, stopChan <-chan struct{}, sysErr chan<- error) *Listener {
+func NewListener(name string, symbol, caredSymbol core.RSymbol, startBlock uint64, bs blockstore.Blockstorer, conn *Connection, log log.Logger, stopChan <-chan struct{}, sysErr chan<- error) *Listener {
 	return &Listener{
 		name:        name,
 		symbol:      symbol,

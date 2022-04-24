@@ -5,14 +5,14 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ChainSafe/log15"
 	"github.com/stafihub/rtoken-relay-core/common/config"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	"github.com/stafihub/stafi-hub-relay-sdk/chain"
 )
 
 var (
-	logger = log15.Root().New("chain", "testChain")
+	logger = log.NewLog("./")
 	option = chain.ConfigOption{
 		BlockstorePath: "/Users/tpkeeper/gowork/stafi/rtoken-relay-core/blockstore",
 		StartBlock:     0,

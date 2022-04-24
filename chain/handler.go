@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRelayersTypes "github.com/stafihub/stafihub/x/relayers/types"
@@ -22,12 +22,12 @@ type Handler struct {
 	conn       *Connection
 	router     *core.Router
 	msgChan    chan *core.Message
-	log        log15.Logger
+	log        log.Logger
 	stopChan   <-chan struct{}
 	sysErrChan chan<- error
 }
 
-func NewHandler(conn *Connection, log log15.Logger, stopChan <-chan struct{}, sysErrChan chan<- error) *Handler {
+func NewHandler(conn *Connection, log log.Logger, stopChan <-chan struct{}, sysErrChan chan<- error) *Handler {
 	return &Handler{
 		conn:       conn,
 		msgChan:    make(chan *core.Message, msgLimit),

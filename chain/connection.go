@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ChainSafe/log15"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafihub/rtoken-relay-core/common/config"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
 
 type Connection struct {
 	symbol core.RSymbol
 	client *hubClient.Client
-	log    log15.Logger
+	log    log.Logger
 }
 
-func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log15.Logger) (*Connection, error) {
+func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log.Logger) (*Connection, error) {
 	fmt.Printf("Will open %s wallet from <%s>. \nPlease ", cfg.Name, cfg.KeystorePath)
 	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin)
 	if err != nil {

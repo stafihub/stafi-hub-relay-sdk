@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ChainSafe/log15"
 	"github.com/stafihub/rtoken-relay-core/common/config"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRBankTypes "github.com/stafihub/stafihub/x/rbank/types"
 )
@@ -31,7 +31,7 @@ func NewChain() *Chain {
 	return &Chain{rSymbol: core.HubRFIS}
 }
 
-func (c *Chain) Initialize(cfg *config.RawChainConfig, logger log15.Logger, sysErr chan<- error) error {
+func (c *Chain) Initialize(cfg *config.RawChainConfig, logger log.Logger, sysErr chan<- error) error {
 	stop := make(chan struct{})
 	bts, err := json.Marshal(cfg.Opts)
 	if err != nil {
