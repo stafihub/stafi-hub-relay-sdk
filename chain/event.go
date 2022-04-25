@@ -199,7 +199,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		return nil
 	}
 
-	l.log.Info("find event", "msg", m, "block number", blockNumber)
+	l.log.Info("find event", "eventType", event.Type, "block number", blockNumber)
 	err := l.submitMessage(&m)
 	if err != nil {
 		return err

@@ -7,7 +7,7 @@ require (
 	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/ethereum/go-ethereum v1.10.15
 	github.com/spf13/cobra v1.3.0
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220424144019-cbd4324e7ec0
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220424164819-a68fb21fbf4e
 	github.com/stafihub/stafihub v0.0.0-20220411153517-276c54bbf4a8
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.0
@@ -19,7 +19,6 @@ require (
 	filippo.io/edwards25519 v1.0.0-beta.2 // indirect
 	github.com/99designs/keyring v1.1.6 // indirect
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200626160457-b38283118816 // indirect
-	github.com/ChainSafe/log15 v1.0.0 // indirect
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -45,7 +44,6 @@ require (
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
-	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -69,7 +67,6 @@ require (
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/libp2p/go-buffer-pool v0.0.2 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643 // indirect

@@ -78,7 +78,6 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200626160457-b38283118816 h1:X5jJ3e/jgFSnSoYOep/mf6pF1RuLZfvF1ts8NZIyzqE=
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200626160457-b38283118816/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
-github.com/ChainSafe/log15 v1.0.0 h1:vRDVtWtVwIH5uSCBvgTTZh6FA58UBJ6+QiiypaZfBf8=
 github.com/ChainSafe/log15 v1.0.0/go.mod h1:5v1+ALHtdW0NfAeeoYyKmzCAMcAeqkdhIg4uxXWIgOg=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
@@ -726,7 +725,6 @@ github.com/mattn/go-colorable v0.1.6/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope
 github.com/mattn/go-colorable v0.1.7/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-colorable v0.1.8/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-colorable v0.1.9/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
-github.com/mattn/go-colorable v0.1.12 h1:jF+Du6AlPIjs2BiUiQlKOX0rt3SujHxPnksPKZbaA40=
 github.com/mattn/go-colorable v0.1.12/go.mod h1:u5H1YNBxpqRaxsYJYSkiCWKzEfiAb1Gb520KVy5xxl4=
 github.com/mattn/go-ieproxy v0.0.0-20190610004146-91bb50d98149/go.mod h1:31jz6HNzdxOmlERGGEc4v/dMssOfmp2p5bT/okiKFFc=
 github.com/mattn/go-ieproxy v0.0.0-20190702010315-6dee0af9227d/go.mod h1:31jz6HNzdxOmlERGGEc4v/dMssOfmp2p5bT/okiKFFc=
@@ -1028,8 +1026,8 @@ github.com/spf13/viper v1.10.1 h1:nuJZuYpG7gTj/XqiUwg8bA0cp1+M2mC3J4g5luUYBKk=
 github.com/spf13/viper v1.10.1/go.mod h1:IGlFPqhNAPKRxohIzWpI5QEy4kuI7tcl5WvR+8qy1rU=
 github.com/stafihub/cosmos-sdk v0.45.1-stafihub-0.0.4 h1:8PkswoRbskzpU8gPhxnx0SBWMfbIcFsKph0+Ek4jPac=
 github.com/stafihub/cosmos-sdk v0.45.1-stafihub-0.0.4/go.mod h1:XXS/asyCqWNWkx2rW6pSuen+EVcpAFxq6khrhnZgHaQ=
-github.com/stafihub/rtoken-relay-core/common v0.0.0-20220424144019-cbd4324e7ec0 h1:3vKx1Ur2phSw49KUBWQTVb+VmFioM64TS4TcKZcU9E4=
-github.com/stafihub/rtoken-relay-core/common v0.0.0-20220424144019-cbd4324e7ec0/go.mod h1:1FNAWDtil9bseJkEZGSEAGtCP1P3dC/scDlnFlPALVY=
+github.com/stafihub/rtoken-relay-core/common v0.0.0-20220424164819-a68fb21fbf4e h1:zUNGNO6z6pWRk0OsvXynufCXl/xj7350KNgRCXuhhYA=
+github.com/stafihub/rtoken-relay-core/common v0.0.0-20220424164819-a68fb21fbf4e/go.mod h1:FnqYMT5vkQuXa9Pv51EIOG+oFTWxFf5WTHF618pt6/0=
 github.com/stafihub/stafihub v0.0.0-20220411153517-276c54bbf4a8 h1:mp4uVYGaApYz82BvmV5+V4ZJVuriXjz58yfQ9GigTqw=
 github.com/stafihub/stafihub v0.0.0-20220411153517-276c54bbf4a8/go.mod h1:rdReo8W1SmrdQYmwSdVaTxwtsp31gNQpHy0/11i/BZg=
 github.com/stafiprotocol/chainbridge v1.0.0 h1:CT5ActFpHt4WEw+VvcCNw/bTLVrrnxK348ro5r0GMds=
