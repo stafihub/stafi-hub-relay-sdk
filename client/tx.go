@@ -2,7 +2,6 @@ package client
 
 import (
 	"fmt"
-	"time"
 
 	clientTx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types"
