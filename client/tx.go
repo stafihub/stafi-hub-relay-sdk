@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"time"
 
 	clientTx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -36,10 +37,14 @@ func (c *Client) BroadcastBatchMsg(msgs []types.Msg) (string, error) {
 func (c *Client) BroadcastTx(tx []byte) (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
-	res, err := c.clientCtx.BroadcastTx(tx)
+
+	cc, err := retry(func() (interface{}, error) {
+		return c.clientCtx.BroadcastTx(tx)
+	})
 	if err != nil {
 		return "", err
 	}
+	res := cc.(*types.TxResponse)
 	if res.Code != 0 {
 		return "", fmt.Errorf("broadcast err, res.codespace: %s, res.code: %d, res.raw_log: %s", res.Codespace, res.Code, res.RawLog)
 	}

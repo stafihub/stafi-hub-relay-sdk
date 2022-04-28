@@ -16,24 +16,26 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-const msgLimit = 4096
+const msgLimit = 512
 
 type Handler struct {
-	conn       *Connection
-	router     *core.Router
-	msgChan    chan *core.Message
-	log        log.Logger
-	stopChan   <-chan struct{}
-	sysErrChan chan<- error
+	conn            *Connection
+	router          *core.Router
+	msgChan         chan *core.Message
+	priorityMsgChan chan *core.Message
+	log             log.Logger
+	stopChan        <-chan struct{}
+	sysErrChan      chan<- error
 }
 
 func NewHandler(conn *Connection, log log.Logger, stopChan <-chan struct{}, sysErrChan chan<- error) *Handler {
 	return &Handler{
-		conn:       conn,
-		msgChan:    make(chan *core.Message, msgLimit),
-		log:        log,
-		stopChan:   stopChan,
-		sysErrChan: sysErrChan,
+		conn:            conn,
+		msgChan:         make(chan *core.Message, msgLimit),
+		priorityMsgChan: make(chan *core.Message, msgLimit),
+		log:             log,
+		stopChan:        stopChan,
+		sysErrChan:      sysErrChan,
 	}
 }
 
@@ -56,17 +58,37 @@ func (w *Handler) HandleMessage(m *core.Message) {
 	case core.ReasonGetSignatures:
 		go w.handleGetSignatures(m)
 		return
+	case core.ReasonGetBondRecord:
+		go w.handleGetBondRecord(m)
+		return
 	}
 	// deal write msg
 	w.queueMessage(m)
 }
 
 func (w *Handler) queueMessage(m *core.Message) {
-	w.msgChan <- m
+	if m.Reason == core.ReasonSubmitSignature {
+		w.priorityMsgChan <- m
+	} else {
+		w.msgChan <- m
+	}
 }
 
 func (w *Handler) msgHandler() {
 	for {
+		select {
+		case <-w.stopChan:
+			w.log.Info("priorityMsgHandler receive stopChain, will stop")
+			return
+		case msg := <-w.priorityMsgChan:
+			err := w.handleMessage(msg)
+			if err != nil {
+				w.sysErrChan <- fmt.Errorf("resolvePriorityMessage process failed.err: %s, msg: %+v", err, msg)
+				return
+			}
+		default:
+		}
+
 		select {
 		case <-w.stopChan:
 			w.log.Info("msgHandler receive stopChain, will stop")
@@ -77,6 +99,11 @@ func (w *Handler) msgHandler() {
 				w.sysErrChan <- fmt.Errorf("resolveMessage process failed.err: %s, msg: %+v", err, msg)
 				return
 			}
+		default:
+		}
+
+		if len(w.msgChan) == 0 && len(w.priorityMsgChan) == 0 {
+			time.Sleep(2 * time.Second)
 		}
 	}
 }
@@ -257,6 +284,23 @@ func (w *Handler) handleGetSignatures(m *core.Message) error {
 	getSiganture.Sigs <- sigs.Signature.Sigs
 
 	w.log.Info("getSignatures", "sigs", sigs.Signature.Sigs)
+	return nil
+}
+
+func (w *Handler) handleGetBondRecord(m *core.Message) error {
+	w.log.Info("handleGetBondRecord", "m", m)
+	getBondRecord, ok := m.Content.(core.ParamGetBondRecord)
+	if !ok {
+		return fmt.Errorf("GetBondRecord cast failed, %+v", m)
+	}
+	bondRecord, err := w.conn.client.QueryBondRecord(getBondRecord.Denom, getBondRecord.TxHash)
+	if err != nil {
+		getBondRecord.BondRecord <- stafiHubXLedgerTypes.BondRecord{}
+		return nil
+	}
+	getBondRecord.BondRecord <- bondRecord.BondRecord
+
+	w.log.Info("getBondRecord", "bondRecord", bondRecord.BondRecord)
 	return nil
 }
 
