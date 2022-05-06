@@ -288,7 +288,7 @@ func (w *Handler) handleGetSignatures(m *core.Message) error {
 }
 
 func (w *Handler) handleGetBondRecord(m *core.Message) error {
-	w.log.Info("handleGetBondRecord", "m", m)
+	w.log.Debug("handleGetBondRecord", "m", m)
 	getBondRecord, ok := m.Content.(core.ParamGetBondRecord)
 	if !ok {
 		return fmt.Errorf("GetBondRecord cast failed, %+v", m)
@@ -300,7 +300,7 @@ func (w *Handler) handleGetBondRecord(m *core.Message) error {
 	}
 	getBondRecord.BondRecord <- bondRecord.BondRecord
 
-	w.log.Info("getBondRecord", "bondRecord", bondRecord.BondRecord)
+	w.log.Debug("getBondRecord", "bondRecord", bondRecord.BondRecord)
 	return nil
 }
 
