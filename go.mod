@@ -7,7 +7,7 @@ require (
 	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/ethereum/go-ethereum v1.10.17
 	github.com/spf13/cobra v1.4.0
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220427142434-64563ec7bc63
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220506061648-c7abc982361d
 	github.com/stafihub/stafihub v0.0.0-20220505173950-6d307f410e31
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.1
