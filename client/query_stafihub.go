@@ -27,24 +27,24 @@ func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSna
 	return cc.(*stafiHubXLedgerTypes.QueryGetSnapshotResponse), nil
 }
 
-func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedgerTypes.QueryGetPoolUnbondResponse, error) {
+func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedgerTypes.QueryPoolUnbondingsResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetPoolUnbondRequest{
-		Denom: denom,
-		Pool:  pool,
-		Era:   era,
+	params := &stafiHubXLedgerTypes.QueryPoolUnbondingsRequest{
+		Denom:     denom,
+		Pool:      pool,
+		UnlockEra: era,
 	}
 
 	cc, err := Retry(func() (interface{}, error) {
-		return queryClient.GetPoolUnbond(context.Background(), params)
+		return queryClient.PoolUnbondings(context.Background(), params)
 	})
 	if err != nil {
 		return nil, err
 	}
-	return cc.(*stafiHubXLedgerTypes.QueryGetPoolUnbondResponse), nil
+	return cc.(*stafiHubXLedgerTypes.QueryPoolUnbondingsResponse), nil
 }
 
 func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.QueryGetPoolDetailResponse, error) {

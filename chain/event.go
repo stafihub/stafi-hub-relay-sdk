@@ -164,7 +164,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return err
 		}
 		e.Snapshot = snapshotRes.Shot
-		e.PoolUnbond = unbondRes.Unbond
+		e.PoolUnbond = unbondRes.Unbondings
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
 		oldState[event.Type] = stafiHubXLedgerTypes.ActiveReported
