@@ -240,7 +240,7 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {
-	w.log.Info("handleSubmitSignature", "m", m)
+	w.log.Debug("handleSubmitSignature", "m", m)
 	proposal, ok := m.Content.(core.ParamSubmitSignature)
 	if !ok {
 		return fmt.Errorf("ProposalSubmitSignature cast failed, %+v", m)
@@ -271,7 +271,7 @@ func (w *Handler) handleGetPools(m *core.Message) error {
 }
 
 func (w *Handler) handleGetSignatures(m *core.Message) error {
-	w.log.Info("handleGetSignature", "m", m)
+	w.log.Debug("handleGetSignature", "m", m)
 	getSiganture, ok := m.Content.(core.ParamGetSignatures)
 	if !ok {
 		return fmt.Errorf("GetSignature cast failed, %+v", m)
@@ -283,7 +283,7 @@ func (w *Handler) handleGetSignatures(m *core.Message) error {
 	}
 	getSiganture.Sigs <- sigs.Signature.Sigs
 
-	w.log.Info("getSignatures", "sigs", sigs.Signature.Sigs)
+	w.log.Debug("getSignatures", "sigs", sigs.Signature.Sigs)
 	return nil
 }
 
@@ -317,21 +317,27 @@ func (h *Handler) checkAndReSendWithSubmitSignature(typeStr string, sigMsg *staf
 
 	retry := BlockRetryLimit
 	for {
+		var err error
+		var res *types.TxResponse
 		if retry <= 0 {
+			h.log.Error(fmt.Sprintf(
+				"checkAndReSendWithSubmitSignature QueryTxByHash, reach retry limit."),
+				"tx hash", txHashStr,
+				"err", err)
 			return fmt.Errorf("checkAndReSendWithSubmitSignature QueryTxByHash reach retry limit, tx hash: %s", txHashStr)
 		}
 		//check on chain
-		res, err := h.conn.client.QueryTxByHash(txHashStr)
+		res, err = h.conn.client.QueryTxByHash(txHashStr)
 		if err != nil || res.Empty() || res.Height == 0 {
 			if res != nil {
-				h.log.Warn(fmt.Sprintf(
+				h.log.Debug(fmt.Sprintf(
 					"checkAndReSendWithSubmitSignature QueryTxByHash, tx failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
 					"res.log", res.RawLog,
 					"res.code", res.Code)
 			} else {
-				h.log.Warn(fmt.Sprintf(
+				h.log.Debug(fmt.Sprintf(
 					"checkAndReSendWithSubmitSignature QueryTxByHash failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
@@ -386,21 +392,28 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 
 	retry := BlockRetryLimit
 	for {
+		var err error
+		var res *types.TxResponse
 		if retry <= 0 {
+			h.log.Error(fmt.Sprintf(
+				"checkAndReSendWithProposalContent QueryTxByHash, reach retry limit."),
+				"tx hash", txHashStr,
+				"err", err)
 			return fmt.Errorf("checkAndReSendWithProposalContent QueryTxByHash reach retry limit, tx hash: %s", txHashStr)
 		}
+
 		//check on chain
-		res, err := h.conn.client.QueryTxByHash(txHashStr)
+		res, err = h.conn.client.QueryTxByHash(txHashStr)
 		if err != nil || res.Empty() || res.Height == 0 {
 			if res != nil {
-				h.log.Warn(fmt.Sprintf(
+				h.log.Debug(fmt.Sprintf(
 					"checkAndReSendWithProposalContent QueryTxByHash, tx failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
 					"res.log", res.RawLog,
 					"res.code", res.Code)
 			} else {
-				h.log.Warn(fmt.Sprintf(
+				h.log.Debug(fmt.Sprintf(
 					"checkAndReSendWithProposalContent QueryTxByHash failed. will query after %f second",
 					BlockRetryInterval.Seconds()),
 					"tx hash", txHashStr,
