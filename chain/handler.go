@@ -391,15 +391,14 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 	}
 
 	retry := BlockRetryLimit
+	var res *types.TxResponse
 	for {
-		var err error
-		var res *types.TxResponse
 		if retry <= 0 {
 			h.log.Error(fmt.Sprintf(
 				"checkAndReSendWithProposalContent QueryTxByHash, reach retry limit."),
 				"tx hash", txHashStr,
 				"err", err)
-			return fmt.Errorf("checkAndReSendWithProposalContent QueryTxByHash reach retry limit, tx hash: %s", txHashStr)
+			return fmt.Errorf("checkAndReSendWithProposalContent QueryTxByHash reach retry limit, tx hash: %s,err: %s", txHashStr, err)
 		}
 
 		//check on chain
