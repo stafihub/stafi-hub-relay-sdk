@@ -24,7 +24,7 @@ func initClient() {
 	var err error
 	// client, err = rpc.NewClient(key, "stargate-final", "key0", "0.04umuon", "umuon", "https://testcosmosrpc.wetez.io:443")
 	// client, err = hubClient.NewClient(nil, "", "", "http://127.0.0.1:26657")
-	client, err = hubClient.NewClient(nil, "", "", []string{"https://test-rpc1.stafihub.io:443", "https://cosmos-rpc1.stafi.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
+	client, err = hubClient.NewClient(nil, "", "", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
 	// client, err = hubClient.NewClient(nil, "my-account", "", "0.04stake", "stake", "https://testcosmosrpc.wetez.io:443")
 	// client, _ = rpc.NewClient(key, "cosmoshub-4", "self", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
 	// client, err = hubClient.NewClient(nil, "cosmoshub-4", "", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
@@ -89,7 +89,7 @@ func TestClient_QueryTxByHash(t *testing.T) {
 func TestChangeEndPoint(t *testing.T) {
 	initClient()
 	for i := 0; i < 20; i++ {
-		addr, err := types.AccAddressFromBech32("stafi1v5vywc4c3unugxs60jvs6g23ftp7d3ajffjme9")
+		addr, err := types.AccAddressFromBech32("stafi1qzt0qajzr9df3en5sk06xlk26n30003c8uhdkg")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -98,9 +98,6 @@ func TestChangeEndPoint(t *testing.T) {
 			t.Fatal(err)
 		}
 		t.Logf("%+v", acc.GetAccountNumber())
-		if i == 1 {
-			client.ChangeEndpoint()
-		}
 	}
 }
 

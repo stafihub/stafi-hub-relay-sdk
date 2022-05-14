@@ -305,6 +305,7 @@ func (c *Client) retry(f func() (interface{}, error)) (interface{}, error) {
 					}
 					return result, err
 				}
+				return result, err
 			}
 		}
 		return result, err
