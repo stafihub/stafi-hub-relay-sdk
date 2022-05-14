@@ -14,7 +14,7 @@ import (
 
 func (c *Client) SingleTransferTo(toAddr types.AccAddress, amount types.Coins) (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
-	msg := xBankTypes.NewMsgSend(c.clientCtx.GetFromAddress(), toAddr, amount)
+	msg := xBankTypes.NewMsgSend(c.Ctx().GetFromAddress(), toAddr, amount)
 	done()
 
 	txBts, err := c.ConstructAndSignTx(msg)
@@ -37,8 +37,8 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	cc, err := retry(func() (interface{}, error) {
-		return c.clientCtx.BroadcastTx(tx)
+	cc, err := c.retry(func() (interface{}, error) {
+		return c.Ctx().BroadcastTx(tx)
 	})
 	if err != nil {
 		return "", err
@@ -58,8 +58,10 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
+	clientCtx := c.Ctx()
+
 	cmd := cobra.Command{}
-	txf := clientTx.NewFactoryCLI(c.clientCtx, cmd.Flags())
+	txf := clientTx.NewFactoryCLI(clientCtx, cmd.Flags())
 	txf = txf.WithSequence(account.GetSequence()).
 		WithAccountNumber(account.GetAccountNumber()).
 		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT). //multi sig need this mod
@@ -69,7 +71,7 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 		WithSimulateAndExecute(true)
 
 	//auto cal gas
-	_, adjusted, err := clientTx.CalculateGas(c.clientCtx, txf, msgs...)
+	_, adjusted, err := clientTx.CalculateGas(clientCtx, txf, msgs...)
 	if err != nil {
 		return nil, fmt.Errorf("clientTx.CalculateGas failed: %s", err)
 	}
@@ -80,12 +82,12 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 		return nil, fmt.Errorf("clientTx.BuildUnsignedTx faild: %s", err)
 	}
 
-	err = xAuthClient.SignTx(txf, c.clientCtx, c.clientCtx.GetFromName(), txBuilderRaw, true, true)
+	err = xAuthClient.SignTx(txf, clientCtx, clientCtx.GetFromName(), txBuilderRaw, true, true)
 	if err != nil {
 		return nil, fmt.Errorf("xAuthClient.SignTx failed: %s", err)
 	}
 
-	txBytes, err := c.clientCtx.TxConfig.TxEncoder()(txBuilderRaw.GetTx())
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txBuilderRaw.GetTx())
 	if err != nil {
 		return nil, fmt.Errorf("TxConfig.TxEncoder failed: %s", err)
 	}

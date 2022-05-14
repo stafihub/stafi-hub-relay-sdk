@@ -22,7 +22,7 @@ var (
 	cfg = config.RawChainConfig{
 		Name:         "testChain",
 		Rsymbol:      "RFIS",
-		Endpoint:     "http://127.0.0.1:26657",
+		EndpointList: []string{"http://127.0.0.1:26657"},
 		KeystorePath: "/Users/tpkeeper/.stafihub",
 		Opts:         option,
 	}

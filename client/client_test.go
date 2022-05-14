@@ -3,47 +3,17 @@ package client_test
 import (
 	"bytes"
 	"encoding/hex"
-	"fmt"
 	"sort"
-	"strings"
-
-	// "strings"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	"github.com/stretchr/testify/assert"
 )
 
 var client *hubClient.Client
-
-//eda331e37bf66b2393c4c271e384dfaa2bfcdd35
-var addrMultiSig1, _ = types.AccAddressFromBech32("cosmos1em384d8ek3y8nlugapz7p5k5skg58j66je3las")
-var addrMultiSig2, _ = types.AccAddressFromBech32("cosmos1wmk9ys49zxgmx77pqs7cjnpamnnxuspqu2r87y")
-
-var addrValidatorTestnet, _ = types.ValAddressFromBech32("cosmosvaloper17tpddyr578avyn95xngkjl8nl2l2tf6auh8kpc")
-var addrValidatorTestnetStation, _ = types.ValAddressFromBech32("cosmosvaloper1x5wgh6vwye60wv3dtshs9dmqggwfx2ldk5cvqu")
-var addrValidatorTestnetAteam, _ = types.ValAddressFromBech32("cosmosvaloper105gvcjgs6s4j5ws9srckx0drt4x8cwgywplh7p")
-
-var adrValidatorTestnetTecos, _ = types.ValAddressFromBech32("cosmosvaloper1p7e37nztj62mmra8xhgqde7sql3llhhu6hvcx8")
-var adrValidatorEverStake, _ = types.ValAddressFromBech32("cosmosvaloper1tflk30mq5vgqjdly92kkhhq3raev2hnz6eete3")
-var adrValidatorForbole, _ = types.ValAddressFromBech32("cosmosvaloper1w96rrh9sx0h7n7qak00l90un0kx5wala2prmxt")
-
-var addrReleaseAddress, _ = types.AccAddressFromBech32("cosmos1wmk9ys49zxgmx77pqs7cjnpamnnxuspqu2r87y")
-var addrReleaseValWetez, _ = types.ValAddressFromBech32("cosmosvaloper1s05va5d09xlq3et8mapsesqh6r5lqy7mkhwshm")
-
-func TestGetAddrHex(t *testing.T) {
-	t.Log("cosmosvaloper17tpddyr578avyn95xngkjl8nl2l2tf6auh8kpc", hexutil.Encode(addrValidatorTestnet.Bytes()))
-	t.Log("cosmosvaloper1x5wgh6vwye60wv3dtshs9dmqggwfx2ldk5cvqu", hexutil.Encode(addrValidatorTestnetStation.Bytes()))
-	t.Log("cosmosvaloper105gvcjgs6s4j5ws9srckx0drt4x8cwgywplh7p", hexutil.Encode(addrValidatorTestnetAteam.Bytes()))
-
-	t.Log("cosmosvaloper1p7e37nztj62mmra8xhgqde7sql3llhhu6hvcx8", hexutil.Encode(adrValidatorTestnetTecos.Bytes()))
-	t.Log("cosmosvaloper1tflk30mq5vgqjdly92kkhhq3raev2hnz6eete3", hexutil.Encode(adrValidatorEverStake.Bytes()))
-	t.Log("cosmosvaloper1w96rrh9sx0h7n7qak00l90un0kx5wala2prmxt", hexutil.Encode(adrValidatorForbole.Bytes()))
-}
 
 func initClient() {
 	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.gaia", strings.NewReader("tpkeeper\n"))
@@ -54,7 +24,7 @@ func initClient() {
 	var err error
 	// client, err = rpc.NewClient(key, "stargate-final", "key0", "0.04umuon", "umuon", "https://testcosmosrpc.wetez.io:443")
 	// client, err = hubClient.NewClient(nil, "", "", "http://127.0.0.1:26657")
-	client, err = hubClient.NewClient(nil, "", "", "https://test-rpc1.stafihub.io:443")
+	client, err = hubClient.NewClient(nil, "", "", []string{"https://test-rpc1.stafihub.io:443", "https://cosmos-rpc1.stafi.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
 	// client, err = hubClient.NewClient(nil, "my-account", "", "0.04stake", "stake", "https://testcosmosrpc.wetez.io:443")
 	// client, _ = rpc.NewClient(key, "cosmoshub-4", "self", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
 	// client, err = hubClient.NewClient(nil, "cosmoshub-4", "", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
@@ -116,6 +86,24 @@ func TestClient_QueryTxByHash(t *testing.T) {
 	}
 }
 
+func TestChangeEndPoint(t *testing.T) {
+	initClient()
+	for i := 0; i < 20; i++ {
+		addr, err := types.AccAddressFromBech32("stafi1v5vywc4c3unugxs60jvs6g23ftp7d3ajffjme9")
+		if err != nil {
+			t.Fatal(err)
+		}
+		acc, err := client.QueryAccount(addr)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("%+v", acc.GetAccountNumber())
+		if i == 1 {
+			client.ChangeEndpoint()
+		}
+	}
+}
+
 func TestGetTxs(t *testing.T) {
 	initClient()
 	txs, err := client.GetBlockTxs(147694)
@@ -124,10 +112,10 @@ func TestGetTxs(t *testing.T) {
 	}
 	for _, tx := range txs {
 		t.Log("===============")
-		t.Log(fmt.Sprintf("%+v", tx))
+		t.Logf("%+v", tx)
 		for _, log := range tx.Logs {
 			for _, event := range log.Events {
-				t.Log(fmt.Sprintf("%+v", event))
+				t.Logf("%+v", event)
 			}
 		}
 
@@ -182,13 +170,6 @@ func TestClient_QueryDelegations(t *testing.T) {
 	}
 }
 
-func TestClient_QueryBalance(t *testing.T) {
-	initClient()
-	res, err := client.QueryBalance(addrMultiSig1, "umuon", 440000)
-	assert.NoError(t, err)
-	t.Log(res.Balance.Amount)
-}
-
 func TestClient_QueryDelegationTotalRewards(t *testing.T) {
 	initClient()
 	addr, err := types.AccAddressFromBech32("cosmos12yprrdprzat35zhqxe2fcnn3u26gwlt6xcq0pj")
@@ -204,26 +185,6 @@ func TestClient_QueryDelegationTotalRewards(t *testing.T) {
 	t.Log("total ", res.GetTotal().AmountOf(client.GetDenom()).TruncateInt())
 }
 
-func TestClient_GetSequence(t *testing.T) {
-	initClient()
-	seq, err := client.GetSequence(0, addrReleaseAddress)
-	assert.NoError(t, err)
-	t.Log(seq)
-	// txRes,err:=client.QueryTxByHash("FBD05BD4B9DB0386B16E679184EAC88D444B38DA992F8AFC35B5A580B3FC6AA4")
-	// assert.NoError(t,err)
-	// t.Log(txRes.String())
-
-	res, err := client.QueryUnbondingDelegation(addrReleaseAddress, addrReleaseValWetez, 0)
-	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
-			t.Log(err)
-		}
-
-		t.Fatal(err)
-	}
-	t.Log(res.String())
-	t.Log(len(res.GetUnbond().Entries))
-}
 func TestMemo(t *testing.T) {
 	initClient()
 	// res, err := client.QueryTxByHash("c7e3f7baf5a5f1d8cbc112080f32070dddd7cca5fe4272e06f8d42c17b25193f")

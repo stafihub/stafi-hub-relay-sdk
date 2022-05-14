@@ -24,7 +24,7 @@ func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log.Log
 	if err != nil {
 		return nil, err
 	}
-	client, err := hubClient.NewClient(key, option.Account, option.GasPrice, cfg.Endpoint)
+	client, err := hubClient.NewClient(key, option.Account, option.GasPrice, cfg.EndpointList)
 	if err != nil {
 		return nil, fmt.Errorf("hubClient.NewClient err: %s", err)
 	}

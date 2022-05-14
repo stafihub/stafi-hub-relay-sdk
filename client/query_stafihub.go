@@ -13,12 +13,11 @@ func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSna
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetSnapshotRequest{
-		ShotId: shotId,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetSnapshotRequest{
+			ShotId: shotId,
+		}
 		return queryClient.GetSnapshot(context.Background(), params)
 	})
 	if err != nil {
@@ -31,14 +30,13 @@ func (c *Client) QueryPoolUnbond(denom, pool string, era uint32) (*stafiHubXLedg
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryPoolUnbondingsRequest{
-		Denom:     denom,
-		Pool:      pool,
-		UnlockEra: era,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryPoolUnbondingsRequest{
+			Denom:     denom,
+			Pool:      pool,
+			UnlockEra: era,
+		}
 		return queryClient.PoolUnbondings(context.Background(), params)
 	})
 	if err != nil {
@@ -51,13 +49,12 @@ func (c *Client) QueryPoolDetail(denom, pool string) (*stafiHubXLedgerTypes.Quer
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetPoolDetailRequest{
-		Denom: denom,
-		Pool:  pool,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetPoolDetailRequest{
+			Denom: denom,
+			Pool:  pool,
+		}
 		return queryClient.GetPoolDetail(context.Background(), params)
 	})
 	if err != nil {
@@ -70,16 +67,15 @@ func (c *Client) QuerySignature(denom, pool string, era uint32, txType stafiHubX
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetSignatureRequest{
-		Denom:  denom,
-		Era:    era,
-		Pool:   pool,
-		TxType: txType,
-		PropId: proposalId,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetSignatureRequest{
+			Denom:  denom,
+			Era:    era,
+			Pool:   pool,
+			TxType: txType,
+			PropId: proposalId,
+		}
 		return queryClient.GetSignature(context.Background(), params)
 	})
 	if err != nil {
@@ -92,12 +88,11 @@ func (c *Client) QueryPools(denom string) (*stafiHubXLedgerTypes.QueryBondedPool
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryBondedPoolsByDenomRequest{
-		Denom: denom,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryBondedPoolsByDenomRequest{
+			Denom: denom,
+		}
 		return queryClient.BondedPoolsByDenom(context.Background(), params)
 	})
 	if err != nil {
@@ -110,12 +105,11 @@ func (c *Client) QueryChainEra(denom string) (*stafiHubXLedgerTypes.QueryGetChai
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetChainEraRequest{
-		Denom: denom,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetChainEraRequest{
+			Denom: denom,
+		}
 		return queryClient.GetChainEra(context.Background(), params)
 	})
 	if err != nil {
@@ -128,13 +122,12 @@ func (c *Client) QueryEraSnapShotList(denom string, era uint32) (*stafiHubXLedge
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
-		Denom: denom,
-		Era:   era,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
+			Denom: denom,
+			Era:   era,
+		}
 		return queryClient.GetEraSnapshot(context.Background(), params)
 	})
 	if err != nil {
@@ -147,13 +140,12 @@ func (c *Client) QueryEraContinuable(denom string, era uint32) (bool, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
-		Denom: denom,
-		Era:   era,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
+			Denom: denom,
+			Era:   era,
+		}
 		return queryClient.GetEraSnapshot(context.Background(), params)
 	})
 	if err != nil {
@@ -170,13 +162,12 @@ func (c *Client) QueryEraRate(denom string, era uint32) (*stafiHubXLedgerTypes.Q
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetEraExchangeRateRequest{
-		Denom: denom,
-		Era:   era,
-	}
-
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetEraExchangeRateRequest{
+			Denom: denom,
+			Era:   era,
+		}
 		return queryClient.GetEraExchangeRate(context.Background(), params)
 	})
 	if err != nil {
@@ -188,11 +179,12 @@ func (c *Client) QueryEraRate(denom string, era uint32) (*stafiHubXLedgerTypes.Q
 func (c *Client) QueryRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRParamsResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetRParamsRequest{
-		Denom: denom,
-	}
-	cc, err := Retry(func() (interface{}, error) {
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetRParamsRequest{
+			Denom: denom,
+		}
 		return queryClient.GetRParams(context.Background(), params)
 	})
 	if err != nil {
@@ -205,12 +197,12 @@ func (c *Client) QueryBondRecord(denom, txHash string) (*stafiHubXLedgerTypes.Qu
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXLedgerTypes.QueryGetBondRecordRequest{
-		Denom:  denom,
-		Txhash: txHash,
-	}
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetBondRecordRequest{
+			Denom:  denom,
+			Txhash: txHash,
+		}
 		return queryClient.GetBondRecord(context.Background(), params)
 	})
 	if err != nil {
@@ -223,11 +215,11 @@ func (c *Client) QueryAddressPrefix(denom string) (*stafiHubXRBankTypes.QueryAdd
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXRBankTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXRBankTypes.QueryAddressPrefixRequest{
-		Denom: denom,
-	}
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRBankTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXRBankTypes.QueryAddressPrefixRequest{
+			Denom: denom,
+		}
 		return queryClient.AddressPrefix(context.Background(), params)
 	})
 	if err != nil {
@@ -240,15 +232,15 @@ func (c *Client) QueryBridgeProposalDetail(chainId uint32, depositNonce uint64, 
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
-	queryClient := stafiHubXBridgeTypes.NewQueryClient(c.Ctx())
-	params := &stafiHubXBridgeTypes.QueryProposalDetailRequest{
-		ChainId:      chainId,
-		DepositNonce: depositNonce,
-		ResourceId:   resourceId,
-		Amount:       amount,
-		Receiver:     receiver,
-	}
-	cc, err := Retry(func() (interface{}, error) {
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXBridgeTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXBridgeTypes.QueryProposalDetailRequest{
+			ChainId:      chainId,
+			DepositNonce: depositNonce,
+			ResourceId:   resourceId,
+			Amount:       amount,
+			Receiver:     receiver,
+		}
 		return queryClient.ProposalDetail(context.Background(), params)
 	})
 	if err != nil {
