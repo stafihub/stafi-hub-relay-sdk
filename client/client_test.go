@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/hex"
 	"sort"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
+	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,18 +19,12 @@ import (
 var client *hubClient.Client
 
 func initClient() {
-	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.gaia", strings.NewReader("tpkeeper\n"))
-	// if err != nil {
-	// 	panic(err)
-	// }
+	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"))
+	if err != nil {
+		panic(err)
+	}
 
-	var err error
-	// client, err = rpc.NewClient(key, "stargate-final", "key0", "0.04umuon", "umuon", "https://testcosmosrpc.wetez.io:443")
-	// client, err = hubClient.NewClient(nil, "", "", "http://127.0.0.1:26657")
-	client, err = hubClient.NewClient(nil, "", "", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
-	// client, err = hubClient.NewClient(nil, "my-account", "", "0.04stake", "stake", "https://testcosmosrpc.wetez.io:443")
-	// client, _ = rpc.NewClient(key, "cosmoshub-4", "self", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
-	// client, err = hubClient.NewClient(nil, "cosmoshub-4", "", "0.00001uatom", "uatom", "https://cosmos-rpc1.stafi.io:443")
+	client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
 	if err != nil {
 		panic(err)
 	}
@@ -268,4 +265,19 @@ func TestGetBalance(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(balance)
+}
+
+func TestCalculGas(t *testing.T) {
+	initClient()
+	addr, err := types.AccAddressFromBech32("stafi1qzt0qajzr9df3en5sk06xlk26n30003c8uhdkg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	msg := xBankTypes.NewMsgSend(client.GetFromAddress(), addr, types.NewCoins(types.NewCoin("ufis", types.NewInt(5))))
+
+	bts, err := client.ConstructAndSignTx(msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(string(bts))
 }

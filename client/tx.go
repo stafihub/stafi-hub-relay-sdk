@@ -70,10 +70,10 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 		WithGasPrices(c.gasPrice).
 		WithSimulateAndExecute(true)
 
-	//auto cal gas
-	_, adjusted, err := clientTx.CalculateGas(clientCtx, txf, msgs...)
+	// auto cal gas with retry
+	adjusted, err := c.CalculateGas(clientCtx, txf, msgs...)
 	if err != nil {
-		return nil, fmt.Errorf("clientTx.CalculateGas failed: %s", err)
+		return nil, fmt.Errorf("client.CalculateGas failed: %s", err)
 	}
 	txf = txf.WithGas(adjusted * 2)
 
