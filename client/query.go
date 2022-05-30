@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"strings"
 	"syscall"
 	"time"
 
@@ -292,15 +293,25 @@ func (c *Client) retry(f func() (interface{}, error)) (interface{}, error) {
 	for i := 0; i < retryLimit; i++ {
 		result, err = f()
 		if err != nil {
+			// connection err case
 			if isConnectionError(err) {
 				c.ChangeEndpoint()
 				time.Sleep(waitTime)
 				continue
 			} else {
+				// business err case
 				for j := 0; j < len(c.rpcClientList); j++ {
 					c.ChangeEndpoint()
-					result, err = f()
-					if err != nil {
+					subResult, subErr := f()
+
+					if subErr != nil {
+						// filter connection err
+						if isConnectionError(subErr) {
+							continue
+						}
+
+						result = subResult
+						err = subErr
 						continue
 					}
 					return result, err
@@ -339,6 +350,13 @@ func isConnectionError(err error) bool {
 	case wrapError:
 		newErr := t.Unwrap()
 		return isConnectionError(newErr)
+	}
+
+	// json unmarshal err when rpc server shutting down
+	if err != nil {
+		if strings.Contains(err.Error(), "looking for beginning of value") {
+			return true
+		}
 	}
 
 	return false

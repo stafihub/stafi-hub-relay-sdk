@@ -41,7 +41,7 @@ func (c *Client) BroadcastTx(tx []byte) (string, error) {
 		return c.Ctx().BroadcastTx(tx)
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("retry broadcastTx err: %s", err)
 	}
 	res := cc.(*types.TxResponse)
 	if res.Code != 0 {
