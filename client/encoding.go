@@ -21,8 +21,10 @@ import (
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
 	stafiHubXRBank "github.com/stafihub/stafihub/x/rbank"
+	stafiHubXRDex "github.com/stafihub/stafihub/x/rdex"
 	stafiHubXRelayer "github.com/stafihub/stafihub/x/relayers"
 	stafiHubXRmintReward "github.com/stafihub/stafihub/x/rmintreward"
+	stafiHubXRStaking "github.com/stafihub/stafihub/x/rstaking"
 	stafiHubXRvalidator "github.com/stafihub/stafihub/x/rvalidator"
 	stafiHubXRvote "github.com/stafihub/stafihub/x/rvote"
 	stafiHubXSudo "github.com/stafihub/stafihub/x/sudo"
@@ -64,6 +66,8 @@ func MakeEncodingConfig() EncodingConfig {
 		stafiHubXRvalidator.AppModuleBasic{},
 		stafiHubXRmintReward.AppModuleBasic{},
 		stafiHubXRBank.AppModuleBasic{},
+		stafiHubXRDex.AppModuleBasic{},
+		stafiHubXRStaking.AppModuleBasic{},
 	)
 	moduleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	moduleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)

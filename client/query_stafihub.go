@@ -7,6 +7,7 @@ import (
 	stafiHubXBridgeTypes "github.com/stafihub/stafihub/x/bridge/types"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRBankTypes "github.com/stafihub/stafihub/x/rbank/types"
+	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 )
 
 func (c *Client) QuerySnapshot(shotId string) (*stafiHubXLedgerTypes.QueryGetSnapshotResponse, error) {
@@ -247,4 +248,52 @@ func (c *Client) QueryBridgeProposalDetail(chainId uint32, depositNonce uint64, 
 		return nil, err
 	}
 	return cc.(*stafiHubXBridgeTypes.QueryProposalDetailResponse), nil
+}
+
+func (c *Client) QueryCycleSeconds(denom string) (*stafiHubXRValidatorTypes.QueryCycleSecondsResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
+		return queryClient.CycleSeconds(context.Background(), &stafiHubXRValidatorTypes.QueryCycleSecondsRequest{
+			Denom: denom,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRValidatorTypes.QueryCycleSecondsResponse), nil
+}
+
+func (c *Client) QueryShuffleSeconds(denom string) (*stafiHubXRValidatorTypes.QueryShuffleSecondsResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
+		return queryClient.ShuffleSeconds(context.Background(), &stafiHubXRValidatorTypes.QueryShuffleSecondsRequest{
+			Denom: denom,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRValidatorTypes.QueryShuffleSecondsResponse), nil
+}
+
+func (c *Client) QueryRValidatorList(denom string) (*stafiHubXRValidatorTypes.QueryRValidatorListResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
+		return queryClient.RValidatorList(context.Background(), &stafiHubXRValidatorTypes.QueryRValidatorListRequest{
+			Denom: denom,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRValidatorTypes.QueryRValidatorListResponse), nil
 }
