@@ -300,7 +300,7 @@ func (c *Client) retry(f func() (interface{}, error)) (interface{}, error) {
 				continue
 			} else {
 				// business err case or other err case not captured
-				for j := 0; j < len(c.rpcClientList); j++ {
+				for j := 0; j < len(c.rpcClientList)*2; j++ {
 					c.ChangeEndpoint()
 					subResult, subErr := f()
 

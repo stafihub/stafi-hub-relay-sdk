@@ -71,7 +71,7 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 		WithSimulateAndExecute(true)
 
 	// auto cal gas with retry
-	adjusted, err := c.CalculateGas(clientCtx, txf, msgs...)
+	adjusted, err := c.CalculateGas(txf, msgs...)
 	if err != nil {
 		return nil, fmt.Errorf("client.CalculateGas failed: %s", err)
 	}

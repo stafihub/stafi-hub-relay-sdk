@@ -5,7 +5,6 @@ import (
 
 	clientTx "github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	gogogrpc "github.com/gogo/protobuf/grpc"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRvoteTypes "github.com/stafihub/stafihub/x/rvote/types"
@@ -42,12 +41,10 @@ func (c *Client) SubmitSignature(sigMsg *stafiHubXLedgerTypes.MsgSubmitSignature
 	return txHash, txBts, err
 }
 
-func (c *Client) CalculateGas(
-	clientCtx gogogrpc.ClientConn, txf clientTx.Factory, msgs ...sdk.Msg,
-) (uint64, error) {
+func (c *Client) CalculateGas(txf clientTx.Factory, msgs ...sdk.Msg) (uint64, error) {
 
 	cc, err := c.retry(func() (interface{}, error) {
-		_, adjustGas, err := clientTx.CalculateGas(clientCtx, txf, msgs...)
+		_, adjustGas, err := clientTx.CalculateGas(c.Ctx(), txf, msgs...)
 		return adjustGas, err
 	})
 	if err != nil {
