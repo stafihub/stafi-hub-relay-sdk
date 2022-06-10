@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +25,8 @@ func initClient() {
 		panic(err)
 	}
 
-	client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
+	// client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
+	client, err = hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
 	if err != nil {
 		panic(err)
 	}
@@ -280,4 +282,18 @@ func TestCalculGas(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(string(bts))
+}
+
+func TestSendUpdataRvalidator(t *testing.T) {
+	initClient()
+	content := stafiHubXRValidatorTypes.NewUpdateRValidatorProposal(client.GetFromAddress().String(), "uratom", "cosmosvaloper17h2x3j7u44qkrq0sk8ul0r2qr440rwgjkfg0gh", "cosmosvaloper1cc99d3xcukhedg4wcw53j7a9q68uza707vpfe7", &stafiHubXRValidatorTypes.Cycle{
+		Denom:   "uratom",
+		Version: 0,
+		Number:  0,
+	})
+	txHashStr, _, err := client.SubmitProposal(content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(txHashStr)
 }

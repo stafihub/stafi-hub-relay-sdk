@@ -23,7 +23,6 @@ func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, []
 		return "", nil, fmt.Errorf("msg.ValidateBasic faild: %s", err)
 	}
 	done()
-
 	txBts, err := c.ConstructAndSignTx(msg)
 	if err != nil {
 		return "", nil, fmt.Errorf("c.ConstructAndSignTx faild: %s", err)

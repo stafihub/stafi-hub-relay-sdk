@@ -366,9 +366,11 @@ func isConnectionError(err error) bool {
 		}
 		// server goroutine panic
 		if strings.Contains(err.Error(), "recovered") {
+			fmt.Println("retry: f() err: ", err)
 			return true
 		}
 		if strings.Contains(err.Error(), "panic") {
+			fmt.Println("retry: f() err: ", err)
 			return true
 		}
 	}
