@@ -297,3 +297,12 @@ func TestSendUpdataRvalidator(t *testing.T) {
 	}
 	t.Log(txHashStr)
 }
+
+func TestQueryLatestVotedCycle(t *testing.T) {
+	initClient()
+	latest, err := client.QueryLatestVotedCycle("uratom")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(latest)
+}

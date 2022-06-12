@@ -297,3 +297,19 @@ func (c *Client) QueryRValidatorList(denom string) (*stafiHubXRValidatorTypes.Qu
 	}
 	return cc.(*stafiHubXRValidatorTypes.QueryRValidatorListResponse), nil
 }
+
+func (c *Client) QueryLatestVotedCycle(denom string) (*stafiHubXRValidatorTypes.QueryLatestVotedCycleResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
+		return queryClient.LatestVotedCycle(context.Background(), &stafiHubXRValidatorTypes.QueryLatestVotedCycleRequest{
+			Denom: denom,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRValidatorTypes.QueryLatestVotedCycleResponse), nil
+}
