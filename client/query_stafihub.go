@@ -282,14 +282,15 @@ func (c *Client) QueryShuffleSeconds(denom string) (*stafiHubXRValidatorTypes.Qu
 	return cc.(*stafiHubXRValidatorTypes.QueryShuffleSecondsResponse), nil
 }
 
-func (c *Client) QueryRValidatorList(denom string) (*stafiHubXRValidatorTypes.QueryRValidatorListResponse, error) {
+func (c *Client) QueryRValidatorList(denom, poolAddress string) (*stafiHubXRValidatorTypes.QueryRValidatorListResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	cc, err := c.Retry(func() (interface{}, error) {
 		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
 		return queryClient.RValidatorList(context.Background(), &stafiHubXRValidatorTypes.QueryRValidatorListRequest{
-			Denom: denom,
+			Denom:       denom,
+			PoolAddress: poolAddress,
 		})
 	})
 	if err != nil {

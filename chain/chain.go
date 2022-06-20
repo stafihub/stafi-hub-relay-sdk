@@ -10,6 +10,7 @@ import (
 	"github.com/stafihub/rtoken-relay-core/common/log"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRBankTypes "github.com/stafihub/stafihub/x/rbank/types"
+	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 )
 
 var (
@@ -119,4 +120,8 @@ func (c *Chain) GetPools(denom string) (*stafiHubXLedgerTypes.QueryBondedPoolsBy
 
 func (c *Chain) GetAddressPrefix(denom string) (*stafiHubXRBankTypes.QueryAddressPrefixResponse, error) {
 	return c.conn.client.QueryAddressPrefix(denom)
+}
+
+func (c *Chain) GetSelectedValidators(denom, pool string) (*stafiHubXRValidatorTypes.QueryRValidatorListResponse, error) {
+	return c.conn.client.QueryRValidatorList(denom, pool)
 }
