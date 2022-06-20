@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
+	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 )
 
 const maxUint32 = math.MaxUint32
@@ -171,7 +172,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		shotId = e.ShotId
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeRParamsChanged:
-		if len(event.Attributes) != 6 {
+		if len(event.Attributes) != 5 {
 			return ErrEventAttributeNumberUnMatch
 		}
 		denom := event.Attributes[0].Value
@@ -184,16 +185,44 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 
 		eventRParams := core.EventRParamsChanged{
-			Denom:            denom,
-			GasPrice:         rparams.RParams.GasPrice,
-			EraSeconds:       rparams.RParams.EraSeconds,
-			LeastBond:        rparams.RParams.LeastBond,
-			Offset:           rparams.RParams.Offset,
-			TargetValidators: rparams.RParams.Validators,
+			Denom:      denom,
+			GasPrice:   rparams.RParams.GasPrice,
+			EraSeconds: rparams.RParams.EraSeconds,
+			LeastBond:  rparams.RParams.LeastBond,
+			Offset:     rparams.RParams.Offset,
 		}
 
 		m.Reason = core.ReasonRParamsChangedEvent
 		m.Content = eventRParams
+	case event.Type == stafiHubXRValidatorTypes.EventTypeUpdateRValidator:
+		if len(event.Attributes) != 5 {
+			return ErrEventAttributeNumberUnMatch
+		}
+		denom := event.Attributes[0].Value
+		if l.caredSymbol != core.RSymbol(denom) {
+			return nil
+		}
+		poolAddress := event.Attributes[1].Value
+		oldAddress := event.Attributes[2].Value
+		newAddress := event.Attributes[3].Value
+		cycleVersion, err := types.ParseUint(event.Attributes[4].Value)
+		if err != nil {
+			return err
+		}
+		cycleNumber, err := types.ParseUint(event.Attributes[5].Value)
+		if err != nil {
+			return err
+		}
+		eventRvalidatorUpdated := core.EventRValidatorUpdated{
+			Denom:        denom,
+			PoolAddress:  poolAddress,
+			OldAddress:   oldAddress,
+			NewAddress:   newAddress,
+			CycleVersion: cycleVersion.Uint64(),
+			CycleNumber:  cycleNumber.Uint64(),
+		}
+		m.Reason = core.ReasonRValidatorUpdatedEvent
+		m.Content = eventRvalidatorUpdated
 
 	default:
 		return nil

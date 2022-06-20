@@ -286,11 +286,17 @@ func TestCalculGas(t *testing.T) {
 
 func TestSendUpdataRvalidator(t *testing.T) {
 	initClient()
-	content := stafiHubXRValidatorTypes.NewUpdateRValidatorProposal(client.GetFromAddress().String(), "uratom", "cosmosvaloper17h2x3j7u44qkrq0sk8ul0r2qr440rwgjkfg0gh", "cosmosvaloper1cc99d3xcukhedg4wcw53j7a9q68uza707vpfe7", &stafiHubXRValidatorTypes.Cycle{
-		Denom:   "uratom",
-		Version: 0,
-		Number:  0,
-	})
+	content := stafiHubXRValidatorTypes.NewUpdateRValidatorProposal(
+		client.GetFromAddress().String(),
+		"uratom",
+		"",
+		"cosmosvaloper17h2x3j7u44qkrq0sk8ul0r2qr440rwgjkfg0gh",
+		"cosmosvaloper1cc99d3xcukhedg4wcw53j7a9q68uza707vpfe7",
+		&stafiHubXRValidatorTypes.Cycle{
+			Denom:   "uratom",
+			Version: 0,
+			Number:  0,
+		})
 	txHashStr, _, err := client.SubmitProposal(content)
 	if err != nil {
 		t.Fatal(err)
