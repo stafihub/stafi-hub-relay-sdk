@@ -299,18 +299,36 @@ func (c *Client) QueryRValidatorList(denom, poolAddress string) (*stafiHubXRVali
 	return cc.(*stafiHubXRValidatorTypes.QueryRValidatorListResponse), nil
 }
 
-func (c *Client) QueryLatestVotedCycle(denom string) (*stafiHubXRValidatorTypes.QueryLatestVotedCycleResponse, error) {
+func (c *Client) QueryLatestVotedCycle(denom, poolAddress string) (*stafiHubXRValidatorTypes.QueryLatestVotedCycleResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	cc, err := c.Retry(func() (interface{}, error) {
 		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
 		return queryClient.LatestVotedCycle(context.Background(), &stafiHubXRValidatorTypes.QueryLatestVotedCycleRequest{
-			Denom: denom,
+			Denom:       denom,
+			PoolAddress: poolAddress,
 		})
 	})
 	if err != nil {
 		return nil, err
 	}
 	return cc.(*stafiHubXRValidatorTypes.QueryLatestVotedCycleResponse), nil
+}
+
+func (c *Client) QueryLatestDealedCycle(denom, poolAddress string) (*stafiHubXRValidatorTypes.QueryLatestDealedCycleResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRValidatorTypes.NewQueryClient(c.Ctx())
+		return queryClient.LatestDealedCycle(context.Background(), &stafiHubXRValidatorTypes.QueryLatestDealedCycleRequest{
+			Denom:       denom,
+			PoolAddress: poolAddress,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRValidatorTypes.QueryLatestDealedCycleResponse), nil
 }

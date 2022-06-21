@@ -12,6 +12,7 @@ import (
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRelayersTypes "github.com/stafihub/stafihub/x/relayers/types"
+	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 	stafiHubXRVoteTypes "github.com/stafihub/stafihub/x/rvote/types"
 	"google.golang.org/grpc/codes"
 )
@@ -121,6 +122,8 @@ func (w *Handler) handleMessage(m *core.Message) error {
 		return w.handleActiveReport(m)
 	case core.ReasonTransferReport:
 		return w.handleTransferReport(m)
+	case core.ReasonRValidatorUpdateReport:
+		return w.handleRValidatorUpdateReport(m)
 	case core.ReasonSubmitSignature:
 		return w.handleSubmitSignature(m)
 	default:
@@ -237,6 +240,29 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 	done()
 
 	return w.checkAndReSendWithProposalContent("transferReportProposal", content)
+}
+
+func (w *Handler) handleRValidatorUpdateReport(m *core.Message) error {
+	w.log.Info("handleRValidatorUpdateReport", "m", m)
+	proposal, ok := m.Content.(core.ProposalRValidatorUpdateReport)
+	if !ok {
+		return fmt.Errorf("ProposalRValidatorUpdateReport cast failed, %+v", m)
+	}
+
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
+	content := stafiHubXRValidatorTypes.NewUpdateRValidatorReportProposal(
+		w.conn.client.GetFromAddress().String(),
+		proposal.Denom,
+		proposal.PoolAddress,
+		&stafiHubXRValidatorTypes.Cycle{
+			Denom:       proposal.Denom,
+			PoolAddress: proposal.PoolAddress,
+			Version:     proposal.CycleVersion,
+			Number:      proposal.CycleNumber,
+		})
+	done()
+
+	return w.checkAndReSendWithProposalContent("ProposalRValidatorUpdateReport", content)
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {

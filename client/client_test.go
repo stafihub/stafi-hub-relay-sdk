@@ -306,7 +306,7 @@ func TestSendUpdataRvalidator(t *testing.T) {
 
 func TestQueryLatestVotedCycle(t *testing.T) {
 	initClient()
-	latest, err := client.QueryLatestVotedCycle("uratom")
+	latest, err := client.QueryLatestVotedCycle("uratom", "")
 	if err != nil {
 		t.Fatal(err)
 	}

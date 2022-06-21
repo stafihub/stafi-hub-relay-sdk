@@ -84,6 +84,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		// return if already dealed
 		if chainEra.GetEra() != e.CurrentEra {
 			return nil
 		}
@@ -92,6 +93,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		// return if already dealed
 		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.EraUpdated {
 			return nil
 		}
@@ -118,6 +120,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		// return if already dealed
 		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.BondReported {
 			return nil
 		}
@@ -125,6 +128,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		// return if already dealed
 		if chainEra.GetEra() != snapshotRes.Shot.GetEra() {
 			return nil
 		}
@@ -150,6 +154,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		// return if already dealed
 		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.ActiveReported {
 			return nil
 		}
@@ -157,6 +162,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		// return if already dealed
 		if chainEra.GetEra() != snapshotRes.Shot.GetEra() {
 			return nil
 		}
@@ -195,7 +201,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		m.Reason = core.ReasonRParamsChangedEvent
 		m.Content = eventRParams
 	case event.Type == stafiHubXRValidatorTypes.EventTypeUpdateRValidator:
-		if len(event.Attributes) != 5 {
+		if len(event.Attributes) != 7 {
 			return ErrEventAttributeNumberUnMatch
 		}
 		denom := event.Attributes[0].Value
@@ -203,18 +209,35 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return nil
 		}
 		poolAddress := event.Attributes[1].Value
-		oldAddress := event.Attributes[2].Value
-		newAddress := event.Attributes[3].Value
-		cycleVersion, err := types.ParseUint(event.Attributes[4].Value)
+		era, err := types.ParseUint(event.Attributes[2].Value)
 		if err != nil {
 			return err
 		}
-		cycleNumber, err := types.ParseUint(event.Attributes[5].Value)
+
+		oldAddress := event.Attributes[3].Value
+		newAddress := event.Attributes[4].Value
+		cycleVersion, err := types.ParseUint(event.Attributes[5].Value)
 		if err != nil {
 			return err
 		}
+		cycleNumber, err := types.ParseUint(event.Attributes[6].Value)
+		if err != nil {
+			return err
+		}
+
+		dealedCycle, err := l.conn.client.QueryLatestDealedCycle(denom, poolAddress)
+		if err != nil {
+			l.log.Warn("QueryLatestDealedCycle failed", "err", err)
+			return err
+		}
+		// return if already dealed
+		if dealedCycle.LatestDealedCycle.Number >= cycleNumber.Uint64() && dealedCycle.LatestDealedCycle.Version >= cycleVersion.Uint64() {
+			return nil
+		}
+
 		eventRvalidatorUpdated := core.EventRValidatorUpdated{
 			Denom:        denom,
+			Era:          uint32(era.Uint64()),
 			PoolAddress:  poolAddress,
 			OldAddress:   oldAddress,
 			NewAddress:   newAddress,
@@ -233,24 +256,46 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 	if err != nil {
 		return err
 	}
+
+	switch m.Reason {
 	// no need wait
-	if m.Reason == core.ReasonRParamsChangedEvent {
+	case core.ReasonRParamsChangedEvent:
 		return nil
+	case core.ReasonRValidatorUpdatedEvent:
+		// here we wait until rvalidator update reported
+		event, ok := m.Content.(core.EventRValidatorUpdated)
+		if !ok {
+			return fmt.Errorf("cast to EventRValidatorUpdated failed, event: %+v", event)
+		}
+		for {
+			dealedCycle, err := l.conn.client.QueryLatestDealedCycle(event.Denom, event.PoolAddress)
+			if err != nil {
+				l.log.Warn("QueryLatestDealedCycle failed", "err", err)
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+			if !(dealedCycle.LatestDealedCycle.Number >= event.CycleNumber && dealedCycle.LatestDealedCycle.Version >= event.CycleVersion) {
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+			break
+		}
+	default:
+		// here we wait until snapshot's bondstate change to another
+		for {
+			snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+			if err != nil {
+				l.log.Warn("QuerySnapshot failed", "err", err)
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+			if snapshotRes.GetShot().BondState == oldState[event.Type] {
+				time.Sleep(BlockRetryInterval)
+				continue
+			}
+			break
+		}
 	}
 
-	// here we wait until snapshot's bondstate change to another
-	for {
-		snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
-		if err != nil {
-			l.log.Warn("QuerySnapshot failed", "err", err)
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-		if snapshotRes.GetShot().BondState == oldState[event.Type] {
-			time.Sleep(BlockRetryInterval)
-			continue
-		}
-		break
-	}
 	return nil
 }
