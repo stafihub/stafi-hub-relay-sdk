@@ -6,8 +6,8 @@ require (
 	github.com/cosmos/cosmos-sdk v0.45.5
 	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/spf13/cobra v1.4.0
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220621143917-e78e68d3754a
-	github.com/stafihub/stafihub v0.0.0-20220621143017-14fc25860823
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220623080304-9dbf91f335c2
+	github.com/stafihub/stafihub v0.0.0-20220623075958-3655a36da581
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/tendermint/tendermint v0.34.19

@@ -255,6 +255,30 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 		m.Reason = core.ReasonRValidatorUpdatedEvent
 		m.Content = eventRvalidatorUpdated
+	case event.Type == stafiHubXRValidatorTypes.EventTypeAddRValidator:
+		if len(event.Attributes) != 4 {
+			return ErrEventAttributeNumberUnMatch
+		}
+		denom := event.Attributes[0].Value
+		if l.caredSymbol != core.RSymbol(denom) {
+			return nil
+		}
+		poolAddress := event.Attributes[1].Value
+		era, err := types.ParseUint(event.Attributes[2].Value)
+		if err != nil {
+			return err
+		}
+
+		addedAddress := event.Attributes[3].Value
+
+		eventRvalidatorAdded := core.EventRValidatorAdded{
+			Denom:        denom,
+			Era:          uint32(era.Uint64()),
+			PoolAddress:  poolAddress,
+			AddedAddress: addedAddress,
+		}
+		m.Reason = core.ReasonRValidatorAddedEvent
+		m.Content = eventRvalidatorAdded
 
 	default:
 		return nil
@@ -267,11 +291,13 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 	}
 
 	switch m.Reason {
-	// no need wait
-	case core.ReasonRParamsChangedEvent:
+	case core.ReasonRParamsChangedEvent, core.ReasonRValidatorAddedEvent:
+		// no need wait, we will get latest state when restart
 		return nil
 	case core.ReasonRValidatorUpdatedEvent:
+		// events of rvalidator updated
 		// here we wait until rvalidator update reported
+		// so we can continuely process this event when restart
 		event, ok := m.Content.(core.EventRValidatorUpdated)
 		if !ok {
 			return fmt.Errorf("cast to EventRValidatorUpdated failed, event: %+v", event)
@@ -290,7 +316,9 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			break
 		}
 	default:
+		// events of era dealing
 		// here we wait until snapshot's bondstate change to another
+		// so we can continuely process this event when restart
 		for {
 			snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 			if err != nil {
