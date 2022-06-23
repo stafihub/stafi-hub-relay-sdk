@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -178,7 +179,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		shotId = e.ShotId
 
 	case event.Type == stafiHubXLedgerTypes.EventTypeRParamsChanged:
-		if len(event.Attributes) != 5 {
+		if len(event.Attributes) != 6 {
 			return ErrEventAttributeNumberUnMatch
 		}
 		denom := event.Attributes[0].Value
@@ -201,7 +202,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		m.Reason = core.ReasonRParamsChangedEvent
 		m.Content = eventRParams
 	case event.Type == stafiHubXRValidatorTypes.EventTypeUpdateRValidator:
-		if len(event.Attributes) != 7 {
+		if len(event.Attributes) != 8 {
 			return ErrEventAttributeNumberUnMatch
 		}
 		denom := event.Attributes[0].Value
@@ -224,15 +225,22 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		if err != nil {
 			return err
 		}
+		cycleSeconds, err := types.ParseUint(event.Attributes[7].Value)
+		if err != nil {
+			return err
+		}
 
 		dealedCycle, err := l.conn.client.QueryLatestDealedCycle(denom, poolAddress)
 		if err != nil {
-			l.log.Warn("QueryLatestDealedCycle failed", "err", err)
-			return err
-		}
-		// return if already dealed
-		if dealedCycle.LatestDealedCycle.Number >= cycleNumber.Uint64() && dealedCycle.LatestDealedCycle.Version >= cycleVersion.Uint64() {
-			return nil
+			if !strings.Contains(err.Error(), "NotFound") {
+				l.log.Warn("QueryLatestDealedCycle failed", "err", err)
+				return err
+			}
+		} else {
+			// return if already dealed
+			if dealedCycle.LatestDealedCycle.Number >= cycleNumber.Uint64() && dealedCycle.LatestDealedCycle.Version >= cycleVersion.Uint64() {
+				return nil
+			}
 		}
 
 		eventRvalidatorUpdated := core.EventRValidatorUpdated{
@@ -243,6 +251,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			NewAddress:   newAddress,
 			CycleVersion: cycleVersion.Uint64(),
 			CycleNumber:  cycleNumber.Uint64(),
+			CycleSeconds: cycleSeconds.Uint64(),
 		}
 		m.Reason = core.ReasonRValidatorUpdatedEvent
 		m.Content = eventRvalidatorUpdated
@@ -270,7 +279,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		for {
 			dealedCycle, err := l.conn.client.QueryLatestDealedCycle(event.Denom, event.PoolAddress)
 			if err != nil {
-				l.log.Warn("QueryLatestDealedCycle failed", "err", err)
+				l.log.Warn("QueryLatestDealedCycle failed will retry", "err", err)
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -285,7 +294,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		for {
 			snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
 			if err != nil {
-				l.log.Warn("QuerySnapshot failed", "err", err)
+				l.log.Warn("QuerySnapshot failed will retry", "err", err)
 				time.Sleep(BlockRetryInterval)
 				continue
 			}

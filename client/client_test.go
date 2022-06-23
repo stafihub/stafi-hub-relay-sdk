@@ -25,8 +25,8 @@ func initClient() {
 		panic(err)
 	}
 
-	// client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
-	client, err = hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
+	client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
+	// client, err = hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
 	if err != nil {
 		panic(err)
 	}
