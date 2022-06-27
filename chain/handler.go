@@ -411,6 +411,10 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 		case strings.Contains(err.Error(), stafiHubXLedgerTypes.ErrEraNotContinuable.Error()):
 			h.log.Info("no need send, already update new era", "txHash", txHashStr, "type", typeStr)
 			return nil
+
+		// resend case:
+		case strings.Contains(err.Error(), errors.ErrWrongSequence.Error()):
+			return h.checkAndReSendWithProposalContent(txHashStr, content)
 		}
 
 		return err
@@ -420,8 +424,7 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 	var res *types.TxResponse
 	for {
 		if retry <= 0 {
-			h.log.Error(fmt.Sprintf(
-				"checkAndReSendWithProposalContent QueryTxByHash, reach retry limit."),
+			h.log.Error("checkAndReSendWithProposalContent QueryTxByHash, reach retry limit.",
 				"tx hash", txHashStr,
 				"err", err)
 			return fmt.Errorf("checkAndReSendWithProposalContent QueryTxByHash reach retry limit, tx hash: %s,err: %s", txHashStr, err)
