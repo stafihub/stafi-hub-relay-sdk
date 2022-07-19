@@ -1,13 +1,13 @@
 module github.com/stafihub/stafi-hub-relay-sdk
 
-go 1.17
+go 1.18
 
 require (
-	github.com/cosmos/cosmos-sdk v0.45.5
-	github.com/cosmos/ibc-go/v3 v3.0.0
+	github.com/cosmos/cosmos-sdk v0.45.6
+	github.com/cosmos/ibc-go/v3 v3.1.0
 	github.com/spf13/cobra v1.4.0
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220623080304-9dbf91f335c2
-	github.com/stafihub/stafihub v0.0.0-20220628142119-2a3cea7a4822
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220717141918-89b0d8ad0cc5
+	github.com/stafihub/stafihub v0.0.0-20220715005022-772f99c0e3b6
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/tendermint/tendermint v0.34.19
@@ -93,7 +93,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.11.0 // indirect
-	github.com/stafiprotocol/go-substrate-rpc-client v1.1.3 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/tendermint/btcd v0.1.1 // indirect
@@ -120,9 +119,6 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/cosmos/cosmos-sdk => github.com/tpkeeper/cosmos-sdk v0.45.4-stafihub-0.0.1
-	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
-	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
-	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 	// latest grpc doesn't work with with our modified proto compiler, so we need to enforce

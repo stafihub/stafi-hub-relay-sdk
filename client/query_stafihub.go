@@ -332,3 +332,35 @@ func (c *Client) QueryLatestDealedCycle(denom, poolAddress string) (*stafiHubXRV
 	}
 	return cc.(*stafiHubXRValidatorTypes.QueryLatestDealedCycleResponse), nil
 }
+
+func (c *Client) QueryIcaPoolList(denom string) (*stafiHubXLedgerTypes.QueryIcaPoolListResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		return queryClient.IcaPoolList(context.Background(), &stafiHubXLedgerTypes.QueryIcaPoolListRequest{
+			Denom: denom,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryIcaPoolListResponse), nil
+}
+
+func (c *Client) QueryInterchainTxStatus(propId string) (*stafiHubXLedgerTypes.QueryInterchainTxStatusResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		return queryClient.InterchainTxStatus(context.Background(), &stafiHubXLedgerTypes.QueryInterchainTxStatusRequest{
+			PropId: propId,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryInterchainTxStatusResponse), nil
+}

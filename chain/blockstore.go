@@ -6,7 +6,6 @@ import (
 )
 
 func NewBlockstore(path string, relayer string) (*blockstore.Blockstore, error) {
-	//todo change chainId for different rToken
 	return blockstore.NewBlockstore(path, msg.ChainId(000), relayer)
 }
 

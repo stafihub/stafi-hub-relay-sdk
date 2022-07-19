@@ -2,9 +2,6 @@ package chain
 
 import (
 	"fmt"
-	"strings"
-	"time"
-
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
@@ -15,6 +12,8 @@ import (
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 	stafiHubXRVoteTypes "github.com/stafihub/stafihub/x/rvote/types"
 	"google.golang.org/grpc/codes"
+	"strings"
+	"time"
 )
 
 const msgLimit = 512
@@ -61,6 +60,9 @@ func (w *Handler) HandleMessage(m *core.Message) {
 		return
 	case core.ReasonGetBondRecord:
 		go w.handleGetBondRecord(m)
+		return
+	case core.ReasonGetProposalStatus:
+		go w.handleGetInterchainTxStatus(m)
 		return
 	}
 	// deal write msg
@@ -126,6 +128,8 @@ func (w *Handler) handleMessage(m *core.Message) error {
 		return w.handleRValidatorUpdateReport(m)
 	case core.ReasonSubmitSignature:
 		return w.handleSubmitSignature(m)
+	case core.ReasonInterchainTx:
+		return w.handleInterchainTx(m)
 	default:
 		return fmt.Errorf("message reason unsupported reason: %s", m.Reason)
 	}
@@ -242,6 +246,33 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 	return w.checkAndReSendWithProposalContent("transferReportProposal", content)
 }
 
+func (w *Handler) handleInterchainTx(m *core.Message) error {
+	w.log.Info("handleInterchainTx", "m", m)
+	proposal, ok := m.Content.(core.ProposalInterchainTx)
+	if !ok {
+		return fmt.Errorf("ProposalInterchainTx cast failed, %+v", m)
+	}
+
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
+	txMsgs := make([]types.Msg, 0)
+	// todo tx msgs
+	content, err := stafiHubXLedgerTypes.NewInterchainTxProposal(
+		w.conn.client.GetFromAddress(),
+		proposal.InterchainTx.Denom,
+		proposal.InterchainTx.PoolAddress,
+		proposal.InterchainTx.Era,
+		proposal.InterchainTx.TxType,
+		proposal.InterchainTx.Factor,
+		txMsgs)
+	if err != nil {
+		done()
+		return err
+	}
+	done()
+
+	return w.checkAndReSendWithProposalContent("interchainTxProposal", content)
+}
+
 func (w *Handler) handleRValidatorUpdateReport(m *core.Message) error {
 	w.log.Info("handleRValidatorUpdateReport", "m", m)
 	proposal, ok := m.Content.(core.ProposalRValidatorUpdateReport)
@@ -327,6 +358,24 @@ func (w *Handler) handleGetBondRecord(m *core.Message) error {
 	getBondRecord.BondRecord <- bondRecord.BondRecord
 
 	w.log.Debug("getBondRecord", "bondRecord", bondRecord.BondRecord)
+	return nil
+}
+
+func (w *Handler) handleGetInterchainTxStatus(m *core.Message) error {
+	w.log.Debug("handleGetInterchainTxStatus", "m", m)
+	getProposalStatus, ok := m.Content.(core.ParamGetProposalStatus)
+	if !ok {
+		return fmt.Errorf("ParamGetProposalStatus cast failed, %+v", m)
+	}
+	statusRes, err := w.conn.client.QueryInterchainTxStatus(getProposalStatus.PropId)
+
+	if err != nil {
+		getProposalStatus.Status <- 3
+		return nil
+	}
+	getProposalStatus.Status <- statusRes.InterchainTxStatus
+
+	w.log.Debug("getInterchainTxStatus", "status", statusRes.InterchainTxStatus)
 	return nil
 }
 
