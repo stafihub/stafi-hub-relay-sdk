@@ -61,7 +61,7 @@ func (w *Handler) HandleMessage(m *core.Message) {
 	case core.ReasonGetBondRecord:
 		go w.handleGetBondRecord(m)
 		return
-	case core.ReasonGetProposalStatus:
+	case core.ReasonGetInterchainTxStatus:
 		go w.handleGetInterchainTxStatus(m)
 		return
 	}
@@ -254,16 +254,14 @@ func (w *Handler) handleInterchainTx(m *core.Message) error {
 	}
 
 	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
-	txMsgs := make([]types.Msg, 0)
-	// todo tx msgs
 	content, err := stafiHubXLedgerTypes.NewInterchainTxProposal(
 		w.conn.client.GetFromAddress(),
-		proposal.InterchainTx.Denom,
-		proposal.InterchainTx.PoolAddress,
-		proposal.InterchainTx.Era,
-		proposal.InterchainTx.TxType,
-		proposal.InterchainTx.Factor,
-		txMsgs)
+		proposal.Denom,
+		proposal.Pool,
+		proposal.Era,
+		proposal.TxType,
+		proposal.Factor,
+		proposal.Msgs)
 	if err != nil {
 		done()
 		return err
@@ -363,17 +361,16 @@ func (w *Handler) handleGetBondRecord(m *core.Message) error {
 
 func (w *Handler) handleGetInterchainTxStatus(m *core.Message) error {
 	w.log.Debug("handleGetInterchainTxStatus", "m", m)
-	getProposalStatus, ok := m.Content.(core.ParamGetProposalStatus)
+	getInterchainTxStatus, ok := m.Content.(core.ParamGetInterchainTxStatus)
 	if !ok {
-		return fmt.Errorf("ParamGetProposalStatus cast failed, %+v", m)
+		return fmt.Errorf("ParamGetInterchainTxStatus cast failed, %+v", m)
 	}
-	statusRes, err := w.conn.client.QueryInterchainTxStatus(getProposalStatus.PropId)
-
+	statusRes, err := w.conn.client.QueryInterchainTxStatus(getInterchainTxStatus.PropId)
 	if err != nil {
-		getProposalStatus.Status <- 3
+		getInterchainTxStatus.Status <- stafiHubXLedgerTypes.InterchainTxStatusUnspecified
 		return nil
 	}
-	getProposalStatus.Status <- statusRes.InterchainTxStatus
+	getInterchainTxStatus.Status <- statusRes.InterchainTxStatus
 
 	w.log.Debug("getInterchainTxStatus", "status", statusRes.InterchainTxStatus)
 	return nil
@@ -395,8 +392,8 @@ func (h *Handler) checkAndReSendWithSubmitSignature(typeStr string, sigMsg *staf
 		var err error
 		var res *types.TxResponse
 		if retry <= 0 {
-			h.log.Error(fmt.Sprintf(
-				"checkAndReSendWithSubmitSignature QueryTxByHash, reach retry limit."),
+			h.log.Error(
+				"checkAndReSendWithSubmitSignature QueryTxByHash, reach retry limit.",
 				"tx hash", txHashStr,
 				"err", err)
 			return fmt.Errorf("checkAndReSendWithSubmitSignature QueryTxByHash reach retry limit, tx hash: %s", txHashStr)
