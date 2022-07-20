@@ -45,66 +45,71 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 
 func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int64) error {
 	l.log.Debug("processStringEvents", "event", event)
-	m := core.Message{
-		Source:      l.symbol,
-		Destination: l.caredSymbol,
-	}
 
-	oldState := make(map[string]stafiHubXLedgerTypes.PoolBondState)
-	var shotId string
-	switch {
-	case event.Type == stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
-		if len(event.Attributes) != 4 {
+	msgs := make([]core.Message, 0)
+	oldState := make(map[string]stafiHubXLedgerTypes.PoolBondState) // shotId => bondstate
+	shotIds := make([]string, 0)
+
+	switch event.Type {
+	case stafiHubXLedgerTypes.EventTypeEraPoolUpdated:
+		if len(event.Attributes)%4 != 0 {
 			return ErrEventAttributeNumberUnMatch
 		}
+		for i := 0; i < len(event.Attributes)/4; i++ {
+			lastEra, err := strconv.Atoi(event.Attributes[4*i+1].Value)
+			if err != nil {
+				return err
+			}
+			if int64(lastEra) > int64(maxUint32) {
+				return fmt.Errorf("last era overflow %d", lastEra)
+			}
+			currentEra, err := strconv.Atoi(event.Attributes[4*i+2].Value)
+			if err != nil {
+				return err
+			}
+			if int64(currentEra) > int64(maxUint32) {
+				return fmt.Errorf("current era overflow %d", currentEra)
+			}
+			e := core.EventEraPoolUpdated{
+				Denom:      event.Attributes[4*i+0].Value,
+				LastEra:    uint32(lastEra),
+				CurrentEra: uint32(currentEra),
+				ShotId:     event.Attributes[4*i+3].Value,
+			}
+			if l.caredSymbol != core.RSymbol(e.Denom) {
+				continue
+			}
+			chainEra, err := l.conn.client.QueryChainEra(string(l.caredSymbol))
+			if err != nil {
+				return err
+			}
+			// return if already dealed
+			if chainEra.GetEra() != e.CurrentEra {
+				continue
+			}
 
-		lastEra, err := strconv.Atoi(event.Attributes[1].Value)
-		if err != nil {
-			return err
-		}
-		if int64(lastEra) > int64(maxUint32) {
-			return fmt.Errorf("last era overflow %d", lastEra)
-		}
-		currentEra, err := strconv.Atoi(event.Attributes[2].Value)
-		if err != nil {
-			return err
-		}
-		if int64(currentEra) > int64(maxUint32) {
-			return fmt.Errorf("current era overflow %d", currentEra)
-		}
-		e := core.EventEraPoolUpdated{
-			Denom:      event.Attributes[0].Value,
-			LastEra:    uint32(lastEra),
-			CurrentEra: uint32(currentEra),
-			ShotId:     event.Attributes[3].Value,
-		}
-		if l.caredSymbol != core.RSymbol(e.Denom) {
-			return nil
-		}
-		chainEra, err := l.conn.client.QueryChainEra(string(l.caredSymbol))
-		if err != nil {
-			return err
-		}
-		// return if already dealed
-		if chainEra.GetEra() != e.CurrentEra {
-			return nil
-		}
+			snapshotRes, err := l.conn.client.QuerySnapshot(e.ShotId)
+			if err != nil {
+				return err
+			}
+			// return if already dealed
+			if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.EraUpdated {
+				continue
+			}
+			e.Snapshot = snapshotRes.Shot
 
-		snapshotRes, err := l.conn.client.QuerySnapshot(e.ShotId)
-		if err != nil {
-			return err
-		}
-		// return if already dealed
-		if snapshotRes.Shot.BondState != stafiHubXLedgerTypes.EraUpdated {
-			return nil
-		}
-		e.Snapshot = snapshotRes.Shot
-		m.Reason = core.ReasonEraPoolUpdatedEvent
-		m.Content = e
-		oldState[event.Type] = stafiHubXLedgerTypes.EraUpdated
-		shotId = e.ShotId
+			m := core.Message{
+				Source:      l.symbol,
+				Destination: l.caredSymbol,
+			}
+			m.Reason = core.ReasonEraPoolUpdatedEvent
+			m.Content = e
 
-	case event.Type == stafiHubXLedgerTypes.EventTypeBondReported:
+			msgs = append(msgs, m)
+			oldState[e.ShotId] = stafiHubXLedgerTypes.EraUpdated
+			shotIds = append(shotIds, e.ShotId)
+		}
+	case stafiHubXLedgerTypes.EventTypeBondReported:
 		if len(event.Attributes) != 2 {
 			return ErrEventAttributeNumberUnMatch
 		}
@@ -134,12 +139,19 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return nil
 		}
 		e.Snapshot = snapshotRes.Shot
+
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
 		m.Reason = core.ReasonBondReportedEvent
 		m.Content = e
-		oldState[event.Type] = stafiHubXLedgerTypes.BondReported
-		shotId = e.ShotId
 
-	case event.Type == stafiHubXLedgerTypes.EventTypeActiveReported:
+		msgs = append(msgs, m)
+		oldState[e.ShotId] = stafiHubXLedgerTypes.BondReported
+		shotIds = append(shotIds, e.ShotId)
+
+	case stafiHubXLedgerTypes.EventTypeActiveReported:
 		if len(event.Attributes) != 2 {
 			return ErrEventAttributeNumberUnMatch
 		}
@@ -173,12 +185,18 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 		e.Snapshot = snapshotRes.Shot
 		e.PoolUnbond = unbondRes.Unbondings
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
 		m.Reason = core.ReasonActiveReportedEvent
 		m.Content = e
-		oldState[event.Type] = stafiHubXLedgerTypes.ActiveReported
-		shotId = e.ShotId
 
-	case event.Type == stafiHubXLedgerTypes.EventTypeRParamsChanged:
+		msgs = append(msgs, m)
+		oldState[e.ShotId] = stafiHubXLedgerTypes.ActiveReported
+		shotIds = append(shotIds, e.ShotId)
+
+	case stafiHubXLedgerTypes.EventTypeRParamsChanged:
 		if len(event.Attributes) != 6 {
 			return ErrEventAttributeNumberUnMatch
 		}
@@ -199,9 +217,16 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			Offset:     rparams.RParams.Offset,
 		}
 
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
 		m.Reason = core.ReasonRParamsChangedEvent
 		m.Content = eventRParams
-	case event.Type == stafiHubXRValidatorTypes.EventTypeUpdateRValidator:
+
+		msgs = append(msgs, m)
+
+	case stafiHubXRValidatorTypes.EventTypeUpdateRValidator:
 		if len(event.Attributes) != 8 {
 			return ErrEventAttributeNumberUnMatch
 		}
@@ -253,9 +278,17 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			CycleNumber:  cycleNumber.Uint64(),
 			CycleSeconds: cycleSeconds.Uint64(),
 		}
+
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
+
 		m.Reason = core.ReasonRValidatorUpdatedEvent
 		m.Content = eventRvalidatorUpdated
-	case event.Type == stafiHubXRValidatorTypes.EventTypeAddRValidator:
+
+		msgs = append(msgs, m)
+	case stafiHubXRValidatorTypes.EventTypeAddRValidator:
 		if len(event.Attributes) != 4 {
 			return ErrEventAttributeNumberUnMatch
 		}
@@ -277,62 +310,72 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			PoolAddress:  poolAddress,
 			AddedAddress: addedAddress,
 		}
+
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
 		m.Reason = core.ReasonRValidatorAddedEvent
 		m.Content = eventRvalidatorAdded
 
+		msgs = append(msgs, m)
+
 	default:
 		return nil
 	}
 
-	l.log.Info("find event", "eventType", event.Type, "block number", blockNumber)
-	err := l.submitMessage(&m)
-	if err != nil {
-		return err
-	}
+	l.log.Info("find event", "eventType", event.Type, "block number", blockNumber, "msgs", msgs)
+	for index, msg := range msgs {
 
-	switch m.Reason {
-	case core.ReasonRParamsChangedEvent, core.ReasonRValidatorAddedEvent:
-		// no need wait, we will get latest state when restart
-		return nil
-	case core.ReasonRValidatorUpdatedEvent:
-		// events of rvalidator updated
-		// here we wait until rvalidator update reported
-		// so we can continuely process this event when restart
-		event, ok := m.Content.(core.EventRValidatorUpdated)
-		if !ok {
-			return fmt.Errorf("cast to EventRValidatorUpdated failed, event: %+v", event)
+		err := l.submitMessage(&msg)
+		if err != nil {
+			return err
 		}
-		for {
-			dealedCycle, err := l.conn.client.QueryLatestDealedCycle(event.Denom, event.PoolAddress)
-			if err != nil {
-				l.log.Warn("QueryLatestDealedCycle failed will retry", "err", err)
-				time.Sleep(BlockRetryInterval)
-				continue
+
+		switch msg.Reason {
+		case core.ReasonRParamsChangedEvent, core.ReasonRValidatorAddedEvent:
+			// no need wait, we will get latest state when restart
+			return nil
+		case core.ReasonRValidatorUpdatedEvent:
+			// events of rvalidator updated
+			// here we wait until rvalidator update reported
+			// so we can continuely process this event when restart
+			event, ok := msg.Content.(core.EventRValidatorUpdated)
+			if !ok {
+				return fmt.Errorf("cast to EventRValidatorUpdated failed, event: %+v", event)
 			}
-			if !(dealedCycle.LatestDealedCycle.Number >= event.CycleNumber && dealedCycle.LatestDealedCycle.Version >= event.CycleVersion) {
-				time.Sleep(BlockRetryInterval)
-				continue
+			for {
+				dealedCycle, err := l.conn.client.QueryLatestDealedCycle(event.Denom, event.PoolAddress)
+				if err != nil {
+					l.log.Warn("QueryLatestDealedCycle failed will retry", "err", err)
+					time.Sleep(BlockRetryInterval)
+					continue
+				}
+				if !(dealedCycle.LatestDealedCycle.Number >= event.CycleNumber && dealedCycle.LatestDealedCycle.Version >= event.CycleVersion) {
+					time.Sleep(BlockRetryInterval)
+					continue
+				}
+				break
 			}
-			break
-		}
-	default:
-		// events of era dealing
-		// here we wait until snapshot's bondstate change to another
-		// so we can continuely process this event when restart
-		for {
-			snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
-			if err != nil {
-				l.log.Warn("QuerySnapshot failed will retry", "err", err)
-				time.Sleep(BlockRetryInterval)
-				continue
+		default:
+			// events of era dealing
+			// here we wait until snapshot's bondstate change to another
+			// so we can continuely process this event when restart
+			shotId := shotIds[index]
+			for {
+				snapshotRes, err := l.conn.client.QuerySnapshot(shotId)
+				if err != nil {
+					l.log.Warn("QuerySnapshot failed will retry", "err", err)
+					time.Sleep(BlockRetryInterval)
+					continue
+				}
+				if snapshotRes.GetShot().BondState == oldState[shotId] {
+					time.Sleep(BlockRetryInterval)
+					continue
+				}
+				break
 			}
-			if snapshotRes.GetShot().BondState == oldState[event.Type] {
-				time.Sleep(BlockRetryInterval)
-				continue
-			}
-			break
 		}
 	}
-
 	return nil
 }
