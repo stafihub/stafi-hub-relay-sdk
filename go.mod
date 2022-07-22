@@ -6,12 +6,12 @@ require (
 	github.com/cosmos/cosmos-sdk v0.45.6
 	github.com/cosmos/ibc-go/v3 v3.1.0
 	github.com/spf13/cobra v1.4.0
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220719085217-2ed4b28195c0
-	github.com/stafihub/stafihub v0.0.0-20220719084324-096aa8cc5c8f
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220721160233-0ec45ccdb38c
+	github.com/stafihub/stafihub v0.0.0-20220722033556-a7f1649273a5
 	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/tendermint/tendermint v0.34.19
-	google.golang.org/grpc v1.46.2
+	google.golang.org/grpc v1.48.0
 )
 
 require (
@@ -103,11 +103,11 @@ require (
 	github.com/zondax/hid v0.9.0 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
+	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd // indirect
+	google.golang.org/genproto v0.0.0-20220719170305-83ca9fad585f // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect

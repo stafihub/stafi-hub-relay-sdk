@@ -288,7 +288,7 @@ func (w *Handler) handleRValidatorUpdateReport(m *core.Message) error {
 			PoolAddress: proposal.PoolAddress,
 			Version:     proposal.CycleVersion,
 			Number:      proposal.CycleNumber,
-		})
+		}, proposal.Status)
 	done()
 
 	return w.checkAndReSendWithProposalContent("ProposalRValidatorUpdateReport", content)
