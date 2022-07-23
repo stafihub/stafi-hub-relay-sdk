@@ -282,6 +282,29 @@ func (c *Client) QueryBondedDenom() (*xStakeTypes.QueryParamsResponse, error) {
 	return cc.(*xStakeTypes.QueryParamsResponse), nil
 }
 
+func (c *Client) QueryValidators(height int64) (*xStakeTypes.QueryValidatorsResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.retry(func() (interface{}, error) {
+		client := c.Ctx().WithHeight(height)
+		queryClient := xStakeTypes.NewQueryClient(client)
+		params := &xStakeTypes.QueryValidatorsRequest{
+			Pagination: &query.PageRequest{
+				Offset:     0,
+				Limit:      1000,
+				CountTotal: false,
+				Reverse:    false,
+			},
+		}
+		return queryClient.Validators(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*xStakeTypes.QueryValidatorsResponse), nil
+}
+
 func (c *Client) Retry(f func() (interface{}, error)) (interface{}, error) {
 	return c.retry(f)
 }
