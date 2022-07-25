@@ -312,3 +312,12 @@ func TestQueryLatestVotedCycle(t *testing.T) {
 	}
 	t.Log(latest)
 }
+
+func TestQuerySignInfos(t *testing.T) {
+	initClient()
+	signInfos, err := client.QueryAllSigningInfos(1400000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(signInfos)
+}

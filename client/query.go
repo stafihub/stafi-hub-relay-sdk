@@ -15,6 +15,7 @@ import (
 	xAuthTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	xDistriTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	xSlashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	xStakeTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -303,6 +304,42 @@ func (c *Client) QueryValidators(height int64) (*xStakeTypes.QueryValidatorsResp
 		return nil, err
 	}
 	return cc.(*xStakeTypes.QueryValidatorsResponse), nil
+}
+
+func (c *Client) QuerySigningInfo(consAddr string, height int64) (*xSlashingTypes.QuerySigningInfoResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.retry(func() (interface{}, error) {
+		queryClient := xSlashingTypes.NewQueryClient(c.Ctx().WithHeight(height))
+		return queryClient.SigningInfo(
+			context.Background(),
+			&xSlashingTypes.QuerySigningInfoRequest{
+				ConsAddress: consAddr,
+			},
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*xSlashingTypes.QuerySigningInfoResponse), nil
+}
+
+func (c *Client) QueryAllSigningInfos(height int64) (*xSlashingTypes.QuerySigningInfosResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.retry(func() (interface{}, error) {
+		queryClient := xSlashingTypes.NewQueryClient(c.Ctx().WithHeight(height))
+		return queryClient.SigningInfos(
+			context.Background(),
+			&xSlashingTypes.QuerySigningInfosRequest{},
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*xSlashingTypes.QuerySigningInfosResponse), nil
 }
 
 func (c *Client) Retry(f func() (interface{}, error)) (interface{}, error) {
