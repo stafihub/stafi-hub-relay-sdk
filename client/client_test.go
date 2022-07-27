@@ -103,7 +103,7 @@ func TestChangeEndPoint(t *testing.T) {
 
 func TestGetTxs(t *testing.T) {
 	initClient()
-	txs, err := client.GetBlockTxs(1447749)
+	txs, err := client.GetBlockTxs(1308656)
 	if err != nil {
 		t.Fatal(err)
 	}
