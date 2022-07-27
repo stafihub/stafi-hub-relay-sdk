@@ -247,14 +247,27 @@ func (c *Client) GetTxsWithParseErrSkip(events []string, page, limit int, orderB
 
 // will skip txs that parse failed
 func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
-	searchTxs, err := c.GetTxsWithParseErrSkip([]string{fmt.Sprintf("tx.height=%d", height)}, 1, 1000, "asc")
+	// tendermint max limit 100
+	txs := make([]*types.TxResponse, 0)
+	limit := 50
+	initPage := 1
+	searchTxs, err := c.GetTxs([]string{fmt.Sprintf("tx.height=%d", height)}, initPage, limit, "asc")
 	if err != nil {
 		return nil, err
 	}
-	if searchTxs.TotalCount != searchTxs.Count {
-		return nil, fmt.Errorf("tx total count overflow, total: %d", searchTxs.TotalCount)
+	txs = append(txs, searchTxs.Txs...)
+	for page := initPage + 1; page <= int(searchTxs.PageTotal); page++ {
+		subSearchTxs, err := c.GetTxs([]string{fmt.Sprintf("tx.height=%d", height)}, page, limit, "asc")
+		if err != nil {
+			return nil, err
+		}
+		txs = append(txs, subSearchTxs.Txs...)
 	}
-	return searchTxs.GetTxs(), nil
+
+	if int(searchTxs.TotalCount) != len(txs) {
+		return nil, fmt.Errorf("tx total count overflow, searchTxs.TotalCount: %d txs len: %d", searchTxs.TotalCount, len(txs))
+	}
+	return txs, nil
 }
 
 func (c *Client) GetChainId() (string, error) {

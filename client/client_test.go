@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
@@ -102,20 +103,22 @@ func TestChangeEndPoint(t *testing.T) {
 
 func TestGetTxs(t *testing.T) {
 	initClient()
-	txs, err := client.GetBlockTxs(147694)
+	txs, err := client.GetBlockTxs(1447749)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, tx := range txs {
-		t.Log("===============")
-		t.Logf("%+v", tx)
-		for _, log := range tx.Logs {
-			for _, event := range log.Events {
-				t.Logf("%+v", event)
-			}
-		}
 
-	}
+	t.Log(len(txs))
+	// for _, tx := range txs {
+	// 	t.Log("===============")
+	// 	t.Logf("%+v", tx)
+	// 	for _, log := range tx.Logs {
+	// 		for _, event := range log.Events {
+	// 			t.Logf("%+v", event)
+	// 		}
+	// 	}
+
+	// }
 }
 
 func TestGetPubKey(t *testing.T) {
@@ -315,9 +318,45 @@ func TestQueryLatestVotedCycle(t *testing.T) {
 
 func TestQuerySignInfos(t *testing.T) {
 	initClient()
-	signInfos, err := client.QueryAllSigningInfos(1400000)
+
+	signingInfos, err := client.QueryAllSigningInfos(1445000)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(signInfos)
+
+	validators, err := client.QueryValidators(1445000)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	missedBlocks := make(map[string]int)
+	for _, signInfo := range signingInfos.Info {
+		addr, err := types.ConsAddressFromBech32(signInfo.Address)
+		if err != nil {
+			t.Fatal(err)
+		}
+		missedBlocks[strings.ToUpper(hex.EncodeToString(addr.Bytes()))] = int(signInfo.MissedBlocksCounter)
+	}
+
+	for _, val := range validators.Validators {
+
+		// get hex addr
+		consPubkeyJson, err := client.Ctx().Codec.MarshalJSON(val.ConsensusPubkey)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var pk cryptotypes.PubKey
+		if err := client.Ctx().Codec.UnmarshalInterfaceJSON(consPubkeyJson, &pk); err != nil {
+			t.Fatal(err)
+		}
+		addrHexStr := pk.Address().String()
+		missedNumber := missedBlocks[addrHexStr]
+		if val.Status == 3 {
+			signed := 43200 - missedNumber
+			t.Log("val ", val.Description.Moniker, "uptime ", uint64(signed/432))
+		} else {
+			t.Log("val ", val.Description.Moniker, "uptime ", 0)
+		}
+
+	}
 }
