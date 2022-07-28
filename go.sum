@@ -803,6 +803,8 @@ github.com/stafihub/rtoken-relay-core/common v0.0.0-20220727152457-224054b4f39e 
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220727152457-224054b4f39e/go.mod h1:nP1t63owCIWVztAxoJwfYnXpPgJHZY7uapl/uF4MCtY=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220727155224-29894a3dcd47 h1:1nczloevy9lY7UqDadSqOnUwqanwtDU6J/q9qnxJQhE=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20220727155224-29894a3dcd47/go.mod h1:nP1t63owCIWVztAxoJwfYnXpPgJHZY7uapl/uF4MCtY=
+github.com/stafihub/rtoken-relay-core/common v0.0.0-20220728005243-fd90132e045e h1:Ki9HB8XqzXF9BPJuPhVYBobf2+I4M4yYU2GTd84NTMI=
+github.com/stafihub/rtoken-relay-core/common v0.0.0-20220728005243-fd90132e045e/go.mod h1:nP1t63owCIWVztAxoJwfYnXpPgJHZY7uapl/uF4MCtY=
 github.com/stafihub/stafihub v0.0.0-20220722033556-a7f1649273a5 h1:Vk5M7SthcobvnZAP7q9q30uxtqXYOqx++k1ZXYMXblg=
 github.com/stafihub/stafihub v0.0.0-20220722033556-a7f1649273a5/go.mod h1:kEVzgsDiNej4XHZmK0Zvb954Gowm1Qpxnb5H6VA5KJQ=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
