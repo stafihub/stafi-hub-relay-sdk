@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	// "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -21,13 +21,15 @@ import (
 var client *hubClient.Client
 
 func initClient() {
-	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"))
-	if err != nil {
-		panic(err)
-	}
+	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"))
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
-	// client, err = hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
+	var err error
+	// client, err = hubClient.NewClient(key, "admin", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
+	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
+	client, err = hubClient.NewClient(nil, "", "", []string{"http://localhost:26657"})
 	if err != nil {
 		panic(err)
 	}
@@ -103,7 +105,8 @@ func TestChangeEndPoint(t *testing.T) {
 
 func TestGetTxs(t *testing.T) {
 	initClient()
-	txs, err := client.GetBlockTxs(1308656)
+	// txs, err := client.GetBlockTxs(610)
+	txs, err := client.GetBlockTxsWithParseErrSkip(610)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -26,7 +26,7 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 		l.log.Debug("processEvents", "blockNum", currentBlock)
 	}
 
-	txs, err := l.conn.client.GetBlockTxs(currentBlock)
+	txs, err := l.conn.client.GetBlockTxsWithParseErrSkip(currentBlock)
 	if err != nil {
 		return fmt.Errorf("client.GetBlockTxs failed: %s", err)
 	}

@@ -232,20 +232,50 @@ func (c *Client) GetTxs(events []string, page, limit int, orderBy string) (*type
 	return cc.(*types.SearchTxsResult), nil
 }
 
-func (c *Client) GetTxsWithParseErrSkip(events []string, page, limit int, orderBy string) (*types.SearchTxsResult, error) {
+func (c *Client) GetTxsWithParseErrSkip(events []string, page, limit int, orderBy string) (*types.SearchTxsResult, int, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
+	externalSkipCount := 0
 	cc, err := c.retry(func() (interface{}, error) {
-		return xAuthTx.QueryTxsByEventsWithParseErrSkip(c.Ctx(), events, page, limit, orderBy)
+		result, skip, err := xAuthTx.QueryTxsByEventsWithParseErrSkip(c.Ctx(), events, page, limit, orderBy)
+		externalSkipCount = skip
+		return result, err
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return cc.(*types.SearchTxsResult), nil
+	return cc.(*types.SearchTxsResult), externalSkipCount, nil
 }
 
 // will skip txs that parse failed
+func (c *Client) GetBlockTxsWithParseErrSkip(height int64) ([]*types.TxResponse, error) {
+	// tendermint max limit 100
+	txs := make([]*types.TxResponse, 0)
+	limit := 50
+	initPage := 1
+	totalSkipCount := 0
+	searchTxs, skipCount, err := c.GetTxsWithParseErrSkip([]string{fmt.Sprintf("tx.height=%d", height)}, initPage, limit, "asc")
+	if err != nil {
+		return nil, err
+	}
+	totalSkipCount += skipCount
+	txs = append(txs, searchTxs.Txs...)
+	for page := initPage + 1; page <= int(searchTxs.PageTotal); page++ {
+		subSearchTxs, skipCount, err := c.GetTxsWithParseErrSkip([]string{fmt.Sprintf("tx.height=%d", height)}, page, limit, "asc")
+		if err != nil {
+			return nil, err
+		}
+		totalSkipCount += skipCount
+		txs = append(txs, subSearchTxs.Txs...)
+	}
+
+	if int(searchTxs.TotalCount) != len(txs)+totalSkipCount {
+		return nil, fmt.Errorf("tx total count overflow, searchTxs.TotalCount: %d txs len: %d", searchTxs.TotalCount, len(txs)+totalSkipCount)
+	}
+	return txs, nil
+}
+
 func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
 	// tendermint max limit 100
 	txs := make([]*types.TxResponse, 0)
