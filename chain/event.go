@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/sirupsen/logrus"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
@@ -319,6 +320,95 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		m.Content = eventRvalidatorAdded
 
 		msgs = append(msgs, m)
+	case stafiHubXLedgerTypes.EventTypeInitPool:
+		if len(event.Attributes) != 2 {
+			return ErrEventAttributeNumberUnMatch
+		}
+		denom := event.Attributes[0].Value
+		if l.caredSymbol != core.RSymbol(denom) {
+			return nil
+		}
+		poolAddress := event.Attributes[1].Value
+
+		icaPoolList, err := l.conn.client.QueryIcaPoolList(denom)
+		if err != nil {
+			return err
+		}
+
+		withdrawalAddr := ""
+		ctrlChannelId := ""
+		for _, icaPool := range icaPoolList.IcaPoolList {
+			if icaPool.DelegationAccount.Address == poolAddress {
+				withdrawalAddr = icaPool.WithdrawalAccount.Address
+				ctrlChannelId = icaPool.DelegationAccount.CtrlConnectionId
+				break
+			}
+		}
+		if len(withdrawalAddr) == 0 || len(ctrlChannelId) == 0 {
+			logrus.Info("init pool but not ica pool: ", poolAddress)
+			return nil
+		}
+
+		// wait until get rvalidators
+		var vals []string
+		retry := BlockRetryLimit
+		for {
+			if retry <= 0 {
+				return fmt.Errorf("QueryRValidatorList reach retry limit: denom %s pool %s", denom, poolAddress)
+			}
+
+			validators, err := l.conn.client.QueryRValidatorList(denom, poolAddress)
+			if err != nil {
+				return err
+			}
+			if len(validators.RValidatorList) == 0 {
+				time.Sleep(BlockRetryInterval)
+				retry++
+				continue
+			}
+			vals = validators.RValidatorList
+			break
+		}
+
+		eventInitPool := core.EventInitPool{
+			Denom:             denom,
+			PoolAddress:       poolAddress,
+			WithdrawalAddress: withdrawalAddr,
+			CtrlChannelId:     ctrlChannelId,
+			Validators:        vals,
+		}
+
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
+		m.Reason = core.ReasonInitPoolEvent
+		m.Content = eventInitPool
+
+		msgs = append(msgs, m)
+	case stafiHubXLedgerTypes.EventTypeRemovePool:
+		if len(event.Attributes) != 2 {
+			return ErrEventAttributeNumberUnMatch
+		}
+		denom := event.Attributes[0].Value
+		if l.caredSymbol != core.RSymbol(denom) {
+			return nil
+		}
+		poolAddress := event.Attributes[1].Value
+
+		eventRemovePool := core.EventRemovePool{
+			Denom:       denom,
+			PoolAddress: poolAddress,
+		}
+
+		m := core.Message{
+			Source:      l.symbol,
+			Destination: l.caredSymbol,
+		}
+		m.Reason = core.ReasonRemovePoolEvent
+		m.Content = eventRemovePool
+
+		msgs = append(msgs, m)
 
 	default:
 		return nil
@@ -333,7 +423,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 
 		switch msg.Reason {
-		case core.ReasonRParamsChangedEvent, core.ReasonRValidatorAddedEvent:
+		case core.ReasonRParamsChangedEvent, core.ReasonRValidatorAddedEvent, core.ReasonInitPoolEvent, core.ReasonRemovePoolEvent:
 			// no need wait, we will get latest state when restart
 			return nil
 		case core.ReasonRValidatorUpdatedEvent:
