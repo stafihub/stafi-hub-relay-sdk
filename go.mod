@@ -4,11 +4,11 @@ go 1.18
 
 require (
 	github.com/cosmos/cosmos-sdk v0.45.6
-	github.com/cosmos/ibc-go/v3 v3.1.0
+	github.com/cosmos/ibc-go/v3 v3.1.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220802000335-3df19a5ca75a
-	github.com/stafihub/stafihub v0.0.0-20220801021056-1080f0037668
+	github.com/stafihub/stafihub v0.0.0-20220805082732-1f0dbdbfe992
 	github.com/stretchr/testify v1.7.1
 	github.com/tendermint/tendermint v0.34.19
 	google.golang.org/grpc v1.48.0
