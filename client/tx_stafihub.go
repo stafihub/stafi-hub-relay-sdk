@@ -6,6 +6,7 @@ import (
 	clientTx "github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	stafiHubXBridgeTypes "github.com/stafihub/stafihub/x/bridge/types"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRvoteTypes "github.com/stafihub/stafihub/x/rvote/types"
 )
@@ -23,6 +24,15 @@ func (c *Client) SubmitProposal(content stafiHubXRvoteTypes.Content) (string, []
 		return "", nil, fmt.Errorf("msg.ValidateBasic faild: %s", err)
 	}
 	done()
+	txBts, err := c.ConstructAndSignTx(msg)
+	if err != nil {
+		return "", nil, fmt.Errorf("c.ConstructAndSignTx faild: %s", err)
+	}
+	txHash, err := c.BroadcastTx(txBts)
+	return txHash, txBts, err
+}
+
+func (c *Client) SubmitBridgeProposal(msg *stafiHubXBridgeTypes.MsgVoteProposal) (string, []byte, error) {
 	txBts, err := c.ConstructAndSignTx(msg)
 	if err != nil {
 		return "", nil, fmt.Errorf("c.ConstructAndSignTx faild: %s", err)
