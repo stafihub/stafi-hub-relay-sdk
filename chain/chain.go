@@ -101,7 +101,7 @@ func (c *Chain) Name() string {
 	return c.name
 }
 
-//stop will stop handler and listener
+// stop will stop handler and listener
 func (c *Chain) Stop() {
 	close(c.stop)
 }

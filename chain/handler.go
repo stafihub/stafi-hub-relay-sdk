@@ -111,7 +111,7 @@ func (w *Handler) msgHandler() {
 	}
 }
 
-//resolve write msg from other chains
+// resolve write msg from other chains
 func (w *Handler) handleMessage(m *core.Message) error {
 	switch m.Reason {
 	case core.ReasonExeLiquidityBond:

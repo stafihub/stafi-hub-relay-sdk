@@ -26,7 +26,7 @@ func SetAccountPrefix(prefix string) {
 	accountPrefix = prefix
 }
 
-//stafihub client
+// stafihub client
 type Client struct {
 	clientCtx           client.Context
 	rpcClientList       []rpcClient.Client
@@ -123,7 +123,7 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 	return retClient, nil
 }
 
-//update clientCtx.FromName and clientCtx.FromAddress
+// update clientCtx.FromName and clientCtx.FromAddress
 func (c *Client) SetFromName(fromName string) error {
 	info, err := c.clientCtx.Keyring.Key(fromName)
 	if err != nil {
@@ -188,4 +188,8 @@ func (c *Client) ChangeEndpoint() {
 	willUseIndex := (c.rpcClientIndex + 1) % len(c.rpcClientList)
 	c.clientCtx = c.clientCtx.WithClient(c.rpcClientList[willUseIndex])
 	c.rpcClientIndex = willUseIndex
+}
+
+func (c *Client) CurrentEndpointIndex() int {
+	return c.rpcClientIndex
 }

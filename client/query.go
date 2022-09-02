@@ -24,7 +24,7 @@ import (
 const retryLimit = 600
 const waitTime = 2 * time.Second
 
-//no 0x prefix
+// no 0x prefix
 func (c *Client) QueryTxByHash(hashHexStr string) (*types.TxResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
@@ -389,44 +389,46 @@ func (c *Client) Retry(f func() (interface{}, error)) (interface{}, error) {
 	return c.retry(f)
 }
 
-//only retry func when return connection err here
+// only retry func when return connection err here
 func (c *Client) retry(f func() (interface{}, error)) (interface{}, error) {
 	var err error
 	var result interface{}
 	for i := 0; i < retryLimit; i++ {
 		result, err = f()
 		if err != nil {
+			fmt.Printf("retry with endpoint index: %d err: %s\n", c.CurrentEndpointIndex(), err)
 			// connection err case
 			if isConnectionError(err) {
 				c.ChangeEndpoint()
 				time.Sleep(waitTime)
 				continue
-			} else {
-				// business err case or other err case not captured
-				for j := 0; j < len(c.rpcClientList)*2; j++ {
-					c.ChangeEndpoint()
-					subResult, subErr := f()
+			}
+			// business err case or other err case not captured
+			for j := 0; j < len(c.rpcClientList)*2; j++ {
+				c.ChangeEndpoint()
+				subResult, subErr := f()
 
-					if subErr != nil {
-						// filter connection err
-						if isConnectionError(subErr) {
-							continue
-						}
-
-						result = subResult
-						err = subErr
+				if subErr != nil {
+					fmt.Printf("retry with endpoint index: %d subErr: %s\n", c.CurrentEndpointIndex(), err)
+					// filter connection err
+					if isConnectionError(subErr) {
 						continue
 					}
 
 					result = subResult
 					err = subErr
-					// if ok when using this rpc, just return
-					return result, err
+					continue
 				}
 
-				// still failed after try all rpc, just return err
+				result = subResult
+				err = subErr
+				// if ok when using this rpc, just return
 				return result, err
 			}
+
+			// still failed after try all rpc, just return err
+			return result, err
+
 		}
 		// no err, just return
 		return result, err
@@ -469,11 +471,12 @@ func isConnectionError(err error) bool {
 		}
 		// server goroutine panic
 		if strings.Contains(err.Error(), "recovered") {
-			fmt.Println("retry: f() err: ", err)
 			return true
 		}
 		if strings.Contains(err.Error(), "panic") {
-			fmt.Println("retry: f() err: ", err)
+			return true
+		}
+		if strings.Contains(err.Error(), "Internal server error") {
 			return true
 		}
 	}
