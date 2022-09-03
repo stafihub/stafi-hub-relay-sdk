@@ -396,7 +396,9 @@ func (c *Client) retry(f func() (interface{}, error)) (interface{}, error) {
 	for i := 0; i < retryLimit; i++ {
 		result, err = f()
 		if err != nil {
-			fmt.Printf("retry with endpoint index: %d err: %s\n", c.CurrentEndpointIndex(), err)
+			c.logger.Debug("retry",
+				"endpoint index", c.CurrentEndpointIndex(),
+				"err", err)
 			// connection err case
 			if isConnectionError(err) {
 				c.ChangeEndpoint()
@@ -409,7 +411,9 @@ func (c *Client) retry(f func() (interface{}, error)) (interface{}, error) {
 				subResult, subErr := f()
 
 				if subErr != nil {
-					fmt.Printf("retry with endpoint index: %d subErr: %s\n", c.CurrentEndpointIndex(), err)
+					c.logger.Debug("retry",
+						"endpoint index", c.CurrentEndpointIndex(),
+						"subErr", err)
 					// filter connection err
 					if isConnectionError(subErr) {
 						continue

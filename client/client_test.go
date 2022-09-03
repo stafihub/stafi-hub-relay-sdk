@@ -13,6 +13,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func initClient() {
 	// }
 
 	var err error
-	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"})
+	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
 	// client, err = hubClient.NewClient(nil, "", "", []string{"http://localhost:26657"})
 	if err != nil {
