@@ -336,15 +336,15 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 		}
 
 		withdrawalAddr := ""
-		ctrlChannelId := ""
+		hostChannelId := ""
 		for _, icaPool := range icaPoolList.IcaPoolList {
 			if icaPool.DelegationAccount.Address == poolAddress {
 				withdrawalAddr = icaPool.WithdrawalAccount.Address
-				ctrlChannelId = icaPool.DelegationAccount.CtrlConnectionId
+				hostChannelId = icaPool.DelegationAccount.HostChannelId
 				break
 			}
 		}
-		if len(withdrawalAddr) == 0 || len(ctrlChannelId) == 0 {
+		if len(withdrawalAddr) == 0 || len(hostChannelId) == 0 {
 			logrus.Info("init pool but not ica pool: ", poolAddress)
 			return nil
 		}
@@ -374,7 +374,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			Denom:             denom,
 			PoolAddress:       poolAddress,
 			WithdrawalAddress: withdrawalAddr,
-			CtrlChannelId:     ctrlChannelId,
+			HostChannelId:     hostChannelId,
 			Validators:        vals,
 		}
 
