@@ -2,21 +2,26 @@ package chain
 
 import (
 	"fmt"
+	"math/big"
+	"strings"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	"github.com/stafihub/rtoken-relay-core/common/log"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	"github.com/stafihub/stafihub/utils"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRelayersTypes "github.com/stafihub/stafihub/x/relayers/types"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 	stafiHubXRVoteTypes "github.com/stafihub/stafihub/x/rvote/types"
 	"google.golang.org/grpc/codes"
-	"strings"
-	"time"
 )
 
 const msgLimit = 512
+
+var oneDec = utils.NewDecFromBigInt(big.NewInt(1))
 
 type Handler struct {
 	conn            *Connection
@@ -223,6 +228,20 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 	proposal, ok := m.Content.(core.ProposalActiveReport)
 	if !ok {
 		return fmt.Errorf("ProposalActiveReport cast failed, %+v", m)
+	}
+	// ensure rate >=1
+	rate, err := w.conn.client.QueryRate(proposal.Denom)
+	if err != nil {
+		return err
+	}
+	if rate.ExchangeRate.Value.Equal(oneDec) {
+		snapshot, err := w.conn.client.QuerySnapshot(proposal.ShotId)
+		if err != nil {
+			return err
+		}
+		if snapshot.Shot.Chunk.Active.Sub(proposal.Staked).LT(types.NewIntFromUint64(1000)) {
+			proposal.Staked = snapshot.Shot.Chunk.Active
+		}
 	}
 
 	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())

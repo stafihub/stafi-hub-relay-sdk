@@ -177,6 +177,23 @@ func (c *Client) QueryEraRate(denom string, era uint32) (*stafiHubXLedgerTypes.Q
 	return cc.(*stafiHubXLedgerTypes.QueryGetEraExchangeRateResponse), nil
 }
 
+func (c *Client) QueryRate(denom string) (*stafiHubXLedgerTypes.QueryGetExchangeRateResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		params := &stafiHubXLedgerTypes.QueryGetExchangeRateRequest{
+			Denom: denom,
+		}
+		return queryClient.GetExchangeRate(context.Background(), params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryGetExchangeRateResponse), nil
+}
+
 func (c *Client) QueryRParams(denom string) (*stafiHubXLedgerTypes.QueryGetRParamsResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
