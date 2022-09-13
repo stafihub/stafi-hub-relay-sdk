@@ -239,7 +239,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 		if err != nil {
 			return err
 		}
-		if snapshot.Shot.Chunk.Active.Sub(proposal.Staked).LT(types.NewIntFromUint64(1000)) {
+		if snapshot.Shot.Chunk.Active.GT(proposal.Staked) && snapshot.Shot.Chunk.Active.Sub(proposal.Staked).LT(types.NewIntFromUint64(1000)) {
 			proposal.Staked = snapshot.Shot.Chunk.Active
 		}
 	}
