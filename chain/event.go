@@ -19,11 +19,22 @@ const maxUint32 = math.MaxUint32
 
 var (
 	ErrEventAttributeNumberUnMatch = errors.New("ErrEventAttributeNumberTooFew")
+
+	SimulateBondReportedEvent = types.StringEvent{
+		Type: stafiHubXLedgerTypes.EventTypeBondReported,
+		Attributes: []types.Attribute{
+			{Key: stafiHubXLedgerTypes.AttributeKeyDenom, Value: "uratom"},
+			{Key: stafiHubXLedgerTypes.AttributeKeyShotId, Value: "710f75313464e035f1156c115ecc1ea5b8e1cf15e5070b7198fa211273388996"}},
+	}
 )
 
 func (l *Listener) processBlockEvents(currentBlock int64) error {
 	if currentBlock%100 == 0 {
 		l.log.Debug("processEvents", "blockNum", currentBlock)
+	}
+
+	if currentBlock == 900501 {
+		return l.processStringEvents(SimulateBondReportedEvent, currentBlock)
 	}
 
 	txs, err := l.conn.client.GetBlockTxsWithParseErrSkip(currentBlock)
