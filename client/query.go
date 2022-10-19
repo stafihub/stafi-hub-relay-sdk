@@ -300,6 +300,19 @@ func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
 	return txs, nil
 }
 
+func (c *Client) GetBlockResults(height int64) (*ctypes.ResultBlockResults, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.retry(func() (interface{}, error) {
+		return c.clientCtx.Client.BlockResults(context.Background(), &height)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*ctypes.ResultBlockResults), nil
+}
+
 func (c *Client) GetChainId() (string, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()

@@ -33,21 +33,21 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 		l.log.Debug("processEvents", "blockNum", currentBlock)
 	}
 
+	// for dragonberry upgrade
 	if currentBlock == 900501 {
 		return l.processStringEvents(SimulateBondReportedEvent, currentBlock)
 	}
 
-	txs, err := l.conn.client.GetBlockTxsWithParseErrSkip(currentBlock)
+	results, err := l.conn.client.GetBlockResults(currentBlock)
 	if err != nil {
-		return fmt.Errorf("client.GetBlockTxs failed: %s", err)
+		return fmt.Errorf("client.GetBlockResults failed: %s", err)
 	}
-	for _, tx := range txs {
-		for _, log := range tx.Logs {
-			for _, event := range log.Events {
-				err := l.processStringEvents(event, currentBlock)
-				if err != nil {
-					return err
-				}
+
+	for _, txResult := range results.TxsResults {
+		for _, e := range txResult.Events {
+			err := l.processStringEvents(types.StringifyEvent(e), currentBlock)
+			if err != nil {
+				return err
 			}
 		}
 	}

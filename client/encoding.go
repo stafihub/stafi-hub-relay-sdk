@@ -26,6 +26,7 @@ import (
 	ibcTransfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
 	ibcCore "github.com/cosmos/ibc-go/v3/modules/core"
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
+	stafiHubXClaim "github.com/stafihub/stafihub/x/claim"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
 	stafiHubXMining "github.com/stafihub/stafihub/x/mining"
 	stafiHubXRBank "github.com/stafihub/stafihub/x/rbank"
@@ -84,6 +85,7 @@ func MakeEncodingConfig() EncodingConfig {
 		stafiHubXRDex.AppModuleBasic{},
 		stafiHubXRStaking.AppModuleBasic{},
 		stafiHubXMining.AppModuleBasic{},
+		stafiHubXClaim.AppModuleBasic{},
 	)
 	moduleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	moduleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)

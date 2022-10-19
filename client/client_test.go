@@ -29,7 +29,8 @@ func initClient() {
 
 	var err error
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc2.stafihub.io:443"}, log.NewLog("client"))
+	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
 	// client, err = hubClient.NewClient(nil, "", "", []string{"http://localhost:26657"})
 	if err != nil {
@@ -48,7 +49,7 @@ func TestClient_QueryTxByHash(t *testing.T) {
 
 	txs, err := client.GetBlockTxs(901223)
 	assert.NoError(t, err)
-	t.Log("----------",txs)
+	t.Log("----------", txs)
 	for _, tx := range txs {
 		if tx.TxHash == "7AB804A2E1E28870F534FA4BAA823AF101B54E2DA95293D5BC5382DDD3579211" {
 
@@ -109,12 +110,33 @@ func TestChangeEndPoint(t *testing.T) {
 func TestGetTxs(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockTxsWithParseErrSkip(900499)
+	txs, err := client.GetBlockTxsWithParseErrSkip(900599)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(len(txs))
+	// for _, tx := range txs {
+	// 	t.Log("===============")
+	// 	t.Logf("%+v", tx)
+	// 	for _, log := range tx.Logs {
+	// 		for _, event := range log.Events {
+	// 			t.Logf("%+v", event)
+	// 		}
+	// 	}
+
+	// }
+}
+
+func TestGetBlockResults(t *testing.T) {
+	initClient()
+	// txs, err := client.GetBlockTxs(610)
+	txs, err := client.GetBlockResults(17043254)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(txs)
 	// for _, tx := range txs {
 	// 	t.Log("===============")
 	// 	t.Logf("%+v", tx)
