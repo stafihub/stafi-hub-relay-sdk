@@ -279,16 +279,21 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 				return nil
 			}
 		}
+		resultBlock, err := l.conn.client.QueryBlock(blockNumber)
+		if err != nil {
+			return err
+		}
 
 		eventRvalidatorUpdated := core.EventRValidatorUpdated{
-			Denom:        denom,
-			Era:          uint32(era.Uint64()),
-			PoolAddress:  poolAddress,
-			OldAddress:   oldAddress,
-			NewAddress:   newAddress,
-			CycleVersion: cycleVersion.Uint64(),
-			CycleNumber:  cycleNumber.Uint64(),
-			CycleSeconds: cycleSeconds.Uint64(),
+			Denom:          denom,
+			Era:            uint32(era.Uint64()),
+			PoolAddress:    poolAddress,
+			OldAddress:     oldAddress,
+			NewAddress:     newAddress,
+			CycleVersion:   cycleVersion.Uint64(),
+			CycleNumber:    cycleNumber.Uint64(),
+			CycleSeconds:   cycleSeconds.Uint64(),
+			BlockTimestamp: resultBlock.Block.Time.Unix(),
 		}
 
 		m := core.Message{

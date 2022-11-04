@@ -29,8 +29,9 @@ func initClient() {
 
 	var err error
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://private-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
 	// client, err = hubClient.NewClient(nil, "", "", []string{"http://localhost:26657"})
 	if err != nil {
@@ -94,16 +95,15 @@ func TestClient_QueryTxByHash(t *testing.T) {
 
 func TestChangeEndPoint(t *testing.T) {
 	initClient()
-	for i := 0; i < 20; i++ {
-		addr, err := types.AccAddressFromBech32("stafi1qzt0qajzr9df3en5sk06xlk26n30003c8uhdkg")
+	for i := 0; i < 200; i++ {
+		height, err := client.GetCurrentBlockHeight()
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
+		} else {
+
+			t.Log(height)
 		}
-		acc, err := client.QueryAccount(addr)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("%+v", acc.GetAccountNumber())
+
 	}
 }
 
@@ -131,7 +131,7 @@ func TestGetTxs(t *testing.T) {
 func TestGetBlockResults(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockResults(17043254)
+	txs, err := client.GetBlockResults(900499)
 	if err != nil {
 		t.Fatal(err)
 	}

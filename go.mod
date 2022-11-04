@@ -7,7 +7,7 @@ require (
 	github.com/cosmos/ibc-go/v3 v3.1.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.5.0
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20220903031254-1efa646fb59e
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20221104093123-ca51d55b8f53
 	github.com/stafihub/stafihub v0.1.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tendermint/tendermint v0.34.20
