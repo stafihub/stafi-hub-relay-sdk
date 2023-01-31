@@ -35,7 +35,14 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 
 	// for dragonberry upgrade
 	if currentBlock == 900501 {
-		return l.processStringEvents(SimulateBondReportedEvent, currentBlock)
+		chainId, err := l.conn.client.GetChainId()
+		if err != nil {
+			return err
+		}
+		// should deal this only on mainnet
+		if chainId == "stafihub-1" {
+			return l.processStringEvents(SimulateBondReportedEvent, currentBlock)
+		}
 	}
 
 	results, err := l.conn.client.GetBlockResults(currentBlock)
