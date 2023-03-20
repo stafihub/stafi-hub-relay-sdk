@@ -7,6 +7,7 @@ import (
 	stafiHubXBridgeTypes "github.com/stafihub/stafihub/x/bridge/types"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRBankTypes "github.com/stafihub/stafihub/x/rbank/types"
+	stafiHubRMintRewardTypes "github.com/stafihub/stafihub/x/rmintreward/types"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 )
 
@@ -380,4 +381,37 @@ func (c *Client) QueryInterchainTxStatus(propId string) (*stafiHubXLedgerTypes.Q
 		return nil, err
 	}
 	return cc.(*stafiHubXLedgerTypes.QueryInterchainTxStatusResponse), nil
+}
+
+func (c *Client) QueryActLatestCycle(denom string) (*stafiHubRMintRewardTypes.QueryActLatestCycleResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubRMintRewardTypes.NewQueryClient(c.Ctx())
+		return queryClient.ActLatestCycle(context.Background(), &stafiHubRMintRewardTypes.QueryActLatestCycleRequest{
+			Denom: denom,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubRMintRewardTypes.QueryActLatestCycleResponse), nil
+}
+
+func (c *Client) QueryActDetail(denom string, cycle uint64) (*stafiHubRMintRewardTypes.QueryActDetailResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubRMintRewardTypes.NewQueryClient(c.Ctx())
+		return queryClient.ActDetail(context.Background(), &stafiHubRMintRewardTypes.QueryActDetailRequest{
+			Denom: denom,
+			Cycle: cycle,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubRMintRewardTypes.QueryActDetailResponse), nil
 }

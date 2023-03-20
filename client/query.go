@@ -180,6 +180,22 @@ func (c *Client) QueryBalance(addr types.AccAddress, denom string, height int64)
 	return cc.(*xBankTypes.QueryBalanceResponse), nil
 }
 
+func (c *Client) QuerySupplyOf(denom string, height int64) (*xBankTypes.QuerySupplyOfResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.retry(func() (interface{}, error) {
+		client := c.Ctx().WithHeight(height)
+		queryClient := xBankTypes.NewQueryClient(client)
+		params := xBankTypes.QuerySupplyOfRequest{Denom: denom}
+		return queryClient.SupplyOf(context.Background(), &params)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*xBankTypes.QuerySupplyOfResponse), nil
+}
+
 func (c *Client) GetCurrentBlockHeight() (int64, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
