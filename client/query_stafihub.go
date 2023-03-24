@@ -6,7 +6,9 @@ import (
 	"github.com/stafihub/rtoken-relay-core/common/core"
 	stafiHubXBridgeTypes "github.com/stafihub/stafihub/x/bridge/types"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
+	stafiHubXRMiningTypes "github.com/stafihub/stafihub/x/mining/types"
 	stafiHubXRBankTypes "github.com/stafihub/stafihub/x/rbank/types"
+	stafiHubXRRdexTypes "github.com/stafihub/stafihub/x/rdex/types"
 	stafiHubRMintRewardTypes "github.com/stafihub/stafihub/x/rmintreward/types"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 )
@@ -414,4 +416,32 @@ func (c *Client) QueryActDetail(denom string, cycle uint64) (*stafiHubRMintRewar
 		return nil, err
 	}
 	return cc.(*stafiHubRMintRewardTypes.QueryActDetailResponse), nil
+}
+
+func (c *Client) QueryMiningStakePoolList(height int64) (*stafiHubXRMiningTypes.QueryStakePoolListResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRMiningTypes.NewQueryClient(c.Ctx().WithHeight(height))
+		return queryClient.StakePoolList(context.Background(), &stafiHubXRMiningTypes.QueryStakePoolListRequest{})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRMiningTypes.QueryStakePoolListResponse), nil
+}
+
+func (c *Client) QuerySwapPoolList(height int64) (*stafiHubXRRdexTypes.QuerySwapPoolListResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXRRdexTypes.NewQueryClient(c.Ctx().WithHeight(height))
+		return queryClient.SwapPoolList(context.Background(), &stafiHubXRRdexTypes.QuerySwapPoolListRequest{})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXRRdexTypes.QuerySwapPoolListResponse), nil
 }
