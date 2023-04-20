@@ -152,7 +152,7 @@ func (c *Client) QueryCurrentEraContinuable(denom string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	res := cc.(*stafiHubXLedgerTypes.QueryGetEraSnapshotResponse)
+	res := cc.(*stafiHubXLedgerTypes.QueryGetCurrentEraSnapshotResponse)
 	if len(res.ShotIds) > 0 {
 		return false, nil
 	}
