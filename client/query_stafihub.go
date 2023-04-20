@@ -138,17 +138,16 @@ func (c *Client) QueryEraSnapShotList(denom string, era uint32) (*stafiHubXLedge
 	return cc.(*stafiHubXLedgerTypes.QueryGetEraSnapshotResponse), nil
 }
 
-func (c *Client) QueryEraContinuable(denom string, era uint32) (bool, error) {
+func (c *Client) QueryCurrentEraContinuable(denom string) (bool, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
 
 	cc, err := c.Retry(func() (interface{}, error) {
 		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
-		params := &stafiHubXLedgerTypes.QueryGetEraSnapshotRequest{
+		params := &stafiHubXLedgerTypes.QueryGetCurrentEraSnapshotRequest{
 			Denom: denom,
-			Era:   era,
 		}
-		return queryClient.GetEraSnapshot(context.Background(), params)
+		return queryClient.GetCurrentEraSnapshot(context.Background(), params)
 	})
 	if err != nil {
 		return false, err

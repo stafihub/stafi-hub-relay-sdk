@@ -191,7 +191,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 	if eraOnChain >= proposal.Era {
 		return nil
 	}
-	continuable, err := w.conn.client.QueryEraContinuable(proposal.Denom, eraOnChain)
+	continuable, err := w.conn.client.QueryCurrentEraContinuable(proposal.Denom)
 	if err != nil {
 		return err
 	}
