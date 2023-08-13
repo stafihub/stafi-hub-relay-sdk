@@ -61,7 +61,10 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	clientCtx := c.Ctx()
 
 	cmd := cobra.Command{}
-	txf := clientTx.NewFactoryCLI(clientCtx, cmd.Flags())
+	txf, err := clientTx.NewFactoryCLI(clientCtx, cmd.Flags())
+	if err != nil {
+		return nil, err
+	}
 	txf = txf.WithSequence(account.GetSequence()).
 		WithAccountNumber(account.GetAccountNumber()).
 		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT). //multi sig need this mod
@@ -77,7 +80,7 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	}
 	txf = txf.WithGas(adjusted * 2)
 
-	txBuilderRaw, err := clientTx.BuildUnsignedTx(txf, msgs...)
+	txBuilderRaw, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
 		return nil, fmt.Errorf("clientTx.BuildUnsignedTx faild: %s", err)
 	}

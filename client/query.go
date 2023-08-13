@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -18,7 +19,6 @@ import (
 	xSlashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	xStakeTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stafihub/rtoken-relay-core/common/core"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 const retryLimit = 600
@@ -289,6 +289,8 @@ func (c *Client) GetBlockTxsWithParseErrSkip(height int64) ([]*types.TxResponse,
 	if int(searchTxs.TotalCount) != len(txs)+totalSkipCount {
 		return nil, fmt.Errorf("tx total count overflow, searchTxs.TotalCount: %d txs len: %d", searchTxs.TotalCount, len(txs)+totalSkipCount)
 	}
+
+	fmt.Println("totalSkipCount", totalSkipCount)
 	return txs, nil
 }
 
@@ -321,7 +323,7 @@ func (c *Client) GetBlockResults(height int64) (*ctypes.ResultBlockResults, erro
 	defer done()
 
 	cc, err := c.retry(func() (interface{}, error) {
-		return c.clientCtx.Client.BlockResults(context.Background(), &height)
+		return (*c.GetRpcClient()).BlockResults(context.Background(), &height)
 	})
 	if err != nil {
 		return nil, err

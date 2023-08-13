@@ -28,8 +28,8 @@ func initClient() {
 	// }
 
 	var err error
-	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
+	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://private-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
@@ -110,12 +110,14 @@ func TestChangeEndPoint(t *testing.T) {
 func TestGetTxs(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockTxsWithParseErrSkip(900599)
+	txs, err := client.GetBlockTxsWithParseErrSkip(
+		5353103)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(len(txs))
+	t.Log(txs)
 	// for _, tx := range txs {
 	// 	t.Log("===============")
 	// 	t.Logf("%+v", tx)
@@ -131,7 +133,7 @@ func TestGetTxs(t *testing.T) {
 func TestGetBlockResults(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockResults(900501)
+	txs, err := client.GetBlockResults(5353103)
 	if err != nil {
 		t.Fatal(err)
 	}

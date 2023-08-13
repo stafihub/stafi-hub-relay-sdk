@@ -5,6 +5,8 @@ import (
 	"os"
 	"sync"
 
+	rpcClient "github.com/cometbft/cometbft/rpc/client"
+	rpcHttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,8 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	xAuthTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stafihub/rtoken-relay-core/common/log"
-	rpcClient "github.com/tendermint/tendermint/rpc/client"
-	rpcHttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 var accountPrefix = "stafi"
@@ -64,6 +64,11 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 			return nil, fmt.Errorf("keyring get address from name:%s err: %s", fromName, err)
 		}
 
+		fromAddress, err := info.GetAddress()
+		if err != nil {
+			return nil, err
+		}
+
 		initClientCtx := client.Context{}.
 			WithCodec(encodingConfig.Marshaler).
 			WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -73,9 +78,9 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 			WithAccountRetriever(xAuthTypes.AccountRetriever{}).
 			WithBroadcastMode(flags.BroadcastSync).
 			WithClient(retClient.rpcClientList[0]).
-			WithSkipConfirmation(true).         //skip password confirm
-			WithFromName(fromName).             //keyBase need FromName to find key info
-			WithFromAddress(info.GetAddress()). //accountRetriever need FromAddress
+			WithSkipConfirmation(true).   //skip password confirm
+			WithFromName(fromName).       //keyBase need FromName to find key info
+			WithFromAddress(fromAddress). //accountRetriever need FromAddress
 			WithKeyring(k)
 
 		retClient.clientCtx = initClientCtx
@@ -110,7 +115,7 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 			WithLegacyAmino(encodingConfig.Amino).
 			WithInput(os.Stdin).
 			WithAccountRetriever(xAuthTypes.AccountRetriever{}).
-			WithBroadcastMode(flags.BroadcastBlock).
+			WithBroadcastMode(flags.BroadcastSync).
 			WithClient(retClient.rpcClientList[0]).
 			WithSkipConfirmation(true) //skip password confirm
 
@@ -133,7 +138,11 @@ func (c *Client) SetFromName(fromName string) error {
 		return fmt.Errorf("keyring get address from fromKeyname err: %s", err)
 	}
 
-	c.clientCtx = c.clientCtx.WithFromName(fromName).WithFromAddress(info.GetAddress())
+	fromAddress, err := info.GetAddress()
+	if err != nil {
+		return err
+	}
+	c.clientCtx = c.clientCtx.WithFromName(fromName).WithFromAddress(fromAddress)
 
 	account, err := c.GetAccount()
 	if err != nil {
@@ -195,4 +204,8 @@ func (c *Client) ChangeEndpoint() {
 
 func (c *Client) CurrentEndpointIndex() int {
 	return c.rpcClientIndex
+}
+
+func (c *Client) GetRpcClient() *rpcClient.Client {
+	return &c.rpcClientList[0]
 }

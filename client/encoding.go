@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/cosmos/cosmos-sdk/x/authz/module"
+	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
@@ -22,9 +22,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	interChain "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	ibcTransfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibcCore "github.com/cosmos/ibc-go/v3/modules/core"
+	interChain "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
+	ibcTransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibcCore "github.com/cosmos/ibc-go/v7/modules/core"
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
 	stafiHubXClaim "github.com/stafihub/stafihub/x/claim"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
@@ -54,34 +54,34 @@ func MakeEncodingConfig() EncodingConfig {
 	std.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	moduleBasics := module.NewBasicManager( //codec need
-		auth.AppModuleBasic{},
-		authz.AppModuleBasic{},
-		bank.AppModuleBasic{},
-		capability.AppModuleBasic{},
-		crisis.AppModuleBasic{},
-		distribution.AppModuleBasic{},
-		evidence.AppModuleBasic{},
-		feegrantModule.AppModuleBasic{},
-		genutil.AppModuleBasic{},
-		gov.AppModuleBasic{},
-		mint.AppModuleBasic{},
-		params.AppModuleBasic{},
-		slashing.AppModuleBasic{},
-		staking.AppModuleBasic{},
-		upgrade.AppModuleBasic{},
+			auth.AppModuleBasic{},
+			authz.AppModuleBasic{},
+			bank.AppModuleBasic{},
+			capability.AppModuleBasic{},
+			crisis.AppModuleBasic{},
+			distribution.AppModuleBasic{},
+			evidence.AppModuleBasic{},
+			feegrantModule.AppModuleBasic{},
+			genutil.AppModuleBasic{},
+			gov.AppModuleBasic{},
+			mint.AppModuleBasic{},
+			params.AppModuleBasic{},
+			slashing.AppModuleBasic{},
+			staking.AppModuleBasic{},
+			upgrade.AppModuleBasic{},
 
-		ibcTransfer.AppModuleBasic{},
-		ibcCore.AppModuleBasic{},
-		interChain.AppModuleBasic{},
+			ibcTransfer.AppModuleBasic{},
+			ibcCore.AppModuleBasic{},
+			interChain.AppModuleBasic{},
 
-		stafiHubXLedger.AppModuleBasic{},
-		stafiHubXSudo.AppModuleBasic{},
-		stafiHubXRvote.AppModuleBasic{},
-		stafiHubXRelayer.AppModuleBasic{},
-		stafiHubXBridge.AppModuleBasic{},
-		stafiHubXRvalidator.AppModuleBasic{},
-		stafiHubXRmintReward.AppModuleBasic{},
-		stafiHubXRBank.AppModuleBasic{},
+			stafiHubXLedger.AppModuleBasic{},
+			stafiHubXSudo.AppModuleBasic{},
+			stafiHubXRvote.AppModuleBasic{},
+			stafiHubXRelayer.AppModuleBasic{},
+			stafiHubXBridge.AppModuleBasic{},
+			stafiHubXRvalidator.AppModuleBasic{},
+			stafiHubXRmintReward.AppModuleBasic{},
+			stafiHubXRBank.AppModuleBasic{},
 		stafiHubXRDex.AppModuleBasic{},
 		stafiHubXRStaking.AppModuleBasic{},
 		stafiHubXMining.AppModuleBasic{},
