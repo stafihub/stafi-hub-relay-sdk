@@ -3,13 +3,14 @@ package client_test
 import (
 	"bytes"
 	"encoding/hex"
+	"math/big"
 	"sort"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
-	// "github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -22,14 +23,13 @@ import (
 var client *hubClient.Client
 
 func initClient() {
-	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"))
-	// if err != nil {
-	// 	panic(err)
-	// }
+	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"), hubClient.MakeEncodingConfig().Marshaler)
+	if err != nil {
+		panic(err)
+	}
 
-	var err error
-	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	client, err = hubClient.NewClient(key, "relay1", "0.05ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
+	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://private-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
@@ -37,6 +37,16 @@ func initClient() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func TestSend(t *testing.T) {
+	initClient()
+	msg := xBankTypes.NewMsgSend(client.GetFromAddress(), types.MustAccAddressFromBech32("stafi14z467aut40mcrt2ddyxf7e74fq99udul7kaf9g"), types.NewCoins(types.NewCoin(client.GetDenom(), types.NewIntFromBigInt(big.NewInt(1000)))))
+	txHash, err := client.BroadcastBatchMsg([]types.Msg{msg})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(txHash)
 }
 
 func TestClient_QueryTxByHash(t *testing.T) {

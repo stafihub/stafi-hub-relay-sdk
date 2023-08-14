@@ -177,6 +177,6 @@ require (
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
-	github.com/cosmos/cosmos-sdk => github.com/stafihub/cosmos-sdk v0.47.4-stafihub-0.1.0
+	github.com/cosmos/cosmos-sdk => github.com/stafihub/cosmos-sdk v0.47.4-stafihub-0.1.1
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
