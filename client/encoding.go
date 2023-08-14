@@ -1,10 +1,14 @@
 package client
 
 import (
+	"encoding/base64"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -54,34 +58,34 @@ func MakeEncodingConfig() EncodingConfig {
 	std.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	moduleBasics := module.NewBasicManager( //codec need
-			auth.AppModuleBasic{},
-			authz.AppModuleBasic{},
-			bank.AppModuleBasic{},
-			capability.AppModuleBasic{},
-			crisis.AppModuleBasic{},
-			distribution.AppModuleBasic{},
-			evidence.AppModuleBasic{},
-			feegrantModule.AppModuleBasic{},
-			genutil.AppModuleBasic{},
-			gov.AppModuleBasic{},
-			mint.AppModuleBasic{},
-			params.AppModuleBasic{},
-			slashing.AppModuleBasic{},
-			staking.AppModuleBasic{},
-			upgrade.AppModuleBasic{},
+		auth.AppModuleBasic{},
+		authz.AppModuleBasic{},
+		bank.AppModuleBasic{},
+		capability.AppModuleBasic{},
+		crisis.AppModuleBasic{},
+		distribution.AppModuleBasic{},
+		evidence.AppModuleBasic{},
+		feegrantModule.AppModuleBasic{},
+		genutil.AppModuleBasic{},
+		gov.AppModuleBasic{},
+		mint.AppModuleBasic{},
+		params.AppModuleBasic{},
+		slashing.AppModuleBasic{},
+		staking.AppModuleBasic{},
+		upgrade.AppModuleBasic{},
 
-			ibcTransfer.AppModuleBasic{},
-			ibcCore.AppModuleBasic{},
-			interChain.AppModuleBasic{},
+		ibcTransfer.AppModuleBasic{},
+		ibcCore.AppModuleBasic{},
+		interChain.AppModuleBasic{},
 
-			stafiHubXLedger.AppModuleBasic{},
-			stafiHubXSudo.AppModuleBasic{},
-			stafiHubXRvote.AppModuleBasic{},
-			stafiHubXRelayer.AppModuleBasic{},
-			stafiHubXBridge.AppModuleBasic{},
-			stafiHubXRvalidator.AppModuleBasic{},
-			stafiHubXRmintReward.AppModuleBasic{},
-			stafiHubXRBank.AppModuleBasic{},
+		stafiHubXLedger.AppModuleBasic{},
+		stafiHubXSudo.AppModuleBasic{},
+		stafiHubXRvote.AppModuleBasic{},
+		stafiHubXRelayer.AppModuleBasic{},
+		stafiHubXBridge.AppModuleBasic{},
+		stafiHubXRvalidator.AppModuleBasic{},
+		stafiHubXRmintReward.AppModuleBasic{},
+		stafiHubXRBank.AppModuleBasic{},
 		stafiHubXRDex.AppModuleBasic{},
 		stafiHubXRStaking.AppModuleBasic{},
 		stafiHubXMining.AppModuleBasic{},
@@ -118,4 +122,23 @@ func marshalSignatureJSON(txConfig client.TxConfig, txBldr client.TxBuilder, sig
 	}
 
 	return txConfig.TxJSONEncoder()(parsedTx)
+}
+
+func ParseBase64Event(event abci.Event) (sdk.StringEvent, error) {
+	evt := sdk.StringEvent{Type: event.Type}
+	for _, attr := range event.Attributes {
+		key, err := base64.StdEncoding.DecodeString(attr.Key)
+		if err != nil {
+			return sdk.StringEvent{}, err
+		}
+		value, err := base64.StdEncoding.DecodeString(attr.Value)
+		if err != nil {
+			return sdk.StringEvent{}, err
+		}
+		evt.Attributes = append(evt.Attributes, sdk.Attribute{
+			Key:   string(key),
+			Value: string(value),
+		})
+	}
+	return evt, nil
 }

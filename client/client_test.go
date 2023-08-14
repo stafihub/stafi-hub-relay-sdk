@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	// "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -23,13 +23,13 @@ import (
 var client *hubClient.Client
 
 func initClient() {
-	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"), hubClient.MakeEncodingConfig().Marshaler)
-	if err != nil {
-		panic(err)
-	}
-
-	client, err = hubClient.NewClient(key, "relay1", "0.05ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"), hubClient.MakeEncodingConfig().Marshaler)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	var err error
+	// client, err = hubClient.NewClient(key, "relay1", "0.05ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
+	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://private-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
@@ -121,29 +121,29 @@ func TestGetTxs(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
 	txs, err := client.GetBlockTxsWithParseErrSkip(
-		5353103)
+		5344819)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Log(len(txs))
 	t.Log(txs)
-	// for _, tx := range txs {
-	// 	t.Log("===============")
-	// 	t.Logf("%+v", tx)
-	// 	for _, log := range tx.Logs {
-	// 		for _, event := range log.Events {
-	// 			t.Logf("%+v", event)
-	// 		}
-	// 	}
+	for _, tx := range txs {
+		t.Log("===============")
+		t.Logf("%+v", tx)
+		for _, log := range tx.Logs {
+			for _, event := range log.Events {
+				t.Logf("%+v", event)
+			}
+		}
 
-	// }
+	}
 }
 
 func TestGetBlockResults(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockResults(5353103)
+	txs, err := client.GetBlockResults(5344819)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,8 +151,13 @@ func TestGetBlockResults(t *testing.T) {
 	for _, tx := range txs.TxsResults {
 		t.Log("===============")
 		t.Logf("%+v", tx)
-		for _, log := range tx.Log {
-			t.Logf("%+v", log)
+
+		for _, e := range tx.Events {
+			event, err := hubClient.ParseBase64Event(e)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Logf("%+v", event)
 		}
 
 	}
