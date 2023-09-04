@@ -20,7 +20,7 @@ type Connection struct {
 
 func NewConnection(cfg *config.RawChainConfig, option *ConfigOption, log log.Logger) (*Connection, error) {
 	fmt.Printf("Will open %s wallet from <%s>. \nPlease ", cfg.Name, cfg.KeystorePath)
-	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin)
+	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin, hubClient.MakeEncodingConfig().Marshaler)
 	if err != nil {
 		return nil, err
 	}

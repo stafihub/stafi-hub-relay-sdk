@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	cosMath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/sirupsen/logrus"
 	"github.com/stafihub/rtoken-relay-core/common/core"
@@ -254,22 +255,22 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return nil
 		}
 		poolAddress := event.Attributes[1].Value
-		era, err := types.ParseUint(event.Attributes[2].Value)
+		era, err := cosMath.ParseUint(event.Attributes[2].Value)
 		if err != nil {
 			return err
 		}
 
 		oldAddress := event.Attributes[3].Value
 		newAddress := event.Attributes[4].Value
-		cycleVersion, err := types.ParseUint(event.Attributes[5].Value)
+		cycleVersion, err := cosMath.ParseUint(event.Attributes[5].Value)
 		if err != nil {
 			return err
 		}
-		cycleNumber, err := types.ParseUint(event.Attributes[6].Value)
+		cycleNumber, err := cosMath.ParseUint(event.Attributes[6].Value)
 		if err != nil {
 			return err
 		}
-		cycleSeconds, err := types.ParseUint(event.Attributes[7].Value)
+		cycleSeconds, err := cosMath.ParseUint(event.Attributes[7].Value)
 		if err != nil {
 			return err
 		}
@@ -321,7 +322,7 @@ func (l *Listener) processStringEvents(event types.StringEvent, blockNumber int6
 			return nil
 		}
 		poolAddress := event.Attributes[1].Value
-		era, err := types.ParseUint(event.Attributes[2].Value)
+		era, err := cosMath.ParseUint(event.Attributes[2].Value)
 		if err != nil {
 			return err
 		}

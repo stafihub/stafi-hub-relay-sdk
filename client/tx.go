@@ -77,7 +77,7 @@ func (c *Client) ConstructAndSignTx(msgs ...types.Msg) ([]byte, error) {
 	}
 	txf = txf.WithGas(adjusted * 2)
 
-	txBuilderRaw, err := clientTx.BuildUnsignedTx(txf, msgs...)
+	txBuilderRaw, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
 		return nil, fmt.Errorf("clientTx.BuildUnsignedTx faild: %s", err)
 	}

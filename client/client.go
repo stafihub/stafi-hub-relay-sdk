@@ -64,6 +64,11 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 			return nil, fmt.Errorf("keyring get address from name:%s err: %s", fromName, err)
 		}
 
+		fromAddress, err := info.GetAddress()
+		if err != nil {
+			return nil, err
+		}
+
 		initClientCtx := client.Context{}.
 			WithCodec(encodingConfig.Marshaler).
 			WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -73,9 +78,9 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 			WithAccountRetriever(xAuthTypes.AccountRetriever{}).
 			WithBroadcastMode(flags.BroadcastSync).
 			WithClient(retClient.rpcClientList[0]).
-			WithSkipConfirmation(true).         //skip password confirm
-			WithFromName(fromName).             //keyBase need FromName to find key info
-			WithFromAddress(info.GetAddress()). //accountRetriever need FromAddress
+			WithSkipConfirmation(true).   //skip password confirm
+			WithFromName(fromName).       //keyBase need FromName to find key info
+			WithFromAddress(fromAddress). //accountRetriever need FromAddress
 			WithKeyring(k)
 
 		retClient.clientCtx = initClientCtx
@@ -133,7 +138,12 @@ func (c *Client) SetFromName(fromName string) error {
 		return fmt.Errorf("keyring get address from fromKeyname err: %s", err)
 	}
 
-	c.clientCtx = c.clientCtx.WithFromName(fromName).WithFromAddress(info.GetAddress())
+	fromAddress, err := info.GetAddress()
+	if err != nil {
+		return err
+	}
+
+	c.clientCtx = c.clientCtx.WithFromName(fromName).WithFromAddress(fromAddress)
 
 	account, err := c.GetAccount()
 	if err != nil {
