@@ -121,6 +121,8 @@ func (w *Handler) handleMessage(m *core.Message) error {
 	switch m.Reason {
 	case core.ReasonExeLiquidityBond:
 		return w.handleExeLiquidityBond(m)
+	case core.ReasonExeNativeAndLsmLiquidityBond:
+		return w.handleExeNativeAndLsmLiquidityBond(m)
 	case core.ReasonNewEra:
 		return w.handleNewChainEra(m)
 	case core.ReasonBondReport:
@@ -167,6 +169,39 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 	done()
 
 	return w.checkAndReSendWithProposalContent("executeBondProposal", content)
+}
+
+func (w *Handler) handleExeNativeAndLsmLiquidityBond(m *core.Message) error {
+	w.log.Info("handleExeNativeAndLsmLiquidityBond", "m", m)
+	proposal, ok := m.Content.(core.ProposalExeNativeAndLsmLiquidityBond)
+	if !ok {
+		return fmt.Errorf("ProposalExeNativeAndLsmLiquidityBond cast failed, %+v", m)
+	}
+	recordRes, err := w.conn.client.QueryBondRecord(proposal.Denom, proposal.Txhash)
+	if err != nil && !strings.Contains(err.Error(), "NotFound") {
+		return err
+	}
+	if err == nil && recordRes.BondRecord.State == stafiHubXLedgerTypes.LiquidityBondStateVerifyOk {
+		w.log.Warn("handleExeNativeAndLsmLiquidityBond already verifyOk, no need submitproposal", "msg", m)
+		return nil
+	}
+
+	done := core.UseSdkConfigContext(hubClient.GetAccountPrefix())
+	bonder, err := types.AccAddressFromBech32(proposal.Bonder)
+	if err != nil {
+		done()
+		return err
+	}
+	content, err := stafiHubXLedgerTypes.NewExecuteNativeAndLsmBondProposal(
+		w.conn.client.GetFromAddress(), proposal.Denom, bonder,
+		proposal.Pool, proposal.Txhash, proposal.NativeBondAmount, proposal.LsmBondAmount, proposal.State, proposal.Msgs)
+	if err != nil {
+		done()
+		return err
+	}
+	done()
+
+	return w.checkAndReSendWithProposalContent("executeNativeAndLsmBondProposal", content)
 }
 
 func (w *Handler) handleNewChainEra(m *core.Message) error {
