@@ -171,7 +171,7 @@ func (w *Handler) handleExeLiquidityBond(m *core.Message) error {
 		proposal.Pool, proposal.Txhash, proposal.Amount, proposal.State)
 	done()
 
-	return w.checkAndReSendWithProposalContent("executeBondProposal", content)
+	return w.checkAndReSendWithProposalContent("executeBondProposal", content, m)
 }
 
 func (w *Handler) handleExeNativeAndLsmLiquidityBond(m *core.Message) error {
@@ -204,7 +204,7 @@ func (w *Handler) handleExeNativeAndLsmLiquidityBond(m *core.Message) error {
 	}
 	done()
 
-	return w.checkAndReSendWithProposalContent("executeNativeAndLsmBondProposal", content)
+	return w.checkAndReSendWithProposalContent("executeNativeAndLsmBondProposal", content, m)
 }
 
 func (w *Handler) handleNewChainEra(m *core.Message) error {
@@ -244,7 +244,7 @@ func (w *Handler) handleNewChainEra(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewSetChainEraProposal(w.conn.client.GetFromAddress(), proposal.Denom, useEra)
 	done()
 
-	return w.checkAndReSendWithProposalContent("setChainEraProposal", content)
+	return w.checkAndReSendWithProposalContent("setChainEraProposal", content, m)
 }
 
 func (w *Handler) handleBondReport(m *core.Message) error {
@@ -258,7 +258,7 @@ func (w *Handler) handleBondReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewBondReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Action)
 	done()
 
-	return w.checkAndReSendWithProposalContent("bondReportProposal", content)
+	return w.checkAndReSendWithProposalContent("bondReportProposal", content, m)
 }
 
 func (w *Handler) handleActiveReport(m *core.Message) error {
@@ -286,7 +286,7 @@ func (w *Handler) handleActiveReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewActiveReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId, proposal.Staked, proposal.Unstaked)
 	done()
 
-	return w.checkAndReSendWithProposalContent("activeReportProposal", content)
+	return w.checkAndReSendWithProposalContent("activeReportProposal", content, m)
 }
 
 func (w *Handler) handleTransferReport(m *core.Message) error {
@@ -300,7 +300,7 @@ func (w *Handler) handleTransferReport(m *core.Message) error {
 	content := stafiHubXLedgerTypes.NewTransferReportProposal(w.conn.client.GetFromAddress(), proposal.Denom, proposal.ShotId)
 	done()
 
-	return w.checkAndReSendWithProposalContent("transferReportProposal", content)
+	return w.checkAndReSendWithProposalContent("transferReportProposal", content, m)
 }
 
 func (w *Handler) handleInterchainTx(m *core.Message) error {
@@ -325,7 +325,7 @@ func (w *Handler) handleInterchainTx(m *core.Message) error {
 	}
 	done()
 
-	return w.checkAndReSendWithProposalContent("interchainTxProposal", content)
+	return w.checkAndReSendWithProposalContent("interchainTxProposal", content, m)
 }
 
 func (w *Handler) handleRValidatorUpdateReport(m *core.Message) error {
@@ -348,7 +348,7 @@ func (w *Handler) handleRValidatorUpdateReport(m *core.Message) error {
 		}, proposal.Status)
 	done()
 
-	return w.checkAndReSendWithProposalContent("ProposalRValidatorUpdateReport", content)
+	return w.checkAndReSendWithProposalContent("ProposalRValidatorUpdateReport", content, m)
 }
 
 func (w *Handler) handleSubmitSignature(m *core.Message) error {
@@ -519,7 +519,7 @@ func (h *Handler) checkAndReSendWithSubmitSignature(typeStr string, sigMsg *staf
 	return nil
 }
 
-func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content stafiHubXRVoteTypes.Content) error {
+func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content stafiHubXRVoteTypes.Content, m *core.Message) error {
 	txHashStr, _, err := h.conn.client.SubmitProposal(content)
 	if err != nil {
 		switch {
@@ -538,8 +538,9 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 
 		// resend case:
 		case strings.Contains(err.Error(), errors.ErrWrongSequence.Error()), strings.Contains(err.Error(), "era is dealing"):
-			time.Sleep(time.Second * 16)
-			return h.checkAndReSendWithProposalContent(txHashStr, content)
+			h.log.Warn("send tx err, will retry.", "txHash", txHashStr, "type", typeStr, "err", err.Error())
+			h.queueMessage(m)
+			return nil
 		}
 
 		return err
@@ -594,8 +595,11 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 				return nil
 
 			// resend case
-			case strings.Contains(res.RawLog, errors.ErrOutOfGas.Error()):
-				return h.checkAndReSendWithProposalContent(txHashStr, content)
+			case strings.Contains(res.RawLog, errors.ErrOutOfGas.Error()), strings.Contains(err.Error(), "era is dealing"):
+				h.log.Warn("send tx err, will retry.", "txHash", txHashStr, "type", typeStr, "err", err.Error())
+				time.Sleep(BlockRetryInterval)
+				h.queueMessage(m)
+				return nil
 			default:
 				return fmt.Errorf("tx failed, txHash: %s, rawlog: %s", txHashStr, res.RawLog)
 			}
