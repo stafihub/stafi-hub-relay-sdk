@@ -8,8 +8,8 @@ require (
 	github.com/cosmos/ibc-go/v5 v5.2.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
-	github.com/stafihub/rtoken-relay-core/common v0.0.0-20230904142542-2f2e9674582c
-	github.com/stafihub/stafihub v0.4.4-0.20230904140052-c892d4650763
+	github.com/stafihub/rtoken-relay-core/common v0.0.0-20230905030353-9718b7787648
+	github.com/stafihub/stafihub v0.4.4-0.20230905025619-b06648957533
 	github.com/stretchr/testify v1.8.2
 	github.com/tendermint/tendermint v0.34.28
 	google.golang.org/grpc v1.57.0

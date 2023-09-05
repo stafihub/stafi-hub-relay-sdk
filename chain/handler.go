@@ -69,6 +69,9 @@ func (w *Handler) HandleMessage(m *core.Message) {
 	case core.ReasonGetInterchainTxStatus:
 		go w.handleGetInterchainTxStatus(m)
 		return
+	case core.ReasonGetLatestLsmBondProposalId:
+		go w.handleGetLatestLsmBondProposalId(m)
+		return
 	}
 	// deal write msg
 	w.queueMessage(m)
@@ -430,6 +433,27 @@ func (w *Handler) handleGetInterchainTxStatus(m *core.Message) error {
 	return nil
 }
 
+func (w *Handler) handleGetLatestLsmBondProposalId(m *core.Message) error {
+	w.log.Debug("handleGetLatestLsmBondProposalId", "m", m)
+	c, ok := m.Content.(core.ParamGetLatestLsmBondProposalId)
+	if !ok {
+		return fmt.Errorf("ParamGetLatestLsmBondProposalId cast failed, %+v", m)
+	}
+	statusRes, err := w.conn.client.QueryLatestLsmProposalId()
+	if err != nil {
+		if strings.Contains(err.Error(), "NotFound") {
+			c.PropId <- "NotFound"
+		} else {
+			c.PropId <- ""
+		}
+		return nil
+	}
+	c.PropId <- statusRes.ProposalId
+
+	w.log.Debug("handleGetLatestLsmBondProposalId", "proposalID", statusRes.ProposalId)
+	return nil
+}
+
 func (h *Handler) checkAndReSendWithSubmitSignature(typeStr string, sigMsg *stafiHubXLedgerTypes.MsgSubmitSignature) error {
 	txHashStr, _, err := h.conn.client.SubmitSignature(sigMsg)
 	if err != nil {
@@ -513,7 +537,8 @@ func (h *Handler) checkAndReSendWithProposalContent(typeStr string, content staf
 			return nil
 
 		// resend case:
-		case strings.Contains(err.Error(), errors.ErrWrongSequence.Error()):
+		case strings.Contains(err.Error(), errors.ErrWrongSequence.Error()), strings.Contains(err.Error(), "era is dealing"):
+			time.Sleep(time.Second * 16)
 			return h.checkAndReSendWithProposalContent(txHashStr, content)
 		}
 

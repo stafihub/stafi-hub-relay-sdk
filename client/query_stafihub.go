@@ -382,6 +382,20 @@ func (c *Client) QueryInterchainTxStatus(propId string) (*stafiHubXLedgerTypes.Q
 	return cc.(*stafiHubXLedgerTypes.QueryInterchainTxStatusResponse), nil
 }
 
+func (c *Client) QueryLatestLsmProposalId() (*stafiHubXLedgerTypes.QueryLatestLsmBondProposalIdResponse, error) {
+	done := core.UseSdkConfigContext(GetAccountPrefix())
+	defer done()
+
+	cc, err := c.Retry(func() (interface{}, error) {
+		queryClient := stafiHubXLedgerTypes.NewQueryClient(c.Ctx())
+		return queryClient.LatestLsmBondProposalId(context.Background(), &stafiHubXLedgerTypes.QueryLatestLsmBondProposalIdRequest{})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cc.(*stafiHubXLedgerTypes.QueryLatestLsmBondProposalIdResponse), nil
+}
+
 func (c *Client) QueryActLatestCycle(denom string) (*stafiHubRMintRewardTypes.QueryActLatestCycleResponse, error) {
 	done := core.UseSdkConfigContext(GetAccountPrefix())
 	defer done()
