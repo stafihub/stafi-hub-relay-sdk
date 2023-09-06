@@ -72,6 +72,9 @@ func (l *Listener) start() error {
 
 func (l *Listener) pollBlocks() error {
 	var willDealBlock = l.startBlock
+	if willDealBlock == 0 {
+		willDealBlock = 1
+	}
 	var retry = BlockRetryLimit
 	for {
 		select {
