@@ -441,11 +441,16 @@ func (w *Handler) handleGetLatestLsmBondProposalId(m *core.Message) error {
 	}
 	statusRes, err := w.conn.client.QueryLatestLsmProposalId()
 	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
+
+		switch {
+		case strings.Contains(err.Error(), "unknown query path"):
+			c.PropId <- "UnknownQueryPath"
+		case strings.Contains(err.Error(), "NotFound"):
 			c.PropId <- "NotFound"
-		} else {
+		default:
 			c.PropId <- ""
 		}
+
 		return nil
 	}
 	c.PropId <- statusRes.ProposalId

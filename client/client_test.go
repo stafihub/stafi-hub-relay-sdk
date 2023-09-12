@@ -28,8 +28,8 @@ func initClient() {
 	// }
 
 	var err error
-	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443", "https://test-rpc2.stafihub.io:443", "https://test-rpc2.stafihub.io:443"}, log.NewLog("client"))
-	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443"}, log.NewLog("client"))
+	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://private-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err := hubClient.NewClient(key, "relay1", "0.005ufis", []string{"http://localhost:26657"})
@@ -109,13 +109,20 @@ func TestChangeEndPoint(t *testing.T) {
 
 func TestGetTxs(t *testing.T) {
 	initClient()
+
+	rs, err := client.QueryLatestLsmProposalId()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(rs)
+	return
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockTxsWithParseErrSkip(900599)
+	txs, err := client.QueryTxByHash("3843CB53C4F49ECB4F4D749B6EC33B1B1475D5BEF33F4AFBD48930E1311BB9C3")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Log(len(txs))
+	// t.Log(len(txs))
 	// for _, tx := range txs {
 	// 	t.Log("===============")
 	// 	t.Logf("%+v", tx)
@@ -126,6 +133,16 @@ func TestGetTxs(t *testing.T) {
 	// 	}
 
 	// }
+	tx, err := client.GetTxConfig().TxDecoder()(txs.Tx.GetValue())
+	if err != nil {
+		panic(err)
+	}
+
+	txJson, err := client.GetTxConfig().TxJSONEncoder()(tx)
+	if err != nil {
+		panic(err)
+	}
+	t.Log(string(txJson))
 }
 
 func TestGetBlockResults(t *testing.T) {
