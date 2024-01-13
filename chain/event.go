@@ -45,11 +45,13 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 			return l.processStringEvents(SimulateBondReportedEvent, currentBlock)
 		}
 	}
-
+	GetBlockResultsStart := time.Now().Second()
 	results, err := l.conn.client.GetBlockResults(currentBlock)
 	if err != nil {
 		return fmt.Errorf("client.GetBlockResults failed: %s", err)
 	}
+	GetBlockResultsEnd := time.Now().Second()
+	l.log.Debug("GetBlockResults", "use", GetBlockResultsEnd-GetBlockResultsStart, "dealBlock", currentBlock)
 
 	for _, txResult := range results.TxsResults {
 		for _, e := range txResult.Events {
