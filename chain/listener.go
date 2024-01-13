@@ -86,8 +86,8 @@ func (l *Listener) pollBlocks() error {
 				return fmt.Errorf("pollBlocks reach retry limit ,symbol: %s", l.symbol)
 			}
 
-			getBlockHeightStart := time.Now().Second()
-			l.log.Debug("GetCurrentBlockHeight", "start", time.Now().Second())
+			getBlockHeightStart := time.Now().Unix()
+			l.log.Debug("GetCurrentBlockHeight", "start", time.Now().Unix())
 			latestBlk, err := l.conn.client.GetCurrentBlockHeight()
 			if err != nil {
 				l.log.Error("Failed to fetch latest blockNumber", "err", err)
@@ -95,7 +95,7 @@ func (l *Listener) pollBlocks() error {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
-			getBlockHeightEnd := time.Now().Second()
+			getBlockHeightEnd := time.Now().Unix()
 			l.log.Debug("GetCurrentBlockHeight", "use", getBlockHeightEnd-getBlockHeightStart, "willDealBlock", willDealBlock, "latestBlk", latestBlk)
 
 			// Sleep if the block we want comes after the most recently finalized block
@@ -106,7 +106,7 @@ func (l *Listener) pollBlocks() error {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
-			processBlockStart := time.Now().Second()
+			processBlockStart := time.Now().Unix()
 			err = l.processBlockEvents(int64(willDealBlock))
 			if err != nil {
 				l.log.Error("Failed to process events in block", "block", willDealBlock, "err", err)
@@ -114,17 +114,17 @@ func (l *Listener) pollBlocks() error {
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
-			processBlockEnd := time.Now().Second()
+			processBlockEnd := time.Now().Unix()
 			l.log.Debug("processBlockEvents", "use", processBlockEnd-processBlockStart, "dealBlock", willDealBlock)
 
-			storeBlockStart := time.Now().Second()
+			storeBlockStart := time.Now().Unix()
 			// Write to blockstore
 			err = l.blockstore.StoreBlock(new(big.Int).SetUint64(willDealBlock))
 			if err != nil {
 				l.log.Error("Failed to write to blockstore", "err", err)
 			}
 			willDealBlock++
-			storeBlockEnd := time.Now().Second()
+			storeBlockEnd := time.Now().Unix()
 			l.log.Debug("StoreBlock", "use", storeBlockEnd-storeBlockStart, "dealBlock", willDealBlock)
 
 			retry = BlockRetryLimit

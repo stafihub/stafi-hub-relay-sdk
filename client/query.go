@@ -317,9 +317,6 @@ func (c *Client) GetBlockTxs(height int64) ([]*types.TxResponse, error) {
 }
 
 func (c *Client) GetBlockResults(height int64) (*ctypes.ResultBlockResults, error) {
-	done := core.UseSdkConfigContext(GetAccountPrefix())
-	defer done()
-
 	cc, err := c.retry(func() (interface{}, error) {
 		return c.clientCtx.Client.BlockResults(context.Background(), &height)
 	})
