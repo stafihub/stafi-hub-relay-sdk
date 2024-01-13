@@ -13,6 +13,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/sirupsen/logrus"
 	"github.com/stafihub/rtoken-relay-core/common/log"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
@@ -146,12 +147,17 @@ func TestGetTxs(t *testing.T) {
 }
 
 func TestGetBlockResults(t *testing.T) {
+	logrus.SetLevel(logrus.TraceLevel)
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockResults(900501)
+
+	t.Log(time.Now().Unix())
+	// txs, err := client.GetBlockResults(7707207)
+	txs, err := client.GetBlockResults(7712205)
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Log(time.Now().Unix())
 
 	for _, tx := range txs.TxsResults {
 		t.Log("===============")
