@@ -120,7 +120,7 @@ func TestChangeEndPoint(t *testing.T) {
 func TestGetTxs(t *testing.T) {
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.GetBlockTxsWithParseErrSkip(
+	txs, err := client.GetBlockTxs(
 		5344819)
 	if err != nil {
 		t.Fatal(err)
