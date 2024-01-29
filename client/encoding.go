@@ -29,6 +29,7 @@ import (
 	interChain "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	ibcTransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
 	ibcCore "github.com/cosmos/ibc-go/v7/modules/core"
+	tendermintClient "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
 	stafiHubXClaim "github.com/stafihub/stafihub/x/claim"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
@@ -77,6 +78,7 @@ func MakeEncodingConfig() EncodingConfig {
 		ibcTransfer.AppModuleBasic{},
 		ibcCore.AppModuleBasic{},
 		interChain.AppModuleBasic{},
+		tendermintClient.AppModuleBasic{},
 
 		stafiHubXLedger.AppModuleBasic{},
 		stafiHubXSudo.AppModuleBasic{},
