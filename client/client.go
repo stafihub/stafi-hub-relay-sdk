@@ -5,6 +5,8 @@ import (
 	"os"
 	"sync"
 
+	rpcClient "github.com/cometbft/cometbft/rpc/client"
+	rpcHttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,8 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	xAuthTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stafihub/rtoken-relay-core/common/log"
-	rpcClient "github.com/tendermint/tendermint/rpc/client"
-	rpcHttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 var accountPrefix = "stafi"
@@ -115,7 +115,7 @@ func NewClient(k keyring.Keyring, fromName, gasPrice string, endPointList []stri
 			WithLegacyAmino(encodingConfig.Amino).
 			WithInput(os.Stdin).
 			WithAccountRetriever(xAuthTypes.AccountRetriever{}).
-			WithBroadcastMode(flags.BroadcastBlock).
+			WithBroadcastMode(flags.BroadcastSync).
 			WithClient(retClient.rpcClientList[0]).
 			WithSkipConfirmation(true) //skip password confirm
 
@@ -205,4 +205,8 @@ func (c *Client) ChangeEndpoint() {
 
 func (c *Client) CurrentEndpointIndex() int {
 	return c.rpcClientIndex
+}
+
+func (c *Client) GetRpcClient() *rpcClient.Client {
+	return &c.rpcClientList[0]
 }

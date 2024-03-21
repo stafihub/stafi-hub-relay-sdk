@@ -3,6 +3,7 @@ package client_test
 import (
 	"bytes"
 	"encoding/hex"
+	"math/big"
 	"sort"
 	"strings"
 	"sync"
@@ -23,13 +24,11 @@ import (
 var client *hubClient.Client
 
 func initClient() {
-	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"))
+	// key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, "/Users/tpkeeper/.stafihub", strings.NewReader("tpkeeper\n"), hubClient.MakeEncodingConfig().Marshaler)
 	// if err != nil {
 	// 	panic(err)
 	// }
-
 	var err error
-	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://test-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://public-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://private-rpc1.stafihub.io:443"}, log.NewLog("client"))
 	// client, err = hubClient.NewClient(nil, "", "0.005ufis", []string{"https://iris-rpc1.stafihub.io:443"}, log.NewLog("client"))
@@ -38,6 +37,16 @@ func initClient() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func TestSend(t *testing.T) {
+	initClient()
+	msg := xBankTypes.NewMsgSend(client.GetFromAddress(), types.MustAccAddressFromBech32("stafi14z467aut40mcrt2ddyxf7e74fq99udul7kaf9g"), types.NewCoins(types.NewCoin(client.GetDenom(), types.NewIntFromBigInt(big.NewInt(1000)))))
+	txHash, err := client.BroadcastBatchMsg([]types.Msg{msg})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(txHash)
 }
 
 func TestClient_QueryTxByHash(t *testing.T) {
@@ -118,42 +127,31 @@ func TestGetTxs(t *testing.T) {
 	t.Log(rs)
 	return
 	// txs, err := client.GetBlockTxs(610)
-	txs, err := client.QueryTxByHash("3843CB53C4F49ECB4F4D749B6EC33B1B1475D5BEF33F4AFBD48930E1311BB9C3")
+	txs, err := client.GetBlockTxsWithParseErrSkip(
+		5344819)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// t.Log(len(txs))
-	// for _, tx := range txs {
-	// 	t.Log("===============")
-	// 	t.Logf("%+v", tx)
-	// 	for _, log := range tx.Logs {
-	// 		for _, event := range log.Events {
-	// 			t.Logf("%+v", event)
-	// 		}
-	// 	}
+	t.Log(len(txs))
+	t.Log(txs)
+	for _, tx := range txs {
+		t.Log("===============")
+		t.Logf("%+v", tx)
+		for _, log := range tx.Logs {
+			for _, event := range log.Events {
+				t.Logf("%+v", event)
+			}
+		}
 
-	// }
-	tx, err := client.GetTxConfig().TxDecoder()(txs.Tx.GetValue())
-	if err != nil {
-		panic(err)
 	}
-
-	txJson, err := client.GetTxConfig().TxJSONEncoder()(tx)
-	if err != nil {
-		panic(err)
-	}
-	t.Log(string(txJson))
 }
 
 func TestGetBlockResults(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
 	initClient()
 	// txs, err := client.GetBlockTxs(610)
-
-	t.Log(time.Now().Unix())
-	// txs, err := client.GetBlockResults(7707207)
-	txs, err := client.GetBlockResults(7712205)
+	txs, err := client.GetBlockResults(5344819)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,8 +160,13 @@ func TestGetBlockResults(t *testing.T) {
 	for _, tx := range txs.TxsResults {
 		t.Log("===============")
 		t.Logf("%+v", tx)
-		for _, log := range tx.Log {
-			t.Logf("%+v", log)
+
+		for _, e := range tx.Events {
+			event, err := hubClient.ParseBase64Event(e)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Logf("%+v", event)
 		}
 
 	}

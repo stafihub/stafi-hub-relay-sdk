@@ -1,14 +1,18 @@
 package client
 
 import (
+	"encoding/base64"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/cosmos/cosmos-sdk/x/authz/module"
+	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
@@ -22,9 +26,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	interChain "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	ibcTransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibcCore "github.com/cosmos/ibc-go/v5/modules/core"
+	interChain "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
+	ibcTransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibcCore "github.com/cosmos/ibc-go/v7/modules/core"
 	stafiHubXBridge "github.com/stafihub/stafihub/x/bridge"
 	stafiHubXClaim "github.com/stafihub/stafihub/x/claim"
 	stafiHubXLedger "github.com/stafihub/stafihub/x/ledger"
@@ -118,4 +122,23 @@ func marshalSignatureJSON(txConfig client.TxConfig, txBldr client.TxBuilder, sig
 	}
 
 	return txConfig.TxJSONEncoder()(parsedTx)
+}
+
+func ParseBase64Event(event abci.Event) (sdk.StringEvent, error) {
+	evt := sdk.StringEvent{Type: event.Type}
+	for _, attr := range event.Attributes {
+		key, err := base64.StdEncoding.DecodeString(attr.Key)
+		if err != nil {
+			return sdk.StringEvent{}, err
+		}
+		value, err := base64.StdEncoding.DecodeString(attr.Value)
+		if err != nil {
+			return sdk.StringEvent{}, err
+		}
+		evt.Attributes = append(evt.Attributes, sdk.Attribute{
+			Key:   string(key),
+			Value: string(value),
+		})
+	}
+	return evt, nil
 }

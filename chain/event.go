@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/sirupsen/logrus"
 	"github.com/stafihub/rtoken-relay-core/common/core"
+	"github.com/stafihub/stafi-hub-relay-sdk/client"
 	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 )
@@ -55,7 +56,11 @@ func (l *Listener) processBlockEvents(currentBlock int64) error {
 
 	for _, txResult := range results.TxsResults {
 		for _, e := range txResult.Events {
-			err := l.processStringEvents(types.StringifyEvent(e), currentBlock)
+			stringEvent, err := client.ParseBase64Event(e)
+			if err != nil {
+				return err
+			}
+			err = l.processStringEvents(stringEvent, currentBlock)
 			if err != nil {
 				return err
 			}
