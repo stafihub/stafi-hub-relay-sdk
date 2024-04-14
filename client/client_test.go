@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"math/big"
+	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -14,9 +15,12 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	xStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	proto "github.com/cosmos/gogoproto/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stafihub/rtoken-relay-core/common/log"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	stafiHubXLedgerTypes "github.com/stafihub/stafihub/x/ledger/types"
 	stafiHubXRValidatorTypes "github.com/stafihub/stafihub/x/rvalidator/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -457,4 +461,18 @@ func TestQuerySignInfos(t *testing.T) {
 		}
 
 	}
+}
+
+func TestTypes(t *testing.T) {
+	x0 := (*stafiHubXLedgerTypes.MsgRegisterIcaPool)(nil)
+	tt0 := reflect.TypeOf(x0)
+	t.Log(tt0, "type", proto.MessageName(x0))
+
+	x1 := (*stafiHubXLedgerTypes.MsgRedeemTokensForShares)(nil)
+	tt1 := reflect.TypeOf(x1)
+	t.Log(tt1, "type", proto.MessageName(x1))
+
+	x2 := (*xStakingTypes.MsgRedeemTokensForShares)(nil)
+	tt2 := reflect.TypeOf(x2)
+	t.Log(tt2, "type", proto.MessageName(x2))
 }

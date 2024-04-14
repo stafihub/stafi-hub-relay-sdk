@@ -6,11 +6,12 @@ require (
 	cosmossdk.io/math v1.3.0
 	github.com/cometbft/cometbft v0.37.4
 	github.com/cosmos/cosmos-sdk v0.47.10
+	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.2.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stafihub/rtoken-relay-core/common v0.0.0-20240313012321-b5320f24936e
-	github.com/stafihub/stafihub v0.5.1-cometbft-0.2.1
+	github.com/stafihub/stafihub v0.5.1-cometbft-0.2.2
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.60.1
 )
@@ -51,7 +52,6 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/cosmos/iavl v0.20.1 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.4 // indirect
@@ -187,7 +187,7 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
-	github.com/cosmos/cosmos-sdk => github.com/stafihub/cosmos-sdk v0.47.10-ics-lsm-stafihub-0.0.1
+	github.com/cosmos/cosmos-sdk => github.com/stafihub/cosmos-sdk v0.47.10-ics-lsm-stafihub-0.0.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+
 )

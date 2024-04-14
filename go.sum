@@ -209,8 +209,8 @@ github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4/go.mod h1:hN
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQcITbvhmL4+C4cKA87NW0tfm3Kl9VXRoPywFg=
-github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
+github.com/ChainSafe/go-schnorrkel v1.0.0 h1:3aDA67lAykLaG1y3AOjs88dMxC88PgUuHRrLeDnvGIM=
+github.com/ChainSafe/go-schnorrkel v1.0.0/go.mod h1:dpzHYVxLZcp8pjlV+O+UR8K0Hp/z7vcchBSbMBEhCw4=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
@@ -921,12 +921,12 @@ github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An
 github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DMA2s=
 github.com/spf13/viper v1.16.0 h1:rGGH0XDZhdUOryiDWjmIvUSWpbNqisK8Wk0Vyefw8hc=
 github.com/spf13/viper v1.16.0/go.mod h1:yg78JgCJcbrQOvV9YLXgkLaZqUidkY9K+Dd1FofRzQg=
-github.com/stafihub/cosmos-sdk v0.47.10-ics-lsm-stafihub-0.0.1 h1:wVU19KA90792eCmxQoKESqGLhrrhj0hUfpaQKwelqHc=
-github.com/stafihub/cosmos-sdk v0.47.10-ics-lsm-stafihub-0.0.1/go.mod h1:7lymTBqaezjxtEnVMwBNx0rXcOMoP49NUpYugIrjyus=
+github.com/stafihub/cosmos-sdk v0.47.10-ics-lsm-stafihub-0.0.2 h1:yxTj82cjkPZNPkuykbDga576ZOdVeqJRI8uXCIduRMw=
+github.com/stafihub/cosmos-sdk v0.47.10-ics-lsm-stafihub-0.0.2/go.mod h1:7lymTBqaezjxtEnVMwBNx0rXcOMoP49NUpYugIrjyus=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20240313012321-b5320f24936e h1:dEnBtbhfQmmuzPXU8fkdo1DxRwhio38glL31+2fM6ao=
 github.com/stafihub/rtoken-relay-core/common v0.0.0-20240313012321-b5320f24936e/go.mod h1:JtgoyNxSUiUTtNdNBd5w4KK7KESMCHDhkgePO8qqn94=
-github.com/stafihub/stafihub v0.5.1-cometbft-0.2.1 h1:RNemQsc7BjW3LHz7Mad7P7Casmg12yzwiFZmWBXQbh4=
-github.com/stafihub/stafihub v0.5.1-cometbft-0.2.1/go.mod h1:sDaqqE7jwswmFTxhBAI0A2hv/o4iRcYonNH06G7iado=
+github.com/stafihub/stafihub v0.5.1-cometbft-0.2.2 h1:h9UHMeF7miznZquqlgyCH227mI9LJ7ApiADLDkGJR4s=
+github.com/stafihub/stafihub v0.5.1-cometbft-0.2.2/go.mod h1:sDaqqE7jwswmFTxhBAI0A2hv/o4iRcYonNH06G7iado=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/handy v0.0.0-20190108123426-d5acb3125c2a/go.mod h1:qNTQ5P5JnDBl6z3cMAg/SywNDC5ABu5ApDIw6lUbRmI=
